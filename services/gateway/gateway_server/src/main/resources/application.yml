@@ -4,12 +4,15 @@ spring:
     gateway:
       routes:
         - id: route1
-          uri: http://localhost:8081
+          uri: http://localhost:8000
           predicates:
-            - Path=/backend
+            - Path=/test/**
           filters:
-            - name: RequestRateLimiter
+            - name: ApiRateLimiter
               args:
-                redis-rate-limiter.replenishRate: 500
-                redis-rate-limiter.burstCapacity: 1000
-                redis-rate-limiter.requestedTokens: 1
+                keyResolver: "#{@apiKeyResolver}"
+                rateLimiter: "#{@apiKeyRateLimiter}"
+                requestedTokens: 100
+                notAllowedStatus: TOO_MANY_REQUESTS
+                denyEmptyKey: true
+                emptyKeyStatus: UNAUTHORIZED
