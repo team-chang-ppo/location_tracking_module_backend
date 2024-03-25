@@ -1,0 +1,18 @@
+#spring.application.name=gateway
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: route1
+          uri: http://localhost:8000
+          predicates:
+            - Path=/test/**
+          filters:
+            - name: ApiRateLimiter
+              args:
+                contextResolver: "#{@apiRateContextResolver}"
+                rateLimiter: "#{@apiKeyRateLimiter}"
+                requestedTokens: 100
+                notAllowedStatus: TOO_MANY_REQUESTS
+                denyEmptyKey: true
+                emptyKeyStatus: UNAUTHORIZED
