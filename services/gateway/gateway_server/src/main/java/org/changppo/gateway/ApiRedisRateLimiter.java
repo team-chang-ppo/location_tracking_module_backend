@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.changppo.gateway.context.ValidApiRateContext;
 import org.springframework.core.style.ToStringCreator;
 import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
 import org.springframework.data.redis.core.script.RedisScript;
@@ -75,7 +76,7 @@ public class ApiRedisRateLimiter implements ApiRateLimiter {
         // this allows for using redis cluster
 
         // Make a unique key per user.
-        String prefix = "request_rate_limiter.{" + id;
+        String prefix = "api_rate_limiter.{" + id;
 
         // You need two Redis keys for Token Bucket.
         String tokenKey = prefix + "}.tokens";
@@ -85,29 +86,24 @@ public class ApiRedisRateLimiter implements ApiRateLimiter {
 
 
     @Override
-    public Mono<Response> isAllowed(String routeId, String apiKey, Long requestedTokens) {
-        Mono<ApiRateContext> apiRateContext = rateContextResolver.resolve(routeId, apiKey);
-        return apiRateContext
-                .flatMap(rateContext -> {
-                    long replenishRate = rateContext.getReplenishRate();
-                    long burstCapacity = rateContext.getBurstCapacity();
+    public Mono<Response> isAllowed(String routeId, ValidApiRateContext apiRateContext, Long requestedTokens) {
+        long replenishRate = apiRateContext.replenishRate();
+        long burstCapacity = apiRateContext.burstCapacity();
+        String apiKey = apiRateContext.key();
 
-                    try {
-                        return tryAcquireToken(apiKey, replenishRate, burstCapacity, requestedTokens);
-                    } catch (Exception e) {
-                        // redis에 의해 single point of failure가 되지 않도록 그냥 로그만 남기고 통과
-                        log.error("Error determining if user allowed from redis", e);
-                        return Mono.just(new Response(false, true, getHeaders(replenishRate, burstCapacity, requestedTokens, -1L)));
-                    }
-                })
-                .switchIfEmpty(Mono.just(Response.API_KEY_NOT_FOUND));
-
+        try {
+            return tryAcquireToken(apiKey, replenishRate, burstCapacity, requestedTokens);
+        } catch (Exception e) {
+            // redis에 의해 single point of failure가 되지 않도록 그냥 로그만 남기고 통과
+            log.error("Error determining if user allowed from redis", e);
+            return Mono.just(new Response(true, getHeaders(replenishRate, burstCapacity, requestedTokens, -1L)));
+        }
     }
 
-    protected Mono<Response> tryAcquireToken(String apikey, long replenishRate, long burstCapacity, long requestedTokens) {
+    protected Mono<Response> tryAcquireToken(String key, long replenishRate, long burstCapacity, long requestedTokens) {
         long ttl = timeToLive(replenishRate, burstCapacity, requestedTokens);
         long now = Instant.now().getEpochSecond();
-        List<String> keys = getKeys(apikey);
+        List<String> keys = getKeys(key);
         List<String> scriptArgs = Arrays.asList(
                 String.valueOf(replenishRate), //ARGV[1]
                 String.valueOf(burstCapacity), //ARGV[2]
@@ -125,11 +121,10 @@ public class ApiRedisRateLimiter implements ApiRateLimiter {
                     longs.addAll(l);
                     return longs;
                 }).map(results -> {
-                    boolean apiKeyNotFound = false;
                     boolean allowed = results.get(0) == 1L;
                     Long tokensLeft = results.get(1);
 
-                    Response response = new Response(apiKeyNotFound, allowed, getHeaders(replenishRate, burstCapacity, requestedTokens, tokensLeft));
+                    Response response = new Response(allowed, getHeaders(replenishRate, burstCapacity, requestedTokens, tokensLeft));
 
                     if (log.isDebugEnabled()) {
                         log.debug("response: " + response);

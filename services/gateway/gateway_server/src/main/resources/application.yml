@@ -10,7 +10,7 @@ spring:
           filters:
             - name: ApiRateLimiter
               args:
-                keyResolver: "#{@apiKeyResolver}"
+                contextResolver: "#{@apiRateContextResolver}"
                 rateLimiter: "#{@apiKeyRateLimiter}"
                 requestedTokens: 100
                 notAllowedStatus: TOO_MANY_REQUESTS
