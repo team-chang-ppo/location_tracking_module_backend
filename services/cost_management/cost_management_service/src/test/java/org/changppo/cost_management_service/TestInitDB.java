@@ -12,7 +12,9 @@ import org.changppo.cost_management_service.repository.member.MemberRepository;
 import org.changppo.cost_management_service.repository.member.RoleRepository;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,15 +27,18 @@ public class TestInitDB {
     private final MemberRepository memberRepository;
 
     @Getter
-    private final String member1 = "member1";
+    private final String adminName = "kakao_0000";
     @Getter
-    private final String member2 = "member2";
+    private final String member1Name = "kakao_1234";
     @Getter
-    private final String member3 = "member3";
+    private final String member2Name = "kakao_2345";
+    @Getter
+    private final String member3Name = "kakao_3456";
 
     @Transactional
     public void initDB() {
         initRole();
+        initTestAdmin();
         initTestMember();
     }
 
@@ -43,25 +48,37 @@ public class TestInitDB {
         );
     }
 
+    private void initTestAdmin() {
+        Role adminRole = roleRepository.findByRoleType(RoleType.ROLE_ADMIN).orElseThrow(RoleNotFoundException::new);
+        Role normalRole = roleRepository.findByRoleType(RoleType.ROLE_NORMAL).orElseThrow(RoleNotFoundException::new);
+        Member adminMember = Member.builder()
+                .name(adminName)
+                .username("admin")
+                .profileImage("adminProfileImage")
+                .roles(new HashSet<>(Arrays.asList(adminRole, normalRole)))
+                .build();
+        memberRepository.save(adminMember);
+    }
+
     private void initTestMember() {
         Role normalRole = roleRepository.findByRoleType(RoleType.ROLE_NORMAL).orElseThrow(RoleNotFoundException::new);
         memberRepository.saveAll(
                 List.of(
                         Member.builder()
-                                .name(member1)
-                                .username(member1)
+                                .name(member1Name)
+                                .username("member1")
                                 .profileImage("profileImage1")
                                 .roles(Collections.singleton(normalRole))
                                 .build(),
                         Member.builder()
-                                .name(member2)
-                                .username(member2)
+                                .name(member2Name)
+                                .username("member2")
                                 .profileImage("profileImage2")
                                 .roles(Collections.singleton(normalRole))
                                 .build(),
                         Member.builder()
-                                .name(member3)
-                                .username(member3)
+                                .name(member3Name)
+                                .username("member3")
                                 .profileImage("profileImage3")
                                 .roles(Collections.singleton(normalRole))
                                 .build()

@@ -1,19 +1,16 @@
 package org.changppo.cost_management_service.service.member;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Service
+@RequiredArgsConstructor
 public class KakaoOAuth2Service implements OAuth2Service {
 
     private final RestTemplate restTemplate;
-
-    public KakaoOAuth2Service(RestTemplateBuilder restTemplateBuilder) {
-        this.restTemplate = restTemplateBuilder.build();
-    }
 
     @Value("${kakao.admin.key}")
     private String kakaoAdminKey;
