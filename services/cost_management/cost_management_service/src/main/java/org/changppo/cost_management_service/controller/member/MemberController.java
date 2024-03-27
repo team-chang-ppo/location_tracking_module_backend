@@ -18,14 +18,14 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    @GetMapping("/api/members/{id}")
+    @GetMapping("/api/members/v1/{id}")
     public ResponseEntity<Response> read(@PathVariable(name = "id") Long id) {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(Response.success(memberService.read(id)));
     }
 
-    @DeleteMapping("/api/members/{id}")
+    @DeleteMapping("/api/members/v1/{id}")
     public ResponseEntity<Response> delete(@PathVariable(name = "id") Long id, HttpServletRequest request, HttpServletResponse response) {
         memberService.delete(id, request, response);
         return ResponseEntity

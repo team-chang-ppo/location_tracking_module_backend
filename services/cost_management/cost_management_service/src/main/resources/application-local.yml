@@ -1,8 +1,4 @@
 spring:
-  config:
-    import:
-      - security/application-db.yml
-      - security/application-oauth.yml
 
   datasource:
     driver-class-name: org.postgresql.Driver

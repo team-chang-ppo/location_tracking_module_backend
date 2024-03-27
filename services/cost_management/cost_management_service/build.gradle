@@ -30,14 +30,18 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	// Security
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+	// H2
+	runtimeOnly 'com.h2database:h2'
 	// PostgreSQL
 	implementation 'org.postgresql:postgresql'
 	// Lombok
 	implementation 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	// Test
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test' // Spring Boot Test
+	testImplementation 'org.springframework.security:spring-security-test' // Spring Security Test
+	testImplementation 'org.projectlombok:lombok' // Lombok for testing
+	testAnnotationProcessor 'org.projectlombok:lombok' // Lombok for testing
 }
 
 tasks.named('bootBuildImage') {

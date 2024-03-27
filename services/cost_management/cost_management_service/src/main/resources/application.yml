@@ -5,6 +5,11 @@ spring:
   profiles:
     default: local
 
+  config:
+    import:
+      - security/application-db.yml
+      - security/application-oauth.yml
+
   servlet:
     multipart:
       max-file-size: 5MB
