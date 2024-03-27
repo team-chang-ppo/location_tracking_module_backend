@@ -1,13 +1,15 @@
 package org.changppo.cost_management_service.security;
 
 import lombok.RequiredArgsConstructor;
+import org.changppo.cost_management_service.security.oauth.CustomLoginSuccessHandler;
+import org.changppo.cost_management_service.security.oauth.CustomLogoutSuccessHandler;
 import org.changppo.cost_management_service.security.oauth.CustomOAuth2UserService;
-import org.changppo.cost_management_service.security.oauth.CustomSuccessHandler;
 import org.changppo.cost_management_service.security.oauth.PreOAuth2AuthorizationRequestFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -23,6 +25,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
@@ -30,7 +33,8 @@ public class SecurityConfig {
     private final ClientRegistrationRepository clientRegistrationRepository;
     private final JdbcTemplate jdbcTemplate;
     private final CustomOAuth2UserService customOAuth2UserService;
-    private final CustomSuccessHandler customSuccessHandler;
+    private final CustomLoginSuccessHandler customLoginSuccessHandler;
+    private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -51,8 +55,15 @@ public class SecurityConfig {
                         .authorizedClientRepository(authorizedClientRepository())
                         .authorizedClientService(oAuth2AuthorizedClientService(jdbcTemplate, clientRegistrationRepository))
                         .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
-                        .userService(customOAuth2UserService))
-                        .successHandler(customSuccessHandler))
+                                            .userService(customOAuth2UserService))
+                        .successHandler(customLoginSuccessHandler))
+
+                .logout(logout -> logout
+                        .logoutUrl("/logout/oauth2")
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .deleteCookies("JSESSIONID")
+                        .logoutSuccessHandler(customLogoutSuccessHandler))
 
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/oauth2/**").permitAll()

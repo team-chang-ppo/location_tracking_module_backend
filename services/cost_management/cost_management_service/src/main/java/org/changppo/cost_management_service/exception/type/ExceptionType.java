@@ -10,8 +10,8 @@ public enum ExceptionType {
     BIND_EXCEPTION("bindException.code", "bindException.msg"),
     LOGIN_FAILURE_EXCEPTION("loginFailureException.code", "loginFailureException.msg"),
     MEMBER_NOT_FOUND_EXCEPTION("memberNotFoundException.code", "memberNotFoundException.msg"),
+    MEMBER_UNLINK_FAILURE_EXCEPTION("memberUnlinkFailureException.code", "memberUnlinkFailureException.msg"),
     ROLE_NOT_FOUND_EXCEPTION("roleNotFoundException.code", "roleNotFoundException.msg");
-
     private final String code;
     private final String message;
 

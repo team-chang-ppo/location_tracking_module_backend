@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.changppo.cost_management_service.exception.LoginFailureException;
 import org.changppo.cost_management_service.exception.MemberNotFoundException;
+import org.changppo.cost_management_service.exception.MemberUnlinkFailureException;
 import org.changppo.cost_management_service.exception.RoleNotFoundException;
 import org.changppo.cost_management_service.exception.response.ResponseHandler;
 import org.changppo.cost_management_service.response.Response;
@@ -60,6 +61,14 @@ public class ExceptionAdvice {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(responseHandler.getFailureResponse(MEMBER_NOT_FOUND_EXCEPTION));
+    }
+
+    @ExceptionHandler(MemberUnlinkFailureException.class)
+    public ResponseEntity<Response> memberUnlinkFailureException(Exception e) {
+        log.info("e = {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(responseHandler.getFailureResponse(MEMBER_UNLINK_FAILURE_EXCEPTION));
     }
 
     @ExceptionHandler(RoleNotFoundException.class)

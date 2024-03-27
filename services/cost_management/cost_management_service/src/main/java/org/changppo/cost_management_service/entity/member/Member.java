@@ -1,18 +1,21 @@
 package org.changppo.cost_management_service.entity.member;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.changppo.cost_management_service.entity.common.EntityDate;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLRestriction;
+
 import java.util.Set;
+
 import static java.util.stream.Collectors.toSet;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE member SET deleted = true WHERE member_id = ?")
-@SQLRestriction("deleted = false")
 public class Member extends EntityDate {
 
     @Id
@@ -47,5 +50,11 @@ public class Member extends EntityDate {
     public void update(String username, String profileImage) {
         this.username = username;
         this.profileImage = profileImage;
+    }
+
+    public void reactivate(String username, String profileImage) {
+        this.username = username;
+        this.profileImage = profileImage;
+        this.deleted = false;
     }
 }
