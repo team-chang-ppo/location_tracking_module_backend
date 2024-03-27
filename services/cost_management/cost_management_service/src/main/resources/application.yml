@@ -1,0 +1,30 @@
+server:
+  port: 8080
+
+spring:
+  profiles:
+    default: local
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
+  messages:
+    basename: i18n/exception,i18n/validation
+    fallback-to-system-locale: false
+
+management:
+  endpoints:
+    enabled-by-default: false
+    web:
+      exposure:
+        include: info, health
+    jmx:
+      exposure:
+        exclude: '*'
+  endpoint:
+    info:
+      enabled: true
+    health:
+      enabled: true

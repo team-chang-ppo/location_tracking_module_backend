@@ -1,0 +1,21 @@
+spring:
+  config:
+    import:
+      - security/application-db.yml
+      - security/application-oauth.yml
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${local-db.host}:${local-db.port}/${local-db.name}
+    username: ${local-db.username}
+    password: ${local-db.password}
+
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true            # SQL 보기 좋게 출력
+        highlight_sql: true         # SQL 색깔
+        hbm2ddl.auto: create
+        default_batch_fetch_size: 100
+    open-in-view: true
+    show-sql: true
