@@ -29,7 +29,7 @@ public class MemberService {
     private final List<OAuth2Service> oauth2Services;
 
     public MemberDto read(Long id) {
-        Member member = memberRepository.findById(id).orElseThrow(MemberNotFoundException::new);
+        Member member = memberRepository.findByIdWithRoles(id).orElseThrow(MemberNotFoundException::new);
         return new MemberDto(member.getId(),member.getName(), member.getUsername(), member.getProfileImage(),
                 member.getRoles().stream()
                 .map(memberRole -> memberRole.getRole().getRoleType())
