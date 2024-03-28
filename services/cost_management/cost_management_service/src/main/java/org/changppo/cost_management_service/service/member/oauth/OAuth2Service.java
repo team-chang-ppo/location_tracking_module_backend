@@ -1,4 +1,4 @@
-package org.changppo.cost_management_service.service.member;
+package org.changppo.cost_management_service.service.member.oauth;
 
 import java.io.IOException;
 

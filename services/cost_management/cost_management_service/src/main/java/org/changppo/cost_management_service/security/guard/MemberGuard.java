@@ -10,7 +10,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class MemberGuard extends Guard {
-    private final List<RoleType> roleTypes = List.of(RoleType.ROLE_ADMIN);
+    private static final List<RoleType> roleTypes = List.of(RoleType.ROLE_ADMIN);
 
     @Override
     protected List<RoleType> getRoleTypes() {

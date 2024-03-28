@@ -10,6 +10,7 @@ import org.changppo.cost_management_service.entity.member.Member;
 import org.changppo.cost_management_service.exception.MemberNotFoundException;
 import org.changppo.cost_management_service.exception.MemberUnlinkFailureException;
 import org.changppo.cost_management_service.repository.member.MemberRepository;
+import org.changppo.cost_management_service.service.member.oauth.OAuth2Service;
 import org.springframework.data.repository.query.Param;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
