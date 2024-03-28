@@ -12,9 +12,10 @@ public class Response {
     private boolean success;
     private String code;
     private Result result;
+    private static final Response EMPTY_SUCCESS_RESPONSE = new Response(true, "0", null);
 
         public static Response success() {
-            return new Response(true, "0",  null);
+            return EMPTY_SUCCESS_RESPONSE;
         }
 
         public static <T> Response success(T data) {
