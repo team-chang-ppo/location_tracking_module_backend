@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.changppo.cost_management_service.entity.common.EntityDate;
 import org.hibernate.annotations.SQLDelete;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
@@ -15,7 +16,7 @@ import static java.util.stream.Collectors.toSet;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE member SET deleted = true WHERE member_id = ?")
+@SQLDelete(sql = "UPDATE member SET deleted_at = CURRENT_TIMESTAMP WHERE member_id = ?")
 public class Member extends EntityDate {
 
     @Id
@@ -35,8 +36,8 @@ public class Member extends EntityDate {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL , orphanRemoval = true)
     private Set<MemberRole> roles;
 
-    @Column(nullable = false)
-    private boolean deleted;
+    @Column
+    private LocalDateTime deletedAt;
 
     @Builder
     public Member(String name, String username, String profileImage,  Set<Role> roles) {
@@ -44,7 +45,11 @@ public class Member extends EntityDate {
         this.username = username;
         this.profileImage = profileImage;
         this.roles = roles.stream().map(r -> new MemberRole(this, r)).collect(toSet());
-        this.deleted = false;
+        this.deletedAt = null;
+    }
+
+    public boolean isDeleted() {
+        return this.deletedAt != null;
     }
 
     public void update(String username, String profileImage) {
@@ -55,6 +60,6 @@ public class Member extends EntityDate {
     public void reactivate(String username, String profileImage) {
         this.username = username;
         this.profileImage = profileImage;
-        this.deleted = false;
+        this.deletedAt = null;
     }
 }
