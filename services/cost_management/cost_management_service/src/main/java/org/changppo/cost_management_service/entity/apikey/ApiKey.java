@@ -2,6 +2,7 @@ package org.changppo.cost_management_service.entity.apikey;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.changppo.cost_management_service.entity.common.EntityDate;
@@ -27,4 +28,11 @@ public class ApiKey extends EntityDate {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
+
+    @Builder
+    public ApiKey(String value, Grade grade, Member member) {
+        this.value = value;
+        this.grade = grade;
+        this.member = member;
+    }
 }

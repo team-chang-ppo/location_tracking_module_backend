@@ -2,10 +2,7 @@ package org.changppo.cost_management_service.exception.advice;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.changppo.cost_management_service.exception.LoginFailureException;
-import org.changppo.cost_management_service.exception.MemberNotFoundException;
-import org.changppo.cost_management_service.exception.MemberUnlinkFailureException;
-import org.changppo.cost_management_service.exception.RoleNotFoundException;
+import org.changppo.cost_management_service.exception.*;
 import org.changppo.cost_management_service.exception.response.ResponseHandler;
 import org.changppo.cost_management_service.response.Response;
 import org.springframework.http.HttpStatus;
@@ -14,6 +11,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
 import static org.changppo.cost_management_service.exception.type.ExceptionType.*;
 
 
@@ -75,5 +73,19 @@ public class ExceptionAdvice {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(responseHandler.getFailureResponse(ROLE_NOT_FOUND_EXCEPTION));
+    }
+
+    @ExceptionHandler(GradeNotFoundException.class)
+    public ResponseEntity<Response> gradeNotFoundException() {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(responseHandler.getFailureResponse(GRADE_NOT_FOUND_EXCEPTION));
+    }
+
+    @ExceptionHandler(ApiKeyNotFoundException.class)
+    public ResponseEntity<Response> apiKeyNotFoundException() {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(responseHandler.getFailureResponse(APIKEY_NOT_FOUND_EXCEPTION));
     }
 }

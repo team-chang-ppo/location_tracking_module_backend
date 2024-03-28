@@ -28,6 +28,7 @@ public class InitData {
     @Transactional
     public void initData() {
         initRole();
+        initGrade();
     }
 
     private void initRole() {
