@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ApiKeyCreateRequest {
-    @Null
+    @Null(message = "{apiKeyCreateRequest.memberId.null}")
     private Long memberId;
 }

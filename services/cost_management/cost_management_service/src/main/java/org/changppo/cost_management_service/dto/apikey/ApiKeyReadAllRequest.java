@@ -18,6 +18,6 @@ public class ApiKeyReadAllRequest {
     @Positive(message = "{apiKeyReadRequest.size.positive}")
     private Integer size;
 
-    @Null
+    @Null(message = "{apiKeyReadRequest.memberId.null}")
     private Long memberId;
 }
