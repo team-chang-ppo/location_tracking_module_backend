@@ -7,8 +7,10 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.changppo.tracking.config.JwtProperties;
 import org.changppo.tracking.domain.TrackingContext;
 import org.changppo.tracking.jwt.filter.JwtAuthenticationToken;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -27,11 +29,8 @@ public class TokenProvider implements AuthenticationProvider {
     private static final long MILLI_SECOND = 1000L;
     private static final String AUTHORITY = "Authority";
 
-    @Value("${jwt.secret-key}")
-    private String secretKey;
-
-    @Value("${jwt.expiry-seconds.access-token}")
-    private Long accessTokenExpirySeconds;
+    @Autowired
+    private JwtProperties jwtProperties;
 
     public String createToken(TrackingContext context) {
         Claims claims = Jwts.claims().setSubject(context.trackingId());
@@ -40,15 +39,15 @@ public class TokenProvider implements AuthenticationProvider {
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + accessTokenExpirySeconds*MILLI_SECOND))
-                .signWith(Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)), SignatureAlgorithm.HS256)
+                .setExpiration(new Date(now.getTime() + jwtProperties.getTokenExpirySeconds()*MILLI_SECOND))
+                .signWith(Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8)), SignatureAlgorithm.HS256)
                 .compact();
     }
 
     public TrackingContext parseToken(String token) {
         try {
             Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)))
+                    .setSigningKey(Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8)))
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
