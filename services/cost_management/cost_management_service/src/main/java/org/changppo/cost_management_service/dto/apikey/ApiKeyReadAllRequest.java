@@ -11,8 +11,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ApiKeyReadAllRequest {
-    @Positive(message = "{apiKeyReadAllRequest.lastApiKeyId.positive}")
-    private Long lastApiKeyId = Long.MAX_VALUE;
+    @NotNull(message = "{apiKeyReadAllRequest.firstApiKeyId.notNull}")
+    @Positive(message = "{apiKeyReadAllRequest.firstApiKeyId.positive}")
+    private Long firstApiKeyId;
 
     @NotNull(message = "{apiKeyReadAllRequest.size.notNull}")
     @Positive(message = "{apiKeyReadAllRequest.size.positive}")

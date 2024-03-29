@@ -80,7 +80,7 @@ public class ApiKeyService {
     }
 
     public ApiKeyListDto readAll(ApiKeyReadAllRequest req){
-        Slice<ApiKeyDto> slice = apiKeyRepository.findAllByMemberIdOrderByAsc(req.getMemberId(), req.getLastApiKeyId(), Pageable.ofSize(req.getSize()));
+        Slice<ApiKeyDto> slice = apiKeyRepository.findAllByMemberIdOrderByAsc(req.getMemberId(), req.getFirstApiKeyId(), Pageable.ofSize(req.getSize()));
         return new ApiKeyListDto(slice.getNumberOfElements(), slice.hasNext(), slice.getContent());
     }
 
