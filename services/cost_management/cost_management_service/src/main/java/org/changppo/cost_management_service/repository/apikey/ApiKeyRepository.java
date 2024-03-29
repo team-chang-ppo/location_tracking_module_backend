@@ -12,6 +12,9 @@ import java.util.Optional;
 
 public interface ApiKeyRepository extends JpaRepository<ApiKey, Long> {
 
+    @Query("select a from ApiKey a join fetch a.member where a.id = :id")
+    Optional<ApiKey> findByIdWithMember(@Param("id") Long id);
+
     @Query("select a from ApiKey a join fetch a.grade where a.id = :id")
     Optional<ApiKey> findByIdWithGrade(@Param("id") Long id);
 
@@ -19,4 +22,6 @@ public interface ApiKeyRepository extends JpaRepository<ApiKey, Long> {
             "from ApiKey a where a.member.id = :memberId and a.id < :lastApiKeyId " +
             "order by a.id asc")
     Slice<ApiKeyDto> findAllByMemberIdOrderByAsc(@Param("memberId") Long memberId, @Param("lastApiKeyId") Long lastApiKeyId, Pageable pageable);
+
+    void deleteAllByMemberId(Long memberId);
 }

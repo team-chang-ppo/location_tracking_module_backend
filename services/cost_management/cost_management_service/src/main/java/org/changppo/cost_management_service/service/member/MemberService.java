@@ -9,6 +9,7 @@ import org.changppo.cost_management_service.dto.member.MemberDto;
 import org.changppo.cost_management_service.entity.member.Member;
 import org.changppo.cost_management_service.exception.MemberNotFoundException;
 import org.changppo.cost_management_service.exception.MemberUnlinkFailureException;
+import org.changppo.cost_management_service.repository.apikey.ApiKeyRepository;
 import org.changppo.cost_management_service.repository.member.MemberRepository;
 import org.changppo.cost_management_service.service.member.oauth.OAuth2Service;
 import org.springframework.data.repository.query.Param;
@@ -27,6 +28,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final List<OAuth2Service> oauth2Services;
+    private final ApiKeyRepository apiKeyRepository;
 
     public MemberDto read(Long id) {
         Member member = memberRepository.findByIdWithRoles(id).orElseThrow(MemberNotFoundException::new);
@@ -47,6 +49,7 @@ public class MemberService {
         }
         deleteSession(request);
         deleteCookie(response);
+        deleteMemberApiKeys(member.getId());
         memberRepository.delete(member);
     }
 
@@ -79,5 +82,9 @@ public class MemberService {
         cookie.setPath("/");
         // refreshCookie.setSecure(true);
         response.addCookie(cookie);
+    }
+
+    private void deleteMemberApiKeys(Long memberId) {
+        apiKeyRepository.deleteAllByMemberId(memberId);
     }
 }
