@@ -2,12 +2,13 @@ package org.changppo.cost_management_service.security.guard;
 
 import lombok.RequiredArgsConstructor;
 import org.changppo.cost_management_service.entity.apikey.ApiKey;
-import org.changppo.cost_management_service.entity.member.Member;
 import org.changppo.cost_management_service.entity.member.RoleType;
+import org.changppo.cost_management_service.exception.ApiKeyNotFoundException;
 import org.changppo.cost_management_service.repository.apikey.ApiKeyRepository;
 import org.changppo.cost_management_service.security.PrincipalHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Component
@@ -25,10 +26,7 @@ public class ApiKeyGuard extends Guard{
 
     @Override
     protected boolean isResourceOwner(Long id) {
-        return apiKeyRepository.findById(id)
-                .map(ApiKey::getMember)
-                .map(Member::getId)
-                .filter(memberId -> memberId.equals(PrincipalHandler.extractId()))
-                .isPresent();
+        ApiKey apiKey = apiKeyRepository.findByIdWithMember(id).orElseThrow(ApiKeyNotFoundException::new);
+        return apiKey.getMember().getId().equals(PrincipalHandler.extractId());
     }
 }
