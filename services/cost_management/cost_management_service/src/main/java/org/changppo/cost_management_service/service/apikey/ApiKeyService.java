@@ -15,6 +15,8 @@ import org.changppo.cost_management_service.exception.MemberNotFoundException;
 import org.changppo.cost_management_service.repository.apikey.ApiKeyRepository;
 import org.changppo.cost_management_service.repository.apikey.GradeRepository;
 import org.changppo.cost_management_service.repository.member.MemberRepository;
+import org.changppo.cost_management_service.service.apikey.token.JwtHandler;
+import org.changppo.cost_management_service.service.apikey.token.TokenClaims;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.repository.query.Param;
@@ -31,17 +33,19 @@ public class ApiKeyService {
     private final ApiKeyRepository apiKeyRepository;
     private final GradeRepository gradeRepository;
     private final MemberRepository memberRepository;
+    private final JwtHandler jwtHandler;
 
     @Transactional
     public ApiKeyDto createFreeKey(ApiKeyCreateRequest req) {
         Member member = memberRepository.findById(req.getMemberId()).orElseThrow(MemberNotFoundException::new);
         Grade grade = gradeRepository.findByGradeType(GradeType.GRADE_FREE).orElseThrow(GradeNotFoundException::new);
         ApiKey apiKey = ApiKey.builder()
-                .value(generateUniqueKeyValue())
+                .value(generateTemporaryValue())
                 .grade(grade)
                 .member(member)
                 .build();
         apiKey = apiKeyRepository.save(apiKey);
+        apiKey.updateValue(generateTokenValue(apiKey));
         return new ApiKeyDto(apiKey.getId(), apiKey.getValue(), apiKey.getGrade().getGradeType(), apiKey.getCreatedAt());
     }
 
@@ -50,16 +54,21 @@ public class ApiKeyService {
         Member member = memberRepository.findById(req.getMemberId()).orElseThrow(MemberNotFoundException::new);
         Grade grade = gradeRepository.findByGradeType(GradeType.GRADE_CLASSIC).orElseThrow(GradeNotFoundException::new);
         ApiKey apiKey = ApiKey.builder()
-                .value(generateUniqueKeyValue())
+                .value(generateTemporaryValue())
                 .grade(grade)
                 .member(member)
                 .build();
         apiKey = apiKeyRepository.save(apiKey);
+        apiKey.updateValue(generateTokenValue(apiKey));
         return new ApiKeyDto(apiKey.getId(), apiKey.getValue(), apiKey.getGrade().getGradeType(), apiKey.getCreatedAt());
     }
 
-    private String generateUniqueKeyValue() {
+    private String generateTemporaryValue() {
         return UUID.randomUUID().toString();
+    }
+
+    private String generateTokenValue(ApiKey apiKey) {
+        return jwtHandler.createToken(new TokenClaims(apiKey.getId(), apiKey.getMember().getId(), apiKey.getGrade().getGradeType().name()));
     }
 
     @PreAuthorize("@apiKeyGuard.check(#id)")
@@ -69,7 +78,7 @@ public class ApiKeyService {
     }
 
     public ApiKeyListDto readAll(ApiKeyReadAllRequest req){
-        Slice<ApiKeyDto> slice = apiKeyRepository.findAllByMemberIdOrderByApiKeyIdDesc(req.getMemberId(), req.getLastApiKeyId(), Pageable.ofSize(req.getSize()));
+        Slice<ApiKeyDto> slice = apiKeyRepository.findAllByMemberIdOrderByAsc(req.getMemberId(), req.getLastApiKeyId(), Pageable.ofSize(req.getSize()));
         return new ApiKeyListDto(slice.getNumberOfElements(), slice.hasNext(), slice.getContent());
     }
 

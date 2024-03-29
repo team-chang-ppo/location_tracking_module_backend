@@ -35,4 +35,8 @@ public class ApiKey extends EntityDate {
         this.grade = grade;
         this.member = member;
     }
+
+    public void updateValue(String value){
+        this.value = value;
+    }
 }

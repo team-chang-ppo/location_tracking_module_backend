@@ -21,7 +21,7 @@ public class ApiKeyController {
 
     @AssignMemberId
     @PostMapping("/createFreeKey")
-    public ResponseEntity<Response> createFreeKey(@Valid ApiKeyCreateRequest req) {
+    public ResponseEntity<Response> createFreeKey(@Valid @RequestBody ApiKeyCreateRequest req) {
         ApiKeyDto apiKeyDto = apiKeyService.createFreeKey(req);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -30,7 +30,7 @@ public class ApiKeyController {
 
     @AssignMemberId
     @PostMapping("/createClassicKey")
-    public ResponseEntity<Response> createClassicKey(@Valid ApiKeyCreateRequest req) {
+    public ResponseEntity<Response> createClassicKey(@Valid @RequestBody ApiKeyCreateRequest req) {
         ApiKeyDto apiKeyDto = apiKeyService.createClassicKey(req);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -45,6 +45,7 @@ public class ApiKeyController {
                 .body(Response.success(apiKeyDto));
     }
 
+    @AssignMemberId
     @GetMapping("")
     public ResponseEntity<Response> readAll(@Valid @ModelAttribute ApiKeyReadAllRequest request) {
         return ResponseEntity

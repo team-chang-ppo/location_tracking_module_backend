@@ -11,13 +11,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ApiKeyReadAllRequest {
-    @Positive(message = "{apiKeyReadRequest.lastApiKeyId.positive}")
+    @Positive(message = "{apiKeyReadAllRequest.lastApiKeyId.positive}")
     private Long lastApiKeyId = Long.MAX_VALUE;
 
-    @NotNull(message = "{apiKeyReadRequest.size.notNull}")
-    @Positive(message = "{apiKeyReadRequest.size.positive}")
+    @NotNull(message = "{apiKeyReadAllRequest.size.notNull}")
+    @Positive(message = "{apiKeyReadAllRequest.size.positive}")
     private Integer size;
 
-    @Null(message = "{apiKeyReadRequest.memberId.null}")
+    @Null(message = "{apiKeyReadAllRequest.memberId.null}")
     private Long memberId;
 }
