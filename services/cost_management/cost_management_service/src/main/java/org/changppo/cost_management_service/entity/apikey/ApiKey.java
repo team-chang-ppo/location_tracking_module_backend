@@ -37,15 +37,23 @@ public class ApiKey extends EntityDate {
     @Column
     private LocalDateTime deletedAt;
 
+    @Column
+    private LocalDateTime bannedAt;
+
     @Builder
     public ApiKey(String value, Grade grade, Member member) {
         this.value = value;
         this.grade = grade;
         this.member = member;
         this.deletedAt = null;
+        this.bannedAt = null;
     }
 
     public void updateValue(String value){
         this.value = value;
+    }
+
+    public boolean isBanned() {
+        return this.bannedAt != null;
     }
 }

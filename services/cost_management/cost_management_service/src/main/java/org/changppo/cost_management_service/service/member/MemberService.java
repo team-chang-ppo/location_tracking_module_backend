@@ -35,11 +35,11 @@ public class MemberService {
         return new MemberDto(member.getId(),member.getName(), member.getUsername(), member.getProfileImage(),
                 member.getRoles().stream()
                 .map(memberRole -> memberRole.getRole().getRoleType())
-                .collect(Collectors.toSet()), member.getCreatedAt());
+                .collect(Collectors.toSet()), member.getBannedAt(), member.getCreatedAt());
     }
 
     @Transactional
-    @PreAuthorize("@memberGuard.check(#id)")
+    @PreAuthorize("@memberAccessEvaluator.check(#id) and @memberStatusEvaluator.check(#id)")
     public void delete(@Param("id")Long id, HttpServletRequest request, HttpServletResponse response) {
         Member member = memberRepository.findById(id).orElseThrow(MemberNotFoundException::new);
         try {

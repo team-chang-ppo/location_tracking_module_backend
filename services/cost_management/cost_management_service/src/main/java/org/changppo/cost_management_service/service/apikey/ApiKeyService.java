@@ -36,7 +36,8 @@ public class ApiKeyService {
     private final JwtHandler jwtHandler;
 
     @Transactional
-    public ApiKeyDto createFreeKey(ApiKeyCreateRequest req) {
+    @PreAuthorize("@memberStatusEvaluator.check(#req.memberId)")
+    public ApiKeyDto createFreeKey(@Param("req") ApiKeyCreateRequest req) {
         Member member = memberRepository.findById(req.getMemberId()).orElseThrow(MemberNotFoundException::new);
         Grade grade = gradeRepository.findByGradeType(GradeType.GRADE_FREE).orElseThrow(GradeNotFoundException::new);
         ApiKey apiKey = ApiKey.builder()
@@ -46,11 +47,12 @@ public class ApiKeyService {
                 .build();
         apiKey = apiKeyRepository.save(apiKey);
         apiKey.updateValue(generateTokenValue(apiKey));
-        return new ApiKeyDto(apiKey.getId(), apiKey.getValue(), apiKey.getGrade().getGradeType(), apiKey.getCreatedAt());
+        return new ApiKeyDto(apiKey.getId(), apiKey.getValue(), apiKey.getGrade().getGradeType(), apiKey.getBannedAt(), apiKey.getCreatedAt());
     }
 
     @Transactional
-    public ApiKeyDto createClassicKey(ApiKeyCreateRequest req) {
+    @PreAuthorize("@memberStatusEvaluator.check(#req.memberId)")
+    public ApiKeyDto createClassicKey(@Param("req") ApiKeyCreateRequest req) {
         Member member = memberRepository.findById(req.getMemberId()).orElseThrow(MemberNotFoundException::new);
         Grade grade = gradeRepository.findByGradeType(GradeType.GRADE_CLASSIC).orElseThrow(GradeNotFoundException::new);
         ApiKey apiKey = ApiKey.builder()
@@ -60,7 +62,7 @@ public class ApiKeyService {
                 .build();
         apiKey = apiKeyRepository.save(apiKey);
         apiKey.updateValue(generateTokenValue(apiKey));
-        return new ApiKeyDto(apiKey.getId(), apiKey.getValue(), apiKey.getGrade().getGradeType(), apiKey.getCreatedAt());
+        return new ApiKeyDto(apiKey.getId(), apiKey.getValue(), apiKey.getGrade().getGradeType(), apiKey.getBannedAt(), apiKey.getCreatedAt());
     }
 
     private String generateTemporaryValue() {
@@ -71,10 +73,10 @@ public class ApiKeyService {
         return jwtHandler.createToken(new TokenClaims(apiKey.getId(), apiKey.getMember().getId(), apiKey.getGrade().getGradeType().name()));
     }
 
-    @PreAuthorize("@apiKeyGuard.check(#id)")
+    @PreAuthorize("@apiKeyAccessEvaluator.check(#id)")
     public ApiKeyDto read(@Param("id")Long id) {
         ApiKey apiKey = apiKeyRepository.findByIdWithGrade(id).orElseThrow(ApiKeyNotFoundException::new);
-        return new ApiKeyDto(apiKey.getId(), apiKey.getValue(), apiKey.getGrade().getGradeType(), apiKey.getCreatedAt());
+        return new ApiKeyDto(apiKey.getId(), apiKey.getValue(), apiKey.getGrade().getGradeType(), apiKey.getBannedAt(), apiKey.getCreatedAt());
     }
 
     public ApiKeyListDto readAll(ApiKeyReadAllRequest req){
@@ -83,7 +85,7 @@ public class ApiKeyService {
     }
 
     @Transactional
-    @PreAuthorize("@apiKeyGuard.check(#id)")
+    @PreAuthorize("@apiKeyAccessEvaluator.check(#id) and @apiKeyStatusEvaluator.check(#id) and @memberStatusEvaluator.check(0)")
     public void delete(@Param("id")Long id) {
         ApiKey apiKey = apiKeyRepository.findById(id).orElseThrow(ApiKeyNotFoundException::new);
         apiKeyRepository.delete(apiKey);

@@ -39,6 +39,9 @@ public class Member extends EntityDate {
     @Column
     private LocalDateTime deletedAt;
 
+    @Column
+    private LocalDateTime bannedAt;
+
     @Builder
     public Member(String name, String username, String profileImage,  Set<Role> roles) {
         this.name = name;
@@ -46,10 +49,15 @@ public class Member extends EntityDate {
         this.profileImage = profileImage;
         this.roles = roles.stream().map(r -> new MemberRole(this, r)).collect(toSet());
         this.deletedAt = null;
+        this.bannedAt = null;
     }
 
     public boolean isDeleted() {
         return this.deletedAt != null;
+    }
+
+    public boolean isBanned() {
+        return this.bannedAt != null;
     }
 
     public void update(String username, String profileImage) {
