@@ -35,7 +35,7 @@ public record JwtAuthentication(
 
     @Override
     public Object getPrincipal() {
-        return trackingId;
+        return new TrackingContext(trackingId, authority);
     }
 
     @Override

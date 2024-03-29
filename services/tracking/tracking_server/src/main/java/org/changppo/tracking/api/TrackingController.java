@@ -5,9 +5,10 @@ import org.changppo.tracking.api.request.ConnectRequest;
 import org.changppo.tracking.api.request.TrackingRequest;
 import org.changppo.tracking.api.response.ConnectResponse;
 import org.changppo.tracking.api.response.TrackingResponse;
+import org.changppo.tracking.domain.TrackingContext;
 import org.changppo.tracking.service.TrackingService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -37,13 +38,13 @@ public class TrackingController {
      * 존재 하지 않는 tracking 404
      * 종료 처리된 tracking 400
      * @param request TrackingRequest
-     * @param authentication Authentication
+     * @param context TrackingContext
      * @return TODO 반환처리
      */
     @PostMapping("/tracking")
     public ResponseEntity<Void> tracking(@RequestBody TrackingRequest request,
-                                         Authentication authentication) {
-        trackingService.tracking(request, authentication.getName());
+                                         @AuthenticationPrincipal TrackingContext context) {
+        trackingService.tracking(request, context.trackingId());
 
         return ResponseEntity.ok().build();
     }
@@ -52,12 +53,12 @@ public class TrackingController {
      * tracking 종료 API
      * 존재 하지 않는 tracking 404
      * 종료 처리된 tracking 400
-     * @param authentication Authentication
+     * @param context TrackingContext
      * @return TODO 반환처리
      */
     @DeleteMapping("/tracking")
-    public ResponseEntity<Void> finish(Authentication authentication) {
-        trackingService.finish(authentication.getName());
+    public ResponseEntity<Void> finish(@AuthenticationPrincipal TrackingContext context) {
+        trackingService.finish(context.trackingId());
 
         return ResponseEntity.ok().build();
     }
@@ -66,12 +67,12 @@ public class TrackingController {
      * tracking 요청 API - 가장 최근 좌표 1개를 반환
      * 존재 하지 않는 tracking 404
      * 종료 처리된 tracking 400
-     * @param authentication Authentication
+     * @param context TrackingContext
      * @return TrackingResponse
      */
     @GetMapping("/tracking")
-    public ResponseEntity<TrackingResponse> getTracking(Authentication authentication) {
-        TrackingResponse response = trackingService.getTracking(authentication.getName());
+    public ResponseEntity<TrackingResponse> getTracking(@AuthenticationPrincipal TrackingContext context) {
+        TrackingResponse response = trackingService.getTracking(context.trackingId());
 
         return ResponseEntity.ok().body(response);
     }
