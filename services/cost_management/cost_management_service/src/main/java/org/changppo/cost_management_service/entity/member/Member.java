@@ -33,7 +33,7 @@ public class Member extends EntityDate {
     @Column(nullable = false)
     private String profileImage;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL , orphanRemoval = true)
+    @OneToMany(mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     private Set<MemberRole> roles;
 
     @Column
