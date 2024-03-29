@@ -1,5 +1,6 @@
 package org.changppo.tracking.api.request;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.changppo.tracking.domain.Tracking;
 import org.springframework.data.geo.Point;
@@ -7,6 +8,7 @@ import org.springframework.data.geo.Point;
 import java.time.LocalDateTime;
 
 @Getter
+@AllArgsConstructor
 public class ConnectRequest {
 
     private String identifier;

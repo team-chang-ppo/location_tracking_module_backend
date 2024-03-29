@@ -1,12 +1,16 @@
 package org.changppo.tracking.api.request;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.changppo.tracking.domain.Coordinates;
 import org.springframework.data.geo.Point;
 
 import java.time.LocalDateTime;
 
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class TrackingRequest {
     private Point locations;
 
