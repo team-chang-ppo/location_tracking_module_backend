@@ -5,6 +5,7 @@ import org.changppo.cost_management_service.TestInitDB;
 import org.changppo.cost_management_service.dto.apikey.ApiKeyCreateRequest;
 import org.changppo.cost_management_service.dto.apikey.ApiKeyReadAllRequest;
 import org.changppo.cost_management_service.entity.apikey.ApiKey;
+import org.changppo.cost_management_service.entity.apikey.GradeType;
 import org.changppo.cost_management_service.entity.member.Member;
 import org.changppo.cost_management_service.exception.ApiKeyNotFoundException;
 import org.changppo.cost_management_service.exception.MemberNotFoundException;
@@ -20,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
@@ -27,8 +29,12 @@ import org.springframework.web.context.WebApplicationContext;
 import static org.changppo.cost_management_service.builder.apikey.ApiKeyRequestBuilder.buildApiKeyCreateRequest;
 import static org.changppo.cost_management_service.builder.apikey.ApiKeyRequestBuilder.buildApiKeyReadAllRequest;
 import static org.changppo.cost_management_service.builder.member.CustomOAuth2UserBuilder.buildCustomOAuth2User;
+import static org.changppo.cost_management_service.builder.response.JsonResponseBuilder.buildJsonResponse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -82,13 +88,26 @@ public class ApiKeyControllerIntegrationTest {
         // given
         ApiKeyCreateRequest req = buildApiKeyCreateRequest(null);
 
-        // when, then
-        mockMvc.perform(
-                post("/api/apikeys/v1/createFreeKey")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req))
-                        .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
-                .andExpect(status().isCreated());
+        // when
+        MvcResult result = mockMvc.perform(
+                            post("/api/apikeys/v1/createFreeKey")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(req))
+                                    .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
+                            .andExpect(status().isCreated())
+                            .andExpect(jsonPath("$.result.data.id").exists())
+                            .andExpect(jsonPath("$.result.data.value").exists())
+                            .andExpect(jsonPath("$.result.data.grade").value(GradeType.GRADE_FREE.name()))
+                            .andExpect(jsonPath("$.result.data.bannedAt").isEmpty())
+                            .andExpect(jsonPath("$.result.data.createdAt").exists())
+                            .andReturn();
+
+        Long id =  buildJsonResponse(result).getLongValue("result", "data", "id");
+        ApiKey apiKey = apiKeyRepository.findById(id).orElseThrow(ApiKeyNotFoundException::new);
+
+        // then
+        assertEquals(id, apiKey.getId());
+        assertEquals(GradeType.GRADE_FREE, apiKey.getGrade().getGradeType());
     }
 
     @Test
@@ -125,12 +144,25 @@ public class ApiKeyControllerIntegrationTest {
         ApiKeyCreateRequest req = buildApiKeyCreateRequest(null);
 
         // when, then
-        mockMvc.perform(
-                post("/api/apikeys/v1/createClassicKey")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req))
-                        .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2NormalMember)))
-                .andExpect(status().isCreated());
+        MvcResult result = mockMvc.perform(
+                            post("/api/apikeys/v1/createClassicKey")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(req))
+                                    .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2NormalMember)))
+                            .andExpect(status().isCreated())
+                            .andExpect(jsonPath("$.result.data.id").exists())
+                            .andExpect(jsonPath("$.result.data.value").exists())
+                            .andExpect(jsonPath("$.result.data.grade").value(GradeType.GRADE_CLASSIC.name()))
+                            .andExpect(jsonPath("$.result.data.bannedAt").isEmpty())
+                            .andExpect(jsonPath("$.result.data.createdAt").exists())
+                            .andReturn();
+
+        Long id =  buildJsonResponse(result).getLongValue("result", "data", "id");
+        ApiKey apiKey = apiKeyRepository.findById(id).orElseThrow(ApiKeyNotFoundException::new);
+
+        // then
+        assertEquals(id, apiKey.getId());
+        assertEquals(GradeType.GRADE_CLASSIC, apiKey.getGrade().getGradeType());
     }
 
     @Test
@@ -167,7 +199,12 @@ public class ApiKeyControllerIntegrationTest {
         mockMvc.perform(
                 get("/api/apikeys/v1/{id}", freeApiKey.getId())
                         .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.data.id").value(freeApiKey.getId()))
+                .andExpect(jsonPath("$.result.data.value").value(freeApiKey.getValue()))
+                .andExpect(jsonPath("$.result.data.grade").value(freeApiKey.getGrade().getGradeType().name()))
+                .andExpect(jsonPath("$.result.data.bannedAt").isEmpty())
+                .andExpect(jsonPath("$.result.data.createdAt").exists());
     }
 
     @Test
@@ -176,7 +213,12 @@ public class ApiKeyControllerIntegrationTest {
         mockMvc.perform(
                 get("/api/apikeys/v1/{id}", freeApiKey.getId())
                         .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2AdminMember)))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.data.id").value(freeApiKey.getId()))
+                .andExpect(jsonPath("$.result.data.value").value(freeApiKey.getValue()))
+                .andExpect(jsonPath("$.result.data.grade").value(freeApiKey.getGrade().getGradeType().name()))
+                .andExpect(jsonPath("$.result.data.bannedAt").isEmpty())
+                .andExpect(jsonPath("$.result.data.createdAt").exists());
     }
 
     @Test
@@ -245,11 +287,14 @@ public class ApiKeyControllerIntegrationTest {
 
     @Test
     void deleteTest() throws Exception {
-        // given, when, then
+        // given, when
         mockMvc.perform(
                 delete("/api/apikeys/v1/{id}", freeApiKey.getId())
                         .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
                 .andExpect(status().isOk());
+
+        // then
+        assertTrue(apiKeyRepository.findById(freeApiKey.getId()).isEmpty());
     }
 
     @Test
@@ -259,6 +304,9 @@ public class ApiKeyControllerIntegrationTest {
                 delete("/api/apikeys/v1/{id}", freeApiKey.getId())
                         .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2AdminMember)))
                 .andExpect(status().isOk());
+
+        // then
+        assertTrue(apiKeyRepository.findById(freeApiKey.getId()).isEmpty());
     }
 
     @Test

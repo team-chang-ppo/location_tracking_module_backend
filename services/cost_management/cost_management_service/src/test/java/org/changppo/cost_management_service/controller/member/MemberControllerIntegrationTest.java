@@ -2,6 +2,7 @@ package org.changppo.cost_management_service.controller.member;
 
 import org.changppo.cost_management_service.TestInitDB;
 import org.changppo.cost_management_service.entity.member.Member;
+import org.changppo.cost_management_service.entity.member.RoleType;
 import org.changppo.cost_management_service.exception.MemberNotFoundException;
 import org.changppo.cost_management_service.repository.member.MemberRepository;
 import org.changppo.cost_management_service.security.oauth.CustomOAuth2User;
@@ -21,12 +22,14 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.changppo.cost_management_service.builder.member.CustomOAuth2UserBuilder.buildCustomOAuth2User;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -73,7 +76,14 @@ class MemberControllerIntegrationTest {
         // given, when, then
         mockMvc.perform(
                         get("/api/members/v1/{id}", freeMember.getId()))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.data.id").value(freeMember.getId()))
+                .andExpect(jsonPath("$.result.data.name").value(freeMember.getName()))
+                .andExpect(jsonPath("$.result.data.username").value(freeMember.getUsername()))
+                .andExpect(jsonPath("$.result.data.profileImage").value(freeMember.getProfileImage()))
+                .andExpect(jsonPath("$.result.data.roles").value(RoleType.ROLE_FREE.name()))
+                .andExpect(jsonPath("$.result.data.bannedAt").isEmpty())
+                .andExpect(jsonPath("$.result.data.createdAt").exists());
     }
 
     @Test
@@ -83,11 +93,15 @@ class MemberControllerIntegrationTest {
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess());
 
-        // when, then
+        // when
         mockMvc.perform(
                         delete("/api/members/v1/{id}", freeMember.getId())
                                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
                 .andExpect(status().isOk());
+
+        // then
+        assertTrue(memberRepository.findById(freeMember.getId()).isEmpty());
+
     }
 
     @Test
@@ -97,11 +111,14 @@ class MemberControllerIntegrationTest {
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess());
 
-        // when, then
+        // when
         mockMvc.perform(
-                        delete("/api/members/v1/{id}", adminMember.getId())
+                        delete("/api/members/v1/{id}", freeMember.getId())
                                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2AdminMember)))
                 .andExpect(status().isOk());
+
+        // then
+        assertTrue(memberRepository.findById(freeMember.getId()).isEmpty());
     }
 
     @Test
