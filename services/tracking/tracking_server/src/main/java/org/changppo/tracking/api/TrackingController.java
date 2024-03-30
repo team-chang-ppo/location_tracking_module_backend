@@ -1,5 +1,6 @@
 package org.changppo.tracking.api;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.changppo.tracking.api.request.ConnectRequest;
 import org.changppo.tracking.api.request.TrackingRequest;
@@ -26,7 +27,7 @@ public class TrackingController {
      * @return response ConnectResponse
      */
     @PostMapping("/connect")
-    public ResponseEntity<ConnectResponse> connect(@RequestBody ConnectRequest request) {
+    public ResponseEntity<ConnectResponse> connect(@RequestBody @Valid ConnectRequest request) {
         ConnectResponse response = trackingService.connect(request);
 
         return ResponseEntity.ok().body(response);
@@ -42,7 +43,7 @@ public class TrackingController {
      * @return TODO 반환처리
      */
     @PostMapping("/tracking")
-    public ResponseEntity<Void> tracking(@RequestBody TrackingRequest request,
+    public ResponseEntity<Void> tracking(@RequestBody @Valid TrackingRequest request,
                                          @AuthenticationPrincipal TrackingContext context) {
         trackingService.tracking(request, context.trackingId());
 
