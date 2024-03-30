@@ -194,6 +194,20 @@ public class ApiKeyControllerIntegrationTest {
     }
 
     @Test
+    void createClassicKeyAccessDeniedByFreeMemberTest() throws Exception {
+        // given
+        ApiKeyCreateRequest req = buildApiKeyCreateRequest(null);
+
+        // when, then
+        mockMvc.perform(
+                        post("/api/apikeys/v1/createClassicKey")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(req))
+                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     void readTest() throws Exception{
         // given, when, then
         mockMvc.perform(
