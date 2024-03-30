@@ -23,7 +23,7 @@ public class ApiKey extends EntityDate {
     @Column(name = "api_key_id")
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(name = "`value`", unique = true, nullable = false)
     private String value;
 
     @ManyToOne(fetch = FetchType.LAZY)
