@@ -60,7 +60,7 @@ public class Member extends EntityDate {
         return this.bannedAt != null;
     }
 
-    public void update(String username, String profileImage) {
+    public void updateInfo(String username, String profileImage) {
         this.username = username;
         this.profileImage = profileImage;
     }
@@ -69,5 +69,13 @@ public class Member extends EntityDate {
         this.username = username;
         this.profileImage = profileImage;
         this.deletedAt = null;
+    }
+
+    public void ban() {
+        this.bannedAt = LocalDateTime.now();
+    }
+
+    public void unban() {
+        this.bannedAt = null;
     }
 }

@@ -49,11 +49,23 @@ public class ApiKey extends EntityDate {
         this.bannedAt = null;
     }
 
-    public void updateValue(String value){
-        this.value = value;
+    public boolean isDeleted() {
+        return this.deletedAt != null;
     }
 
     public boolean isBanned() {
         return this.bannedAt != null;
+    }
+
+    public void updateValue(String value){
+        this.value = value;
+    }
+
+    public void ban() {
+        this.bannedAt = LocalDateTime.now();
+    }
+
+    public void unban() {
+        this.bannedAt = null;
     }
 }

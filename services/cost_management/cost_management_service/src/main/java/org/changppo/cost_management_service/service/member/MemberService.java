@@ -84,7 +84,7 @@ public class MemberService {
         response.addCookie(cookie);
     }
 
-    private void deleteMemberApiKeys(Long memberId) {
-        apiKeyRepository.deleteAllByMemberId(memberId);
+    private void deleteMemberApiKeys(Long id) {
+        apiKeyRepository.deleteAllByMemberId(id);
     }
 }

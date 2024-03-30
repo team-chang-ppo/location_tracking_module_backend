@@ -19,9 +19,11 @@ public interface ApiKeyRepository extends JpaRepository<ApiKey, Long> {
     Optional<ApiKey> findByIdWithGrade(@Param("id") Long id);
 
     @Query("select new org.changppo.cost_management_service.dto.apikey.ApiKeyDto(a.id, a.value, a.grade.gradeType, a.bannedAt, a.createdAt) " +
-            "from ApiKey a where a.member.id = :memberId and a.id >= :lastApiKeyId " +
+            "from ApiKey a where a.member.id = :id and a.id >= :firstApiKeyId " +
             "order by a.id asc")
-    Slice<ApiKeyDto> findAllByMemberIdOrderByAsc(@Param("memberId") Long memberId, @Param("lastApiKeyId") Long lastApiKeyId, Pageable pageable);
+    Slice<ApiKeyDto> findAllByMemberIdOrderByAsc(@Param("id") Long id, @Param("firstApiKeyId") Long firstApiKeyId, Pageable pageable);
 
-    void deleteAllByMemberId(Long memberId);
+    void deleteAllByMemberId(Long id);
+
+    Optional<ApiKey> findByValue(String value);
 }

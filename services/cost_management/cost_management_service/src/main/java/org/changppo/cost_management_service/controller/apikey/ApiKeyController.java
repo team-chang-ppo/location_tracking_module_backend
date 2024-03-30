@@ -47,10 +47,10 @@ public class ApiKeyController {
 
     @AssignMemberId
     @GetMapping("")
-    public ResponseEntity<Response> readAll(@Valid @ModelAttribute ApiKeyReadAllRequest request) {
+    public ResponseEntity<Response> readAll(@Valid @ModelAttribute ApiKeyReadAllRequest req) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(Response.success(apiKeyService.readAll(request)));
+                .body(Response.success(apiKeyService.readAll(req)));
     }
 
     @DeleteMapping("/{id}")
