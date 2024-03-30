@@ -1,4 +1,4 @@
-package org.changppo.gateway.context;
+package org.changppo.gateway.ratelimit.context;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

@@ -1,8 +1,9 @@
-package org.changppo.gateway;
+package org.changppo.gateway.ratelimit;
 
-import org.changppo.gateway.context.AbsentApiRateContext;
-import org.changppo.gateway.context.ApiRateContext;
-import org.changppo.gateway.context.ValidApiRateContext;
+import org.changppo.gateway.apikey.ApiKey;
+import org.changppo.gateway.ratelimit.context.AbsentApiRateContext;
+import org.changppo.gateway.ratelimit.context.ApiRateContext;
+import org.changppo.gateway.ratelimit.context.ValidApiRateContext;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
@@ -15,15 +16,13 @@ public class MockApiRateContextResolver implements ApiRateContextResolver {
 
     @Override
     public Mono<ApiRateContext> resolve(ServerWebExchange exchange) {
-        String apiKey = exchange.getRequest().getHeaders().getFirst(GatewayConstant.API_KEY_HEADER);
-        return resolve(apiKey);
-    }
-
-    protected Mono<ApiRateContext> resolve(String apiKey) {
-        if (apiKey == null) {
+        Object attribute = exchange.getAttribute(ApiKey.class.getName());
+        if (attribute == null) {
             return Mono.just(ABSENT_API_RATE_CONTEXT);
         }
         // 실제 상황에서는 fetching 과 검증이 일어나야함
         return Mono.just(VALID_API_RATE_CONTEXT_FOR_MOCKED_TEST);
+
+
     }
 }

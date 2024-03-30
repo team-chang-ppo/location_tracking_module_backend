@@ -1,10 +1,10 @@
-package org.changppo.gateway;
+package org.changppo.gateway.ratelimit;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.changppo.gateway.context.ValidApiRateContext;
+import org.changppo.gateway.ratelimit.context.ValidApiRateContext;
 import org.springframework.core.style.ToStringCreator;
 import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
 import org.springframework.data.redis.core.script.RedisScript;

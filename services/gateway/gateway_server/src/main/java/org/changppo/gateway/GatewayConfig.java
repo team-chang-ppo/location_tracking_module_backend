@@ -1,19 +1,52 @@
 package org.changppo.gateway;
 
+import org.changppo.gateway.apikey.*;
+import org.changppo.gateway.metering.ApiMeteringGatewayFilterFactory;
+import org.changppo.gateway.ratelimit.*;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.scripting.support.ResourceScriptSource;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
 @Configuration
-public class RateLimiterConfig {
+public class GatewayConfig {
+
+    @Bean
+    public ApiKeyResolver apiKeyResolver(JwtConfigurationProperty jwtConfigurationProperty) {
+        return new JwtBasedApiKeyResolver(jwtConfigurationProperty);
+    }
+
+    @Bean
+    public ApiKeyIdManager apiKeyIdManager() {
+        // TODO : 일단 화이트 리스트 API 나올때까지는 무조건 통과하도록
+        return (id) -> Mono.just(true);
+    }
+
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    @Bean
+    public ApiKeyResolverFilter apiKeyContextResolverFilter(
+            ApiKeyResolver apiKeyResolver,
+            ApiKeyIdManager apiKeyIdManager
+    ) {
+        return new ApiKeyResolverFilter(apiKeyResolver, apiKeyIdManager);
+    }
+
+    @Bean
+    public ApiMeteringGatewayFilterFactory apiMeteringGatewayFilterFactory(ReactiveRedisTemplate<String, String> redisTemplate) {
+        return new ApiMeteringGatewayFilterFactory(redisTemplate);
+    }
+
     @Bean("apiKeyRateLimiter")
     @Primary
     @SuppressWarnings("unchecked")
@@ -34,7 +67,7 @@ public class RateLimiterConfig {
 
     @Bean
     public ApiRateLimiterGatewayFilterFactory requestRateLimiterGatewayFilterFactory(ApiRateLimiter rateLimiter,
-                                                                                         ApiRateContextResolver resolver) {
+                                                                                     ApiRateContextResolver resolver) {
         return new ApiRateLimiterGatewayFilterFactory(rateLimiter, resolver);
     }
 
@@ -51,4 +84,5 @@ public class RateLimiterConfig {
         redisScript.setResultType(List.class);
         return redisScript;
     }
+
 }
