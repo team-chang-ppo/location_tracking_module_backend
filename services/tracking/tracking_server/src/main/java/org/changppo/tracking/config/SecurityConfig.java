@@ -1,7 +1,8 @@
 package org.changppo.tracking.config;
 
+import lombok.RequiredArgsConstructor;
 import org.changppo.tracking.jwt.CustomAccessDeniedHandler;
-import org.changppo.tracking.jwt.CustomAuthenticationEntryPoint;
+import org.changppo.tracking.jwt.JwtAuthenticationEntryPoint;
 import org.changppo.tracking.jwt.TokenProvider;
 import org.changppo.tracking.jwt.filter.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
@@ -11,11 +12,15 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+@RequiredArgsConstructor
 @Configuration
 public class SecurityConfig {
+
+    private final AuthenticationEntryPoint entryPoint;
 
     @Bean
     public SecurityFilterChain httpSecurity(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
@@ -30,7 +35,7 @@ public class SecurityConfig {
 
                 .addFilterBefore(new JwtAuthenticationFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(e -> e
-                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
+                        .authenticationEntryPoint(entryPoint)
                         .accessDeniedHandler(new CustomAccessDeniedHandler()));
 
         return http.build();

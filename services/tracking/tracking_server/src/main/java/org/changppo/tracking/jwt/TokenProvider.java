@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.changppo.tracking.config.JwtProperties;
 import org.changppo.tracking.domain.TrackingContext;
+import org.changppo.tracking.jwt.exception.JwtTokenExpiredException;
+import org.changppo.tracking.jwt.exception.JwtTokenInvalidException;
 import org.changppo.tracking.jwt.filter.JwtAuthenticationToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,11 +55,10 @@ public class TokenProvider implements AuthenticationProvider {
                     .getBody();
             return new TrackingContext(claims.getSubject(), (String) claims.get(AUTHORITY));
         } catch (ExpiredJwtException e) {
-            log.error("JWT({})가 만료되없습니다. 만료일: {}", token, e.getClaims().getExpiration());
+            throw new JwtTokenExpiredException(e);
         } catch (Exception e) {
-            log.error("JWT({})의 유효성(형식, 서명 등)이 올바르지 않습니다.", token);
+            throw new JwtTokenInvalidException(e);
         }
-        return null;
     }
 
 
@@ -68,12 +69,8 @@ public class TokenProvider implements AuthenticationProvider {
         if (tokenValue == null) {
             return null;
         }
-        try {
-            TrackingContext context = this.parseToken(tokenValue);
-            return new JwtAuthentication(context); // 인증된 토큰 반환
-        } catch (Exception e) {
-            throw new BadCredentialsException("인증된 토큰 생성 실패", e);
-        }
+        TrackingContext context = this.parseToken(tokenValue);
+        return new JwtAuthentication(context); // 인증된 토큰 반환
     }
 
     @Override
