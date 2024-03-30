@@ -1,6 +1,5 @@
 package org.changppo.tracking.service;
 
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.changppo.tracking.api.request.ConnectRequest;
@@ -11,13 +10,16 @@ import org.changppo.tracking.domain.Authority;
 import org.changppo.tracking.domain.Coordinates;
 import org.changppo.tracking.domain.Tracking;
 import org.changppo.tracking.domain.TrackingContext;
+import org.changppo.tracking.exception.CoordinatesNotFoundException;
+import org.changppo.tracking.exception.TrackingAlreadyExitedException;
+import org.changppo.tracking.exception.TrackingDuplicateException;
+import org.changppo.tracking.exception.TrackingNotFoundException;
 import org.changppo.tracking.jwt.TokenProvider;
 import org.changppo.tracking.repository.CoordinatesRepository;
 import org.changppo.tracking.repository.TrackingRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -35,7 +37,7 @@ public class TrackingService {
         try {
             trackingRepository.insert(tracking);
         } catch (Exception e) {
-            throw new RuntimeException("같은 정보가 존재"); // 409 error
+            throw new TrackingDuplicateException(); // 409 error
         }
 
         TrackingContext context = new TrackingContext(request.getIdentifier(), Authority.BASIC.name());
@@ -65,15 +67,15 @@ public class TrackingService {
         return coordinatesRepository.findByTrackingIdOrderByCreatedAtDesc(tracking.getId())
                 .stream().findFirst()
                 .map(TrackingResponse::new)
-                .orElseThrow(() -> new RuntimeException("Coordinates 값이 존재하지 않음."));
+                .orElseThrow(CoordinatesNotFoundException::new);
     }
 
     private Tracking checkTracking(String trackingId) {
         Tracking tracking = trackingRepository.findById(trackingId)
-                .orElseThrow(()->new RuntimeException("존재하지 않는 tracking 정보")); // 404 error
+                .orElseThrow(TrackingNotFoundException::new); // 404 error
 
         if(tracking.getEndedAt() != null) {
-            throw new RuntimeException("이미 종료된 tracking"); // 400 error
+            throw new TrackingAlreadyExitedException(); // 400 error
         }
         return tracking;
     }

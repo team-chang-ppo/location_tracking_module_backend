@@ -1,7 +1,7 @@
 package org.changppo.tracking.jwt.exception;
 
-import org.changppo.tracking.exception.BusinessException;
-import org.changppo.tracking.exception.ErrorCode;
+import org.changppo.tracking.exception.common.BusinessException;
+import org.changppo.tracking.exception.common.ErrorCode;
 
 public class JwtBusinessException extends BusinessException {
     public JwtBusinessException(ErrorCode errorCode) {

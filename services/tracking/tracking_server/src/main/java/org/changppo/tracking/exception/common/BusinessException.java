@@ -1,4 +1,4 @@
-package org.changppo.tracking.exception;
+package org.changppo.tracking.exception.common;
 
 import lombok.Getter;
 

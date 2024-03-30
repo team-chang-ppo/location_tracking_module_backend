@@ -1,6 +1,6 @@
 package org.changppo.tracking.jwt.exception;
 
-import org.changppo.tracking.exception.ErrorCode;
+import org.changppo.tracking.exception.common.ErrorCode;
 
 public class JwtNotExistException extends JwtBusinessException{
     public JwtNotExistException() {

@@ -1,10 +1,9 @@
-package org.changppo.tracking.exception;
+package org.changppo.tracking.exception.common;
 
 import lombok.*;
 import org.springframework.lang.Nullable;
 
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

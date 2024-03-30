@@ -1,4 +1,4 @@
-package org.changppo.tracking.exception;
+package org.changppo.tracking.exception.common;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +10,12 @@ public enum ErrorCode {
     INVALID_INPUT_VALUE(400, "COMMON_0001", "요청한 값이 올바르지 않습니다."),
     RESOURCE_NOT_FOUND(400, "COMMON_0002", "해당 리소스를 찾을 수 없습니다."),
     UNEXPECTED_SERVER_ERROR(500, "COMMON_0003", "예상치 못한 서버 에러가 발생했습니다."),
+
+    // tracking - coordinates
+    TRACKING_DUPLICATE(409,"TRACKING_0001","TRACKING 중복되는 정보가 있습니다."),
+    TRACKING_NOT_FOUND(404, "TRACKING_0002", "해당 TRACKING 정보가 존재하지 않습니다."),
+    TRACKING_ALREADY_EXITED(400, "TRACKING_0003", "해당 TRACKING은 이미 종료되었습니다."),
+    COORDINATES_NOT_FOUND(404, "TRACKING_0004", "해당 COORDINATES 정보가 존재하지 않습니다."),
 
     // jwt
     AUTHORIZED_FAILED(401,"SECURITY_0001","인증이 필요합니다."),
