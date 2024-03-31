@@ -1,5 +1,6 @@
 package org.changppo.gateway;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.changppo.gateway.apikey.*;
 import org.changppo.gateway.metering.ApiMeteringGatewayFilterFactory;
 import org.changppo.gateway.ratelimit.*;
@@ -43,8 +44,11 @@ public class GatewayConfig {
     }
 
     @Bean
-    public ApiMeteringGatewayFilterFactory apiMeteringGatewayFilterFactory(ReactiveRedisTemplate<String, String> redisTemplate) {
-        return new ApiMeteringGatewayFilterFactory(redisTemplate);
+    public ApiMeteringGatewayFilterFactory apiMeteringGatewayFilterFactory(
+            ReactiveRedisTemplate<String, String> redisTemplate,
+            ObjectMapper objectMapper
+    ) {
+        return new ApiMeteringGatewayFilterFactory(redisTemplate, objectMapper);
     }
 
     @Bean("apiKeyRateLimiter")
