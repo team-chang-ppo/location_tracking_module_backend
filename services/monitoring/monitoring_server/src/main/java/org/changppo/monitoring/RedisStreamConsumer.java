@@ -51,22 +51,29 @@ public class RedisStreamConsumer implements InitializingBean{
     // 없으면 5초간 backoff
     @Scheduled(fixedDelay = 5000)
     public void consume() {
-        List<String> items = redisTemplate.opsForList()
-                .rightPop(API_METERING_QUEUE_KEY, BATCH_SIZE);
+        long left = 1;
+        while (true) {
+            // 읽어온다.
+            List<String> items = redisTemplate.opsForList()
+                    .rightPop(API_METERING_QUEUE_KEY, BATCH_SIZE);
 
-        if (items == null || items.isEmpty()) {
-            return;
-        }
-
-        try {
-            log.debug("Consume Redis List");
-            long left = items.size();
-            while (left > 0) {
-                left = process(items);
+            // 비어있으면 끝
+            if (items == null || items.isEmpty()) {
+                break;
             }
-            return;
-        } catch (Exception e) {
-            handleFailure(e, items);
+
+            // 처리
+            try {
+                left = process(items);
+                // 남은게 없으면 끝
+                if (left == 0) {
+                    break;
+                }
+            } catch (Exception e) {
+                // 실패하면 다시 넣는다.
+                handleFailure(e, items);
+            }
+
         }
 
     }
