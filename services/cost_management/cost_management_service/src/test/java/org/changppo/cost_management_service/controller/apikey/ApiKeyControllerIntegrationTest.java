@@ -247,7 +247,8 @@ public class ApiKeyControllerIntegrationTest {
     @Test
     void readAllTest() throws Exception {
         // given
-        ApiKeyReadAllRequest req = buildApiKeyReadAllRequest(1L, 10, null);
+        ApiKeyReadAllRequest req = buildApiKeyReadAllRequest(1L, Integer.MAX_VALUE - 1, null);
+        long freeMemberApiKeyCount = apiKeyRepository.countByMemberId(freeMember.getId());
 
         // when, then
         mockMvc.perform(
@@ -255,7 +256,9 @@ public class ApiKeyControllerIntegrationTest {
                         .param("firstApiKeyId", req.getFirstApiKeyId().toString())
                         .param("size", req.getSize().toString())
                         .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.data.numberOfElements").value(freeMemberApiKeyCount))
+                .andExpect(jsonPath("$.result.data.hasNext").value(false));
     }
 
     @Test
@@ -280,6 +283,19 @@ public class ApiKeyControllerIntegrationTest {
         mockMvc.perform(
                         get("/api/apikeys/v1")
                                 .param("firstApiKeyId", req.getFirstApiKeyId().toString())
+                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void readAllBadRequestByMaxValueSizeTest() throws Exception {
+        // given
+        ApiKeyReadAllRequest req = buildApiKeyReadAllRequest(1L, Integer.MAX_VALUE, null);
+
+        // when, then
+        mockMvc.perform(
+                        get("/api/apikeys/v1")
+                                .param("size", req.getSize().toString())
                                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
                 .andExpect(status().isBadRequest());
     }

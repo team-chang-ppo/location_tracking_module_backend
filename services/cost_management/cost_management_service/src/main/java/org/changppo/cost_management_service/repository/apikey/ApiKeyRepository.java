@@ -26,4 +26,6 @@ public interface ApiKeyRepository extends JpaRepository<ApiKey, Long> {
     void deleteAllByMemberId(Long id);
 
     Optional<ApiKey> findByValue(String value);
+
+    long countByMemberId(Long id);
 }
