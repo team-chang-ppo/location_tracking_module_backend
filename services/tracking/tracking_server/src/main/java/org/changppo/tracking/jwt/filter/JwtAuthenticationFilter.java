@@ -28,20 +28,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if (!requestMatcher.matches(request)) {
+        if (!requestMatcher.matches(request)) { // 헤더에서 Authorization 필드 확인
             filterChain.doFilter(request, response);
             return;
         }
 
-        try {
-            String tokenValue = resolveToken(request).orElseThrow(JwtNotExistException::new);
-            JwtAuthenticationToken token = new JwtAuthenticationToken(tokenValue); // 인증되지 않은 토큰
-            Authentication authentication = this.authenticationManager.authenticate(token);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        } catch (RuntimeException e) {
-            log.error("JWT 로부터 인증정보를 만드는데 실패했습니다: {}", e.getMessage());
-            request.setAttribute("exception", e); // 발생한 exception 을 request 에 추가
-        }
+        String tokenValue = resolveToken(request).orElseThrow(JwtNotExistException::new);
+        JwtAuthenticationToken token = new JwtAuthenticationToken(tokenValue); // 인증되지 않은 토큰
+        Authentication authentication = this.authenticationManager.authenticate(token);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         filterChain.doFilter(request, response);
     }

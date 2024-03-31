@@ -1,10 +1,20 @@
 package org.changppo.tracking.jwt.exception;
 
+import lombok.Getter;
 import org.changppo.tracking.exception.common.ErrorCode;
+import org.springframework.security.core.AuthenticationException;
 
-public class JwtAuthenticationException extends JwtBusinessException{
-    public JwtAuthenticationException() {
-        super(ErrorCode.AUTHORIZED_FAILED);
+@Getter
+public class JwtAuthenticationException extends AuthenticationException {
+    private ErrorCode errorCode;
+
+    public JwtAuthenticationException(ErrorCode errorCode) {
+        super(errorCode.getMessage());
+        this.errorCode = errorCode;
     }
 
+    public JwtAuthenticationException(Throwable cause, ErrorCode errorCode) {
+        super(errorCode.getMessage(), cause);
+        this.errorCode = errorCode;
+    }
 }

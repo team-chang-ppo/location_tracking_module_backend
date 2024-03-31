@@ -2,7 +2,6 @@ package org.changppo.tracking.config;
 
 import lombok.RequiredArgsConstructor;
 import org.changppo.tracking.jwt.CustomAccessDeniedHandler;
-import org.changppo.tracking.jwt.JwtAuthenticationEntryPoint;
 import org.changppo.tracking.jwt.TokenProvider;
 import org.changppo.tracking.jwt.filter.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
@@ -14,7 +13,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
 
 @RequiredArgsConstructor
 @Configuration
@@ -33,7 +32,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/tracking/*/connect").permitAll()
                         .requestMatchers("/api/**").authenticated())
 
-                .addFilterBefore(new JwtAuthenticationFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(new JwtAuthenticationFilter(authenticationManager), ExceptionTranslationFilter.class)
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint(entryPoint)
                         .accessDeniedHandler(new CustomAccessDeniedHandler()));
@@ -49,4 +48,5 @@ public class SecurityConfig {
         providerManager.setEraseCredentialsAfterAuthentication(true);
         return providerManager;
     }
+
 }

@@ -2,7 +2,7 @@ package org.changppo.tracking.jwt.exception;
 
 import org.changppo.tracking.exception.common.ErrorCode;
 
-public class JwtTokenInvalidException extends JwtBusinessException{
+public class JwtTokenInvalidException extends JwtAuthenticationException {
     public JwtTokenInvalidException() {
         super(ErrorCode.JWT_INVALID);
     }
