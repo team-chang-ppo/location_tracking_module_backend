@@ -1,0 +1,8 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://root:root@localhost:27017/monitoring?authSource=admin
+  application:
+    name: monitoring
+server:
+  port: 8010
