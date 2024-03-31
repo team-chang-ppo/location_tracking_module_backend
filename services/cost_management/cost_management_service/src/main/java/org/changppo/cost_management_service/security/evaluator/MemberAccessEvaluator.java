@@ -1,4 +1,4 @@
-package org.changppo.cost_management_service.security.guard;
+package org.changppo.cost_management_service.security.evaluator;
 
 import lombok.RequiredArgsConstructor;
 import org.changppo.cost_management_service.entity.member.RoleType;
@@ -9,7 +9,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class MemberGuard extends Guard {
+public class MemberAccessEvaluator extends Evaluator {
     private static final List<RoleType> roleTypes = List.of(RoleType.ROLE_ADMIN);
 
     @Override
@@ -18,7 +18,7 @@ public class MemberGuard extends Guard {
     }
 
     @Override
-    protected boolean isResourceOwner(Long id) {
+    protected boolean isEligible(Long id) {
         return id.equals(PrincipalHandler.extractId());
     }
 }

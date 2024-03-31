@@ -68,6 +68,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/members/**").hasAnyRole("FREE", "NORMAL", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/apikeys/v1/createFreeKey").hasAnyRole("FREE", "NORMAL", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/apikeys/v1/createClassicKey").hasAnyRole("NORMAL", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/apikeys/**").hasAnyRole("FREE", "NORMAL", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/apikeys/**").hasAnyRole("FREE", "NORMAL", "ADMIN")
                         .requestMatchers(HttpMethod.GET).permitAll()
                         .anyRequest().hasAnyRole("ADMIN"));
 

@@ -42,7 +42,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     if (existingMember.isDeleted()) {
                         existingMember.reactivate(oAuth2Response.getName(), oAuth2Response.getProfileImage());
                     } else {
-                        existingMember.update(oAuth2Response.getName(), oAuth2Response.getProfileImage());
+                        existingMember.updateInfo(oAuth2Response.getName(), oAuth2Response.getProfileImage());
                     }
                     return existingMember;
                 })

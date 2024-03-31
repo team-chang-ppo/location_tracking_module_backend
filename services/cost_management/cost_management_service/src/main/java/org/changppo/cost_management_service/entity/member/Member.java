@@ -33,11 +33,14 @@ public class Member extends EntityDate {
     @Column(nullable = false)
     private String profileImage;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL , orphanRemoval = true)
+    @OneToMany(mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     private Set<MemberRole> roles;
 
     @Column
     private LocalDateTime deletedAt;
+
+    @Column
+    private LocalDateTime bannedAt;
 
     @Builder
     public Member(String name, String username, String profileImage,  Set<Role> roles) {
@@ -46,13 +49,18 @@ public class Member extends EntityDate {
         this.profileImage = profileImage;
         this.roles = roles.stream().map(r -> new MemberRole(this, r)).collect(toSet());
         this.deletedAt = null;
+        this.bannedAt = null;
     }
 
     public boolean isDeleted() {
         return this.deletedAt != null;
     }
 
-    public void update(String username, String profileImage) {
+    public boolean isBanned() {
+        return this.bannedAt != null;
+    }
+
+    public void updateInfo(String username, String profileImage) {
         this.username = username;
         this.profileImage = profileImage;
     }
@@ -61,5 +69,13 @@ public class Member extends EntityDate {
         this.username = username;
         this.profileImage = profileImage;
         this.deletedAt = null;
+    }
+
+    public void ban() {
+        this.bannedAt = LocalDateTime.now();
+    }
+
+    public void unban() {
+        this.bannedAt = null;
     }
 }

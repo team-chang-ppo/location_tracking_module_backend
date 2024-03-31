@@ -1,21 +1,18 @@
-package org.changppo.cost_management_service.dto.member;
+package org.changppo.cost_management_service.dto.apikey;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import org.changppo.cost_management_service.entity.member.RoleType;
+import lombok.Data;
+import org.changppo.cost_management_service.entity.apikey.GradeType;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
-@Getter
+@Data
 @AllArgsConstructor
-public class MemberDto {
+public class ApiKeyDto {
     private Long id;
-    private String name;
-    private String username;
-    private String profileImage;
-    private Set<RoleType> roles;
+    private String value;
+    private GradeType grade;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime bannedAt;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
