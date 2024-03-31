@@ -27,6 +27,6 @@ public class ApiKeyStatusEvaluator extends Evaluator {
     @Override
     public boolean isEligible(Long id) {
         ApiKey apiKey = apiKeyRepository.findById(id).orElseThrow(ApiKeyNotFoundException::new);
-        return apiKey.getBannedAt() == null;
+        return !apiKey.isBanned();
     }
 }

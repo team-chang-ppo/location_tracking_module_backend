@@ -85,7 +85,7 @@ public class ApiKeyService {
     }
 
     @Transactional
-    @PreAuthorize("@apiKeyAccessEvaluator.check(#id) and @apiKeyStatusEvaluator.check(#id) and @memberStatusEvaluator.check(0)")
+    @PreAuthorize("@apiKeyAccessEvaluator.check(#id) and @apiKeyStatusEvaluator.check(#id) and @memberStatusEvaluator.check(null)")
     public void delete(@Param("id")Long id) {
         ApiKey apiKey = apiKeyRepository.findById(id).orElseThrow(ApiKeyNotFoundException::new);
         apiKeyRepository.delete(apiKey);

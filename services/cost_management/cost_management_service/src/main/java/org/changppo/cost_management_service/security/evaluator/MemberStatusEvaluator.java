@@ -25,8 +25,8 @@ public class MemberStatusEvaluator extends Evaluator {
 
     @Override
     public boolean isEligible(Long id) {
-        id = id != 0 ? id : PrincipalHandler.extractId();
+        id = id != null ? id : PrincipalHandler.extractId();
         Member member = memberRepository.findById(id).orElseThrow(MemberNotFoundException::new);
-        return member.getBannedAt() == null;
+        return !member.isBanned();
     }
 }
