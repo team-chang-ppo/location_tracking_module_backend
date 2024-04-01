@@ -37,7 +37,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         OAuth2Response oAuth2Response = new KakaoResponse(oAuth2User.getAttributes());
         String name = oAuth2Response.getProvider() + "_" + oAuth2Response.getProviderId();
 
-        Member member = memberRepository.findByName(name)
+        Member member = memberRepository.findByNameIgnoringDeleted(name)
                 .map(existingMember -> {
                     if (existingMember.isDeleted()) {
                         existingMember.reactivate(oAuth2Response.getName(), oAuth2Response.getProfileImage());
