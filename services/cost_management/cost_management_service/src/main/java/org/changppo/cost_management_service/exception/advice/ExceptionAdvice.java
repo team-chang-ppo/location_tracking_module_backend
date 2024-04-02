@@ -88,4 +88,11 @@ public class ExceptionAdvice {
                 .status(HttpStatus.NOT_FOUND)
                 .body(responseHandler.getFailureResponse(APIKEY_NOT_FOUND_EXCEPTION));
     }
+
+    @ExceptionHandler(PaymentGatewayNotFoundException.class)
+    public ResponseEntity<Response> paymentGatewayNotFoundException() {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(responseHandler.getFailureResponse(PAYMENT_GATEWAY_NOT_FOUND_EXCEPTION));
+    }
 }
