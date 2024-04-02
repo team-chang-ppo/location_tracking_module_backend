@@ -2,6 +2,8 @@ package org.changppo.cost_management_service.exception.common;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.changppo.cost_management_service.exception.oauth2.OAuth2BusinessException;
+import org.changppo.cost_management_service.exception.paymentgateway.PaymentGatewayBusinessException;
 import org.changppo.cost_management_service.response.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -18,6 +20,32 @@ import static org.changppo.cost_management_service.exception.common.ExceptionTyp
 public class ExceptionAdvice {
 
     private final ResponseHandler responseHandler;
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<Response> businessException(BusinessException e) {
+        log.info("e = {}", e.getMessage());
+        ExceptionType exceptionType = e.getExceptionType();
+        return ResponseEntity.status(exceptionType.getStatus())
+                .body(responseHandler.getFailureResponse(exceptionType));
+    }
+
+    @ExceptionHandler(OAuth2BusinessException.class)
+    public ResponseEntity<Response> oauth2BusinessException(OAuth2BusinessException e) {
+        log.error("Payment gateway exception occurred: {}, Cause: {}", e.getMessage(), e.getCause() != null ? e.getCause().toString() : "No cause available");
+        // TODO. Admin에게 알림
+        return ResponseEntity
+                .status(e.getExceptionType().getStatus())
+                .body(responseHandler.getFailureResponse(e.getExceptionType()));
+    }
+
+    @ExceptionHandler(PaymentGatewayBusinessException.class)
+    public ResponseEntity<Response> paymentGatewayBusinessException(PaymentGatewayBusinessException e) {
+        log.error("Payment gateway exception occurred: {}, Cause: {}", e.getMessage(), e.getCause() != null ? e.getCause().toString() : "No cause available");
+        // TODO. Admin에게 알림
+        return ResponseEntity
+                .status(e.getExceptionType().getStatus())
+                .body(responseHandler.getFailureResponse(e.getExceptionType()));
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Response> exception(Exception e) {
@@ -39,13 +67,5 @@ public class ExceptionAdvice {
         return ResponseEntity
                 .status(BIND_EXCEPTION.getStatus())
                 .body(responseHandler.getFailureResponse(BIND_EXCEPTION, e.getBindingResult().getAllErrors().get(0).getDefaultMessage()));
-    }
-
-    @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<Response> handleBusinessException(BusinessException e) {
-        log.info("e = {}", e.getMessage());
-        ExceptionType exceptionType = e.getExceptionType();
-        return ResponseEntity.status(exceptionType.getStatus())
-                .body(responseHandler.getFailureResponse(exceptionType));
     }
 }

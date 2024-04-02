@@ -20,10 +20,14 @@ public class KakaoOAuth2Client implements OAuth2Client {
     private static final String KAKAO_UNLINK_URL = "https://kapi.kakao.com/v1/user/unlink";
     private static final String KAKAO_UNLINK_REQUEST_BODY_FORMAT = "target_id_type=user_id&target_id=%s";
     @Override
-    public void unlinkMember(String providerMemberId) {
-        HttpEntity<String> request = createRequest(providerMemberId);
+    public void unlink(String MemberId) {
+        try{
+        HttpEntity<String> request = createRequest(MemberId);
         ResponseEntity<String> response = restTemplate.exchange(KAKAO_UNLINK_URL, HttpMethod.POST, request, String.class);
         handleResponse(response);
+        } catch (Exception e) {
+            throw new KakaoOAuth2UnlinkFailureException(e);
+        }
     }
 
     private HttpEntity<String> createRequest(String providerMemberId) {
@@ -36,7 +40,7 @@ public class KakaoOAuth2Client implements OAuth2Client {
 
     private void handleResponse(ResponseEntity<String> response) {
         if (!response.getStatusCode().is2xxSuccessful()) {
-            throw new KakaoOAuth2UnlinkFailureException();
+            throw new RuntimeException("Failed to unlink Kakao account.");
         }
     }
 

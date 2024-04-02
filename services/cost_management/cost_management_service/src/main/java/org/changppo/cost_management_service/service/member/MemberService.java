@@ -55,12 +55,12 @@ public class MemberService {
             throw new MemberDeleteFailureException();
         }
         String provider = parts[0];
-        String providerMemberId = parts[1];
+        String MemberId = parts[1];
         oauth2Clients.stream()
                 .filter(service -> service.supports(provider))
                 .findFirst()
                 .orElseThrow(MemberDeleteFailureException::new)
-                .unlinkMember(providerMemberId);
+                .unlink(MemberId);
     }
 
     public void deleteSession(HttpServletRequest request){
