@@ -79,8 +79,9 @@ public class ApiKeyService {
         return new ApiKeyDto(apiKey.getId(), apiKey.getValue(), apiKey.getGrade().getGradeType(), apiKey.getBannedAt(), apiKey.getCreatedAt());
     }
 
-    public ApiKeyListDto readAll(ApiKeyReadAllRequest req){
-        Slice<ApiKeyDto> slice = apiKeyRepository.findAllByMemberIdOrderByAsc(req.getMemberId(), req.getFirstApiKeyId(), Pageable.ofSize(req.getSize()));
+    @PreAuthorize("@memberAccessEvaluator.check(#id)")
+    public ApiKeyListDto readAll(@Param("id")Long id, ApiKeyReadAllRequest req){
+        Slice<ApiKeyDto> slice = apiKeyRepository.findAllByMemberIdOrderByAsc(id, req.getFirstApiKeyId(), Pageable.ofSize(req.getSize()));
         return new ApiKeyListDto(slice.getNumberOfElements(), slice.hasNext(), slice.getContent());
     }
 

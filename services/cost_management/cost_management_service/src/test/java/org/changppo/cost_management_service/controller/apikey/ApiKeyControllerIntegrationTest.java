@@ -247,12 +247,12 @@ public class ApiKeyControllerIntegrationTest {
     @Test
     void readAllTest() throws Exception {
         // given
-        ApiKeyReadAllRequest req = buildApiKeyReadAllRequest(1L, Integer.MAX_VALUE - 1, null);
+        ApiKeyReadAllRequest req = buildApiKeyReadAllRequest(1L, Integer.MAX_VALUE - 1);
         long freeMemberApiKeyCount = apiKeyRepository.countByMemberId(freeMember.getId());
 
         // when, then
         mockMvc.perform(
-                get("/api/apikeys/v1")
+                get("/api/apikeys/v1/member/{id}", freeMember.getId())
                         .param("firstApiKeyId", req.getFirstApiKeyId().toString())
                         .param("size", req.getSize().toString())
                         .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
@@ -262,13 +262,28 @@ public class ApiKeyControllerIntegrationTest {
     }
 
     @Test
-    void readAllBadRequestByNullFirstApiKeyIdTest() throws Exception {
+    void readAllAccessDeniedByNotResourceOwnerTest() throws Exception{
         // given
-        ApiKeyReadAllRequest req = buildApiKeyReadAllRequest(null, 10, null);
+        ApiKeyReadAllRequest req = buildApiKeyReadAllRequest(1L, Integer.MAX_VALUE - 1);
 
         // when, then
         mockMvc.perform(
-                get("/api/apikeys/v1")
+                        get("/api/apikeys/v1/member/{id}", normalMember.getId())
+                                .param("firstApiKeyId", req.getFirstApiKeyId().toString())
+                                .param("size", req.getSize().toString())
+                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
+                .andExpect(status().isForbidden());
+    }
+
+
+    @Test
+    void readAllBadRequestByNullFirstApiKeyIdTest() throws Exception {
+        // given
+        ApiKeyReadAllRequest req = buildApiKeyReadAllRequest(null, 10);
+
+        // when, then
+        mockMvc.perform(
+                get("/api/apikeys/v1/member/{id}", freeMember.getId())
                         .param("size", req.getSize().toString())
                         .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
                 .andExpect(status().isBadRequest());
@@ -277,11 +292,11 @@ public class ApiKeyControllerIntegrationTest {
     @Test
     void readAllBadRequestByNullSizeTest() throws Exception {
         // given
-        ApiKeyReadAllRequest req = buildApiKeyReadAllRequest(1L, null, null);
+        ApiKeyReadAllRequest req = buildApiKeyReadAllRequest(1L, null);
 
         // when, then
         mockMvc.perform(
-                        get("/api/apikeys/v1")
+                        get("/api/apikeys/v1/member/{id}", freeMember.getId())
                                 .param("firstApiKeyId", req.getFirstApiKeyId().toString())
                                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
                 .andExpect(status().isBadRequest());
@@ -290,28 +305,13 @@ public class ApiKeyControllerIntegrationTest {
     @Test
     void readAllBadRequestByMaxValueSizeTest() throws Exception {
         // given
-        ApiKeyReadAllRequest req = buildApiKeyReadAllRequest(1L, Integer.MAX_VALUE, null);
+        ApiKeyReadAllRequest req = buildApiKeyReadAllRequest(1L, Integer.MAX_VALUE);
 
         // when, then
         mockMvc.perform(
-                        get("/api/apikeys/v1")
+                        get("/api/apikeys/v1/member/{id}", freeMember.getId())
                                 .param("size", req.getSize().toString())
                                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void readAllBadRequestByNonNullMemberIdTest() throws Exception {
-        // given
-        ApiKeyReadAllRequest req = buildApiKeyReadAllRequest(1L, 10, freeMember.getId());
-
-        // when, then
-        mockMvc.perform(
-                get("/api/apikeys/v1")
-                        .param("firstApiKeyId", req.getFirstApiKeyId().toString())
-                        .param("size", req.getSize().toString())
-                        .param("memberId", req.getMemberId().toString())
-                        .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
                 .andExpect(status().isBadRequest());
     }
 

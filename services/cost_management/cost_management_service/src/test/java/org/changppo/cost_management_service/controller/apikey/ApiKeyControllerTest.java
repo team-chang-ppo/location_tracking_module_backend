@@ -83,16 +83,17 @@ class ApiKeyControllerTest {
     @Test
     void readAllTest() throws Exception {
         // given
-        ApiKeyReadAllRequest req = buildApiKeyReadAllRequest(1L, 10, null);
+        Long id = 1L;
+        ApiKeyReadAllRequest req = buildApiKeyReadAllRequest(1L, 10);
 
         // when, then
         mockMvc.perform(
-                get("/api/apikeys/v1")
+                get("/api/apikeys/v1/member/{id}", id)
                         .param("firstApiKeyId", req.getFirstApiKeyId().toString())
                         .param("size", req.getSize().toString()))
                 .andExpect(status().isOk());
 
-        verify(apiKeyService).readAll(any(ApiKeyReadAllRequest.class));
+        verify(apiKeyService).readAll(eq(id), any(ApiKeyReadAllRequest.class));
     }
 
     @Test
