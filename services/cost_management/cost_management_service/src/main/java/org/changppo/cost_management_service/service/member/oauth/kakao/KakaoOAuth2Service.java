@@ -1,6 +1,8 @@
-package org.changppo.cost_management_service.service.member.oauth;
+package org.changppo.cost_management_service.service.member.oauth.kakao;
 
 import lombok.RequiredArgsConstructor;
+import org.changppo.cost_management_service.service.member.oauth.OAuth2Service;
+import org.changppo.cost_management_service.service.member.oauth.OAuthProperties;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -10,12 +12,12 @@ import org.springframework.web.client.RestTemplate;
 public class KakaoOAuth2Service implements OAuth2Service {
 
     private final RestTemplate restTemplate;
-    private final AdminKeyProperties adminKeyProperties;
+    private final OAuthProperties oauthProperties;
 
     @Override
     public void unlinkUser(String providerUserId) {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "KakaoAK " + adminKeyProperties.getKakao());
+        headers.add("Authorization", "KakaoAK " + oauthProperties.getKakao().getAdminKey());
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
         String body = "target_id_type=user_id&target_id=" + providerUserId;
