@@ -1,4 +1,4 @@
-package org.changppo.cost_management_service.security.oauth;
+package org.changppo.cost_management_service.security.oauth2;
 
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;

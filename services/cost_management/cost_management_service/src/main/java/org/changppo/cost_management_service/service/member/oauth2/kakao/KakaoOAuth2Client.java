@@ -1,7 +1,7 @@
 package org.changppo.cost_management_service.service.member.oauth2.kakao;
 
 import lombok.RequiredArgsConstructor;
-import org.changppo.cost_management_service.exception.MemberUnlinkFailureException;
+import org.changppo.cost_management_service.exception.oauth2.kakao.KakaoOAuth2UnlinkFailureException;
 import org.changppo.cost_management_service.service.member.oauth2.OAuth2Client;
 import org.changppo.cost_management_service.service.member.oauth2.OAuth2Properties;
 import org.springframework.http.*;
@@ -16,6 +16,7 @@ public class KakaoOAuth2Client implements OAuth2Client {
 
     private final RestTemplate restTemplate;
     private final OAuth2Properties oauth2Properties;
+    private static final String KAKAO_REGISTRATION_ID = "kakao";
     private static final String KAKAO_UNLINK_URL = "https://kapi.kakao.com/v1/user/unlink";
     private static final String KAKAO_UNLINK_REQUEST_BODY_FORMAT = "target_id_type=user_id&target_id=%s";
     @Override
@@ -35,12 +36,12 @@ public class KakaoOAuth2Client implements OAuth2Client {
 
     private void handleResponse(ResponseEntity<String> response) {
         if (!response.getStatusCode().is2xxSuccessful()) {
-            throw new MemberUnlinkFailureException("Failed to unlink Kakao member: " + response.getBody());
+            throw new KakaoOAuth2UnlinkFailureException();
         }
     }
 
     @Override
     public boolean supports(String provider) {
-        return "kakao".equalsIgnoreCase(provider);
+        return KAKAO_REGISTRATION_ID.equalsIgnoreCase(provider);
     }
 }

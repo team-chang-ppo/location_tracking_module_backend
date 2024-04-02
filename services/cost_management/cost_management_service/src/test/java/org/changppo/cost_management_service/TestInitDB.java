@@ -10,7 +10,7 @@ import org.changppo.cost_management_service.entity.apikey.GradeType;
 import org.changppo.cost_management_service.entity.member.Member;
 import org.changppo.cost_management_service.entity.member.Role;
 import org.changppo.cost_management_service.entity.member.RoleType;
-import org.changppo.cost_management_service.exception.RoleNotFoundException;
+import org.changppo.cost_management_service.exception.member.RoleNotFoundException;
 import org.changppo.cost_management_service.repository.apikey.ApiKeyRepository;
 import org.changppo.cost_management_service.repository.apikey.GradeRepository;
 import org.changppo.cost_management_service.repository.member.MemberRepository;

@@ -1,7 +1,6 @@
-package org.changppo.cost_management_service.exception.response;
+package org.changppo.cost_management_service.exception.common;
 
 import lombok.RequiredArgsConstructor;
-import org.changppo.cost_management_service.exception.type.ExceptionType;
 import org.changppo.cost_management_service.response.Response;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -10,6 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class ResponseHandler {
+
     private final MessageSource messageSource;
 
     public Response getFailureResponse(ExceptionType exceptionType) {

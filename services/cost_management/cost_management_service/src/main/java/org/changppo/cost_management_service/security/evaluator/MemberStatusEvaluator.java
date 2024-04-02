@@ -3,7 +3,7 @@ package org.changppo.cost_management_service.security.evaluator;
 import lombok.RequiredArgsConstructor;
 import org.changppo.cost_management_service.entity.member.Member;
 import org.changppo.cost_management_service.entity.member.RoleType;
-import org.changppo.cost_management_service.exception.MemberNotFoundException;
+import org.changppo.cost_management_service.exception.member.MemberNotFoundException;
 import org.changppo.cost_management_service.repository.member.MemberRepository;
 import org.changppo.cost_management_service.security.PrincipalHandler;
 import org.springframework.stereotype.Component;

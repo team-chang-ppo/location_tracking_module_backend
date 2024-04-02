@@ -7,8 +7,8 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.changppo.cost_management_service.dto.member.MemberDto;
 import org.changppo.cost_management_service.entity.member.Member;
-import org.changppo.cost_management_service.exception.MemberNotFoundException;
-import org.changppo.cost_management_service.exception.MemberUnlinkFailureException;
+import org.changppo.cost_management_service.exception.member.MemberNotFoundException;
+import org.changppo.cost_management_service.exception.member.MemberDeleteFailureException;
 import org.changppo.cost_management_service.repository.apikey.ApiKeyRepository;
 import org.changppo.cost_management_service.repository.member.MemberRepository;
 import org.changppo.cost_management_service.service.member.oauth2.OAuth2Client;
@@ -17,7 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.io.IOException;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,7 +40,7 @@ public class MemberService {
 
     @Transactional
     @PreAuthorize("@memberAccessEvaluator.check(#id) and @memberStatusEvaluator.check(#id)")
-    public void delete(@Param("id")Long id, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void delete(@Param("id")Long id, HttpServletRequest request, HttpServletResponse response) {
         Member member = memberRepository.findById(id).orElseThrow(MemberNotFoundException::new);
         unlinkSocialAccount(member.getName());
         deleteSession(request);
@@ -52,14 +52,14 @@ public class MemberService {
     public void unlinkSocialAccount(String memberName){
         String[] parts = memberName.split("_");
         if (parts.length < 2) {
-            throw new MemberUnlinkFailureException("Invalid member name format");
+            throw new MemberDeleteFailureException();
         }
         String provider = parts[0];
         String providerMemberId = parts[1];
         oauth2Clients.stream()
                 .filter(service -> service.supports(provider))
                 .findFirst()
-                .orElseThrow(() -> new MemberUnlinkFailureException("Unexpected provider: " + provider))
+                .orElseThrow(MemberDeleteFailureException::new)
                 .unlinkMember(providerMemberId);
     }
 

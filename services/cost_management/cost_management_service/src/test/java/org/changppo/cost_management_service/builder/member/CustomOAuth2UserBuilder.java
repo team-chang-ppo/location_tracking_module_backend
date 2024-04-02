@@ -2,7 +2,7 @@ package org.changppo.cost_management_service.builder.member;
 
 import org.changppo.cost_management_service.entity.member.Member;
 import org.changppo.cost_management_service.entity.member.RoleType;
-import org.changppo.cost_management_service.security.oauth.CustomOAuth2User;
+import org.changppo.cost_management_service.security.oauth2.CustomOAuth2User;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.Set;

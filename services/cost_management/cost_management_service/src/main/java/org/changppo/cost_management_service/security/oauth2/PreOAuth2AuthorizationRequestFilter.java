@@ -1,11 +1,11 @@
-package org.changppo.cost_management_service.security.oauth;
+package org.changppo.cost_management_service.security.oauth2;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.changppo.cost_management_service.exception.LoginFailureException;
+import org.changppo.cost_management_service.exception.oauth2.kakao.KakaoOauth2LoginFailureException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
@@ -27,26 +27,28 @@ public class PreOAuth2AuthorizationRequestFilter extends OncePerRequestFilter {
 
     private final ClientRegistrationRepository clientRegistrationRepository;
     private final AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
+    private static final String KAKAO_REGISTRATION_ID = "kakao";
+    private static final String KAKAO_REDIRECT_URI = "/login/oauth2/code/kakao";
+    private static final String IOS_STATE = "ios";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String requestURI = request.getRequestURI();
         String state = request.getParameter(OAuth2ParameterNames.STATE);
 
-        if ("/login/oauth2/code/kakao".equals(requestURI) && "ios".equals(state)) {
-            String registrationId = "kakao";
-            OAuth2AuthorizationRequest authorizationRequest = createAuthorizationRequest(request, registrationId, state);
+        if (KAKAO_REDIRECT_URI.equals(requestURI) && IOS_STATE.equals(state)) {
+            OAuth2AuthorizationRequest authorizationRequest = createAuthorizationRequest(request, state);
             if (authorizationRequest != null) {
                 authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response);
             } else {
-                throw new LoginFailureException();
+                throw new KakaoOauth2LoginFailureException("Failed to process OAuth2 authorization request");
             }
         }
         filterChain.doFilter(request, response);
     }
 
-    private OAuth2AuthorizationRequest createAuthorizationRequest(HttpServletRequest request, String registrationId, String state) {
-        ClientRegistration clientRegistration = clientRegistrationRepository.findByRegistrationId(registrationId);
+    private OAuth2AuthorizationRequest createAuthorizationRequest(HttpServletRequest request, String state) {
+        ClientRegistration clientRegistration = clientRegistrationRepository.findByRegistrationId(PreOAuth2AuthorizationRequestFilter.KAKAO_REGISTRATION_ID);
         if (clientRegistration == null) {
             return null;
         }
@@ -58,7 +60,7 @@ public class PreOAuth2AuthorizationRequestFilter extends OncePerRequestFilter {
                 .scopes(clientRegistration.getScopes())
                 .state(state)
                 .attributes(attributes -> {
-                    attributes.put(OAuth2ParameterNames.REGISTRATION_ID, registrationId);
+                    attributes.put(OAuth2ParameterNames.REGISTRATION_ID, PreOAuth2AuthorizationRequestFilter.KAKAO_REGISTRATION_ID);
                 });
 
         return builder.build();
