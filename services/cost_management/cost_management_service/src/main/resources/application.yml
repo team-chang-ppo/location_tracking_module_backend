@@ -8,9 +8,9 @@ spring:
   config:
     import:
       - security/application-db.yml
-      - security/application-oauth.yml
+      - security/application-oauth2.yml
       - security/application-token.yml
-
+      - security/application-payment.yml
   servlet:
     multipart:
       max-file-size: 5MB

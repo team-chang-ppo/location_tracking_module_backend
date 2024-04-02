@@ -1,8 +1,8 @@
-package org.changppo.cost_management_service.service.member.oauth.kakao;
+package org.changppo.cost_management_service.service.member.oauth2.kakao;
 
 import lombok.RequiredArgsConstructor;
-import org.changppo.cost_management_service.service.member.oauth.OAuth2Service;
-import org.changppo.cost_management_service.service.member.oauth.OAuthProperties;
+import org.changppo.cost_management_service.service.member.oauth2.OAuth2Client;
+import org.changppo.cost_management_service.service.member.oauth2.OAuth2Properties;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -11,10 +11,10 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Service
 @RequiredArgsConstructor
-public class KakaoOAuth2Service implements OAuth2Service {
+public class KakaoOAuth2Client implements OAuth2Client {
 
     private final RestTemplate restTemplate;
-    private final OAuthProperties oauthProperties;
+    private final OAuth2Properties oauth2Properties;
     private static final String KAKAO_UNLINK_URL = "https://kapi.kakao.com/v1/user/unlink";
     private static final String KAKAO_UNLINK_REQUEST_BODY_FORMAT = "target_id_type=user_id&target_id=%s";
     @Override
@@ -26,7 +26,7 @@ public class KakaoOAuth2Service implements OAuth2Service {
 
     private HttpEntity<String> createRequest(String providerMemberId) {
         HttpHeaders headers = new HttpHeaders();
-        headers.set(AUTHORIZATION, oauthProperties.getKakao().getAdminKey());
+        headers.set(AUTHORIZATION, oauth2Properties.getKakao().getAdminKey());
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         String body = String.format(KAKAO_UNLINK_REQUEST_BODY_FORMAT, providerMemberId);
         return new HttpEntity<>(body, headers);

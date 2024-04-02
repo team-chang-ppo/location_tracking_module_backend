@@ -11,7 +11,7 @@ import org.changppo.cost_management_service.exception.MemberNotFoundException;
 import org.changppo.cost_management_service.exception.MemberUnlinkFailureException;
 import org.changppo.cost_management_service.repository.apikey.ApiKeyRepository;
 import org.changppo.cost_management_service.repository.member.MemberRepository;
-import org.changppo.cost_management_service.service.member.oauth.OAuth2Service;
+import org.changppo.cost_management_service.service.member.oauth2.OAuth2Client;
 import org.springframework.data.repository.query.Param;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 public class MemberService {
 
     private final MemberRepository memberRepository;
-    private final List<OAuth2Service> oauth2Services;
+    private final List<OAuth2Client> oauth2Clients;
     private final ApiKeyRepository apiKeyRepository;
 
     public MemberDto read(Long id) {
@@ -60,7 +60,7 @@ public class MemberService {
         }
         String provider = parts[0];
         String providerMemberId = parts[1];
-        oauth2Services.stream()
+        oauth2Clients.stream()
                 .filter(service -> service.supports(provider))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Unsupported provider: " + provider))

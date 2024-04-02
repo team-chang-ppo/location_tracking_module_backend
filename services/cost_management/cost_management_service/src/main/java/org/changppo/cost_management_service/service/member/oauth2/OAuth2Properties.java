@@ -1,4 +1,4 @@
-package org.changppo.cost_management_service.service.member.oauth;
+package org.changppo.cost_management_service.service.member.oauth2;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -8,8 +8,8 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 @Setter
 @Configuration
-@ConfigurationProperties(prefix = "oauth")
-public class OAuthProperties {
+@ConfigurationProperties(prefix = "oauth2")
+public class OAuth2Properties {
     private Kakao kakao;
     @Getter
     @Setter
