@@ -59,12 +59,12 @@ public class MemberService {
             throw new IllegalArgumentException("Invalid member name format");
         }
         String provider = parts[0];
-        String providerUserId = parts[1];
+        String providerMemberId = parts[1];
         oauth2Services.stream()
                 .filter(service -> service.supports(provider))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Unsupported provider: " + provider))
-                .unlinkUser(providerUserId);
+                .unlinkMember(providerMemberId);
     }
 
     public void deleteSession(HttpServletRequest request){

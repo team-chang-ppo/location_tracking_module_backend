@@ -7,27 +7,34 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+
 @Service
 @RequiredArgsConstructor
 public class KakaoOAuth2Service implements OAuth2Service {
 
     private final RestTemplate restTemplate;
     private final OAuthProperties oauthProperties;
-
+    private static final String KAKAO_UNLINK_URL = "https://kapi.kakao.com/v1/user/unlink";
+    private static final String KAKAO_UNLINK_REQUEST_BODY_FORMAT = "target_id_type=user_id&target_id=%s";
     @Override
-    public void unlinkUser(String providerUserId) {
+    public void unlinkMember(String providerMemberId) {
+        HttpEntity<String> request = createRequest(providerMemberId);
+        ResponseEntity<String> response = restTemplate.exchange(KAKAO_UNLINK_URL, HttpMethod.POST, request, String.class);
+        handleResponse(response);
+    }
+
+    private HttpEntity<String> createRequest(String providerMemberId) {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "KakaoAK " + oauthProperties.getKakao().getAdminKey());
+        headers.set(AUTHORIZATION, oauthProperties.getKakao().getAdminKey());
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        String body = String.format(KAKAO_UNLINK_REQUEST_BODY_FORMAT, providerMemberId);
+        return new HttpEntity<>(body, headers);
+    }
 
-        String body = "target_id_type=user_id&target_id=" + providerUserId;
-        HttpEntity<String> request = new HttpEntity<>(body, headers);
-
-        String url = "https://kapi.kakao.com/v1/user/unlink";
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
-
+    private void handleResponse(ResponseEntity<String> response) {
         if (!response.getStatusCode().is2xxSuccessful()) {
-            throw new RuntimeException("Failed to unlink Kakao user: " + response.getBody());
+            throw new RuntimeException("Failed to unlink Kakao member: " + response.getBody());
         }
     }
 
