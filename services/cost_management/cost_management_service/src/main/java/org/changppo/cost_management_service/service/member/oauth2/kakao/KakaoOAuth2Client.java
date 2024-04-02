@@ -1,6 +1,7 @@
 package org.changppo.cost_management_service.service.member.oauth2.kakao;
 
 import lombok.RequiredArgsConstructor;
+import org.changppo.cost_management_service.exception.MemberUnlinkFailureException;
 import org.changppo.cost_management_service.service.member.oauth2.OAuth2Client;
 import org.changppo.cost_management_service.service.member.oauth2.OAuth2Properties;
 import org.springframework.http.*;
@@ -34,7 +35,7 @@ public class KakaoOAuth2Client implements OAuth2Client {
 
     private void handleResponse(ResponseEntity<String> response) {
         if (!response.getStatusCode().is2xxSuccessful()) {
-            throw new RuntimeException("Failed to unlink Kakao member: " + response.getBody());
+            throw new MemberUnlinkFailureException("Failed to unlink Kakao member: " + response.getBody());
         }
     }
 

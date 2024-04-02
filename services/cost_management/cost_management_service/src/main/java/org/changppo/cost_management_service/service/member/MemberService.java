@@ -40,30 +40,26 @@ public class MemberService {
 
     @Transactional
     @PreAuthorize("@memberAccessEvaluator.check(#id) and @memberStatusEvaluator.check(#id)")
-    public void delete(@Param("id")Long id, HttpServletRequest request, HttpServletResponse response) {
+    public void delete(@Param("id")Long id, HttpServletRequest request, HttpServletResponse response) throws IOException {
         Member member = memberRepository.findById(id).orElseThrow(MemberNotFoundException::new);
-        try {
-            unlinkSocialAccount(member.getName());
-        } catch (Exception e) {
-            throw new MemberUnlinkFailureException(e);
-        }
+        unlinkSocialAccount(member.getName());
         deleteSession(request);
         deleteCookie(response);
         deleteMemberApiKeys(member.getId());
         memberRepository.delete(member);
     }
 
-    public void unlinkSocialAccount(String memberName) throws IOException {
+    public void unlinkSocialAccount(String memberName){
         String[] parts = memberName.split("_");
         if (parts.length < 2) {
-            throw new IllegalArgumentException("Invalid member name format");
+            throw new MemberUnlinkFailureException("Invalid member name format");
         }
         String provider = parts[0];
         String providerMemberId = parts[1];
         oauth2Clients.stream()
                 .filter(service -> service.supports(provider))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Unsupported provider: " + provider))
+                .orElseThrow(() -> new MemberUnlinkFailureException("Unexpected provider: " + provider))
                 .unlinkMember(providerMemberId);
     }
 
