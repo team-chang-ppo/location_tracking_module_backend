@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 public class CustomOAuth2UserBuilder {
 
     public static CustomOAuth2User buildCustomOAuth2User(Member member) {
-        return new CustomOAuth2User(member.getId(), member.getName(), member.getRoles().stream()
+        return new CustomOAuth2User(member.getId(), member.getName(), member.getMemberRoles().stream()
                                                                         .map(memberRole -> new SimpleGrantedAuthority(memberRole.getRole().getRoleType().name()))
                                                                         .collect(Collectors.toSet()));
     }

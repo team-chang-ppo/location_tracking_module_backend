@@ -6,12 +6,11 @@ import org.changppo.cost_management_service.entity.member.RoleType;
 import org.changppo.cost_management_service.repository.apikey.ApiKeyRepository;
 import org.changppo.cost_management_service.response.exception.apikey.ApiKeyNotFoundException;
 import org.springframework.stereotype.Component;
-
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class ApiKeyStatusEvaluator extends Evaluator {
+public class ApiKeyPaymentFailureStatusEvaluator extends Evaluator {
 
     private final ApiKeyRepository apiKeyRepository;
 
@@ -25,6 +24,6 @@ public class ApiKeyStatusEvaluator extends Evaluator {
     @Override
     public boolean isEligible(Long id) {
         ApiKey apiKey = apiKeyRepository.findById(id).orElseThrow(ApiKeyNotFoundException::new);
-        return !apiKey.isBanned();
+        return !apiKey.isPaymentFailureBanned();
     }
 }

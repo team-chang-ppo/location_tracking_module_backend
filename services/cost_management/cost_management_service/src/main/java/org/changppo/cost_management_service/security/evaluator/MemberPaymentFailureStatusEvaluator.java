@@ -12,7 +12,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class MemberStatusEvaluator extends Evaluator {
+public class MemberPaymentFailureStatusEvaluator extends Evaluator {
 
     private final MemberRepository memberRepository;
     private static final List<RoleType> roleTypes = List.of(RoleType.ROLE_ADMIN);
@@ -26,6 +26,6 @@ public class MemberStatusEvaluator extends Evaluator {
     public boolean isEligible(Long id) {
         id = id != null ? id : PrincipalHandler.extractId();
         Member member = memberRepository.findById(id).orElseThrow(MemberNotFoundException::new);
-        return !member.isBanned();
+        return !member.isPaymentFailureBanned();
     }
 }

@@ -17,7 +17,11 @@ public interface CardRepository extends JpaRepository<Card, Long> {
     Optional<Card> findByIdWithPaymentGateway(@Param("id") Long id);
 
     @Query("select new org.changppo.cost_management_service.dto.card.CardDto(c.id, c.type, c.issuerCorporation, c.bin, c.paymentGateway.paymentGatewayType, c.createdAt) " +
-            "from Card c where c.member.id = :id " +
+            "from Card c where c.member.id = :memberId " +
             "order by c.id asc")
-    List<CardDto> findAllByMemberId(@Param("id") Long id);
+    List<CardDto> findAllByMemberId(@Param("memberId") Long memberId);
+
+    long countByMemberId(Long memberId);
+
+    void deleteAllByMemberId(Long memberId);
 }

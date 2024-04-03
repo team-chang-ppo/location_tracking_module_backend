@@ -35,31 +35,31 @@ public class Member extends EntityDate {
     @Column(nullable = false)
     private String profileImage;
 
-    @OneToMany(mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
-    private Set<MemberRole> roles;
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<MemberRole> memberRoles;
 
     @Column
     private LocalDateTime deletedAt;
 
     @Column
-    private LocalDateTime bannedAt; // TODO. 정기 결제 실패로 인한 정지. 추후 다른 이유로 인한 정지 기능 추가
+    private LocalDateTime isPaymentFailureBanned; // TODO. 정기 결제 실패로 인한 정지.
 
     @Builder
     public Member(String name, String username, String profileImage,  Set<Role> roles) {
         this.name = name;
         this.username = username;
         this.profileImage = profileImage;
-        this.roles = roles.stream().map(r -> new MemberRole(this, r)).collect(toSet());
+        this.memberRoles = roles.stream().map(r -> new MemberRole(this, r)).collect(toSet());
         this.deletedAt = null;
-        this.bannedAt = null;
+        this.isPaymentFailureBanned = null;
     }
 
     public boolean isDeleted() {
         return this.deletedAt != null;
     }
 
-    public boolean isBanned() {
-        return this.bannedAt != null;
+    public boolean isPaymentFailureBanned() {
+        return this.isPaymentFailureBanned != null;
     }
 
     public void updateInfo(String username, String profileImage) {
@@ -67,17 +67,28 @@ public class Member extends EntityDate {
         this.profileImage = profileImage;
     }
 
-    public void reactivate(String username, String profileImage) {
+    public void reactivate(String username, String profileImage, Set<Role> roles) {
         this.username = username;
         this.profileImage = profileImage;
         this.deletedAt = null;
+        this.memberRoles = roles.stream().map(r -> new MemberRole(this, r)).collect(toSet());
     }
 
-    public void ban() {
-        this.bannedAt = LocalDateTime.now();
+    public void changeRole(RoleType fromRoleType, Role toRole) {
+        this.memberRoles.stream()
+                .filter(memberRole -> memberRole.getRole().getRoleType() == fromRoleType)
+                .findFirst()
+                .ifPresent(memberRole -> {
+                    this.memberRoles.remove(memberRole);
+                    this.memberRoles.add(new MemberRole(this, toRole));
+                });
     }
 
-    public void unban() {
-        this.bannedAt = null;
+    public void banForPaymentFailure() {
+        this.isPaymentFailureBanned = LocalDateTime.now();
+    }
+
+    public void unbanForPaymentFailure() {
+        this.isPaymentFailureBanned = null;
     }
 }

@@ -37,8 +37,12 @@ public class ApiKey extends EntityDate {
     @Column
     private LocalDateTime deletedAt;
 
+    // 정지 상태를 나누어야 다른 사유로 인한 정지가 해제되지 않도록 할 수 있음.
     @Column
-    private LocalDateTime bannedAt; // TODO. 정기 결제 실패로 인한 정지. 추후 다른 이유로 인한 정지 기능 추가. member의 정지 해제로 인한 key의 정지 해제 기능 구현 시 다른 사유의 정지까지 해제 해버리는 것 주의 필요
+    private LocalDateTime paymentFailureBannedAt; // TODO. 정기 결제 실패로 인한 정지.
+
+    @Column
+    private LocalDateTime cardDeletionBannedAt; // TODO. 카드 삭제로 인한 유료키 정지.
 
     @Builder
     public ApiKey(String value, Grade grade, Member member) {
@@ -46,26 +50,39 @@ public class ApiKey extends EntityDate {
         this.grade = grade;
         this.member = member;
         this.deletedAt = null;
-        this.bannedAt = null;
+        this.paymentFailureBannedAt = null;
+        this.cardDeletionBannedAt = null;
     }
 
     public boolean isDeleted() {
         return this.deletedAt != null;
     }
 
-    public boolean isBanned() {
-        return this.bannedAt != null;
+    public boolean isPaymentFailureBanned() {
+        return this.paymentFailureBannedAt != null;
+    }
+
+    public boolean isCardDeletionBanned() {
+        return this.cardDeletionBannedAt != null;
     }
 
     public void updateValue(String value){
         this.value = value;
     }
 
-    public void ban() {
-        this.bannedAt = LocalDateTime.now();
+    public void banForPaymentFailure() {
+        this.paymentFailureBannedAt = LocalDateTime.now();
     }
 
-    public void unban() {
-        this.bannedAt = null;
+    public void unbanForPaymentFailure() {
+        this.paymentFailureBannedAt = null;
+    }
+
+    public void banForCardDeletion() {
+        this.cardDeletionBannedAt = LocalDateTime.now();
+    }
+
+    public void unbanForCardDeletion() {
+        this.cardDeletionBannedAt = null;
     }
 }

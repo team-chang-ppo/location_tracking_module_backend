@@ -41,27 +41,26 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Member member = memberRepository.findByNameIgnoringDeleted(name)
                 .map(existingMember -> {
                     if (existingMember.isDeleted()) {
-                        existingMember.reactivate(oAuth2Response.getName(), oAuth2Response.getProfileImage());
+                        Role freeRole = roleRepository.findByRoleType(RoleType.ROLE_FREE).orElseThrow(RoleNotFoundException::new);
+                        existingMember.reactivate(oAuth2Response.getName(), oAuth2Response.getProfileImage(), Set.of(freeRole));
                     } else {
                         existingMember.updateInfo(oAuth2Response.getName(), oAuth2Response.getProfileImage());
                     }
                     return existingMember;
                 })
                 .orElseGet(() -> {
-                    Role role = roleRepository.findByRoleType(RoleType.ROLE_FREE)
-                            .orElseThrow(RoleNotFoundException::new);
-
+                    Role freeRole = roleRepository.findByRoleType(RoleType.ROLE_FREE).orElseThrow(RoleNotFoundException::new);
                     return memberRepository.save(
                         Member.builder()
                                 .name(name)
                                 .username(oAuth2Response.getName())
                                 .profileImage(oAuth2Response.getProfileImage())
-                                .roles(Set.of(role))
+                                .roles(Set.of(freeRole))
                                 .build());
                 });
 
 
-        return new CustomOAuth2User(member.getId(), name,  member.getRoles().stream()
+        return new CustomOAuth2User(member.getId(), name,  member.getMemberRoles().stream()
                                             .map(memberRole -> new SimpleGrantedAuthority(memberRole.getRole().getRoleType().name()))
                                             .collect(Collectors.toSet()));
     }

@@ -71,9 +71,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/apikeys/v1/createClassicKey").hasAnyRole("NORMAL", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/apikeys/**").hasAnyRole("FREE", "NORMAL", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/apikeys/**").hasAnyRole("FREE", "NORMAL", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/cards/**").hasAnyRole("FREE", "NORMAL", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/cards/**").hasAnyRole("FREE", "NORMAL", "ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/cards/**").hasAnyRole("FREE", "NORMAL", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/cards/v1/kakaopay/**").hasAnyRole("FREE", "NORMAL", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/cards/v1/kakaopay/**").hasAnyRole("FREE", "NORMAL", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/cards/**").hasAnyRole("NORMAL", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/cards/**").hasAnyRole("NORMAL", "ADMIN")
                         .requestMatchers(HttpMethod.GET).permitAll()
                         .anyRequest().hasAnyRole("ADMIN"));
 

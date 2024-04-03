@@ -104,7 +104,7 @@ public class TestInitDB {
                 .profileImage("bannedMemberProfileImage")
                 .roles(Collections.singleton(normalRole))
                 .build();
-        bannedMember.ban();
+        bannedMember.banForPaymentFailure();
 
         memberRepository.saveAll(List.of(freeMember, normalMember, bannedMember));
     }
@@ -142,7 +142,7 @@ public class TestInitDB {
                 .grade(freeGrade)
                 .member(normalMember)
                 .build();
-        bannedApiKey.ban();
+        bannedApiKey.banForPaymentFailure();
         apiKeyRepository.saveAll(List.of(freeApiKey, classicApiKey, classicApiKeyByBannedMember, bannedApiKey));
     }
 }

@@ -3,7 +3,7 @@ package org.changppo.cost_management_service.controller.member;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.changppo.cost_management_service.response.exception.member.MemberNotFoundException;
-import org.changppo.cost_management_service.response.exception.member.MemberDeleteFailureException;
+import org.changppo.cost_management_service.response.exception.member.UnsupportedOAuth2Exception;
 import org.changppo.cost_management_service.response.exception.common.ExceptionAdvice;
 import org.changppo.cost_management_service.response.exception.common.ResponseHandler;
 import org.changppo.cost_management_service.service.member.MemberService;
@@ -64,7 +64,7 @@ class MemberControllerAdviceTest {
     @Test
     void deleteMemberDeleteFailureExceptionTest() throws Exception {
         // given
-        doThrow(new MemberDeleteFailureException()).when(memberService).delete(anyLong(), any(HttpServletRequest.class), any(HttpServletResponse.class));
+        doThrow(new UnsupportedOAuth2Exception()).when(memberService).delete(anyLong(), any(HttpServletRequest.class), any(HttpServletResponse.class));
 
         // when, then
         mockMvc.perform(delete("/api/members/v1/{id}", 1L))
