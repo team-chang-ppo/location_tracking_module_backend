@@ -75,7 +75,7 @@ public class ApiKeyService {
 
     @PreAuthorize("@apiKeyAccessEvaluator.check(#id)")
     public ApiKeyDto read(@Param("id")Long id) {
-        ApiKey apiKey = apiKeyRepository.findByIdWithGrade(id).orElseThrow(ApiKeyNotFoundException::new);
+        ApiKey apiKey = apiKeyRepository.findById(id).orElseThrow(ApiKeyNotFoundException::new);
         return new ApiKeyDto(apiKey.getId(), apiKey.getValue(), apiKey.getGrade().getGradeType(), apiKey.getBannedAt(), apiKey.getCreatedAt());
     }
 

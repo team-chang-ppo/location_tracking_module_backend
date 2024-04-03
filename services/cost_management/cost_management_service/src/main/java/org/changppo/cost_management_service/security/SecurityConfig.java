@@ -72,6 +72,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/apikeys/**").hasAnyRole("FREE", "NORMAL", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/apikeys/**").hasAnyRole("FREE", "NORMAL", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/cards/**").hasAnyRole("FREE", "NORMAL", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/cards/**").hasAnyRole("FREE", "NORMAL", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/cards/**").hasAnyRole("FREE", "NORMAL", "ADMIN")
                         .requestMatchers(HttpMethod.GET).permitAll()
                         .anyRequest().hasAnyRole("ADMIN"));
 

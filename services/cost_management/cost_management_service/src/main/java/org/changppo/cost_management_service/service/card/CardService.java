@@ -56,8 +56,8 @@ public class CardService {
     }
 
     @PreAuthorize("@cardAccessEvaluator.check(#id)")
-    public CardDto read(@Param("id")Long id) {  // TODO. 트랜잭션 확인
-        Card card = cardRepository.findByIdWithPaymentGateway(id).orElseThrow(CardNotFoundException::new);
+    public CardDto read(@Param("id")Long id) {
+        Card card = cardRepository.findById(id).orElseThrow(CardNotFoundException::new);
         return new CardDto(card.getId(), card.getType(), card.getIssuerCorporation(), card.getBin(),
                 card.getPaymentGateway().getPaymentGatewayType(), card.getCreatedAt());
     }
@@ -71,7 +71,7 @@ public class CardService {
     @Transactional
     @PreAuthorize("@cardAccessEvaluator.check(#id)")
     public void delete(@Param("id")Long id) {
-        Card card = cardRepository.findByIdWithPaymentGateway(id).orElseThrow(CardNotFoundException::new);
+        Card card = cardRepository.findById(id).orElseThrow(CardNotFoundException::new);
         PaymentGatewayType paymentGatewayType = card.getPaymentGateway().getPaymentGatewayType();
         paymentGatewayClients.stream()
                 .filter(client -> client.supports(paymentGatewayType))

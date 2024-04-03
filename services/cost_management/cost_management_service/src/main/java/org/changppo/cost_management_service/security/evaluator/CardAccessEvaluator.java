@@ -3,17 +3,15 @@ package org.changppo.cost_management_service.security.evaluator;
 import lombok.RequiredArgsConstructor;
 import org.changppo.cost_management_service.entity.card.Card;
 import org.changppo.cost_management_service.entity.member.RoleType;
-import org.changppo.cost_management_service.response.exception.card.CardNotFoundException;
 import org.changppo.cost_management_service.repository.card.CardRepository;
+import org.changppo.cost_management_service.response.exception.card.CardNotFoundException;
 import org.changppo.cost_management_service.security.PrincipalHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class CardAccessEvaluator extends Evaluator {
 
     private final CardRepository cardRepository;
@@ -26,7 +24,7 @@ public class CardAccessEvaluator extends Evaluator {
 
     @Override
     protected boolean isEligible(Long id) {
-        Card card = cardRepository.findByIdWithMember(id).orElseThrow(CardNotFoundException::new);
+        Card card = cardRepository.findById(id).orElseThrow(CardNotFoundException::new);
         return card.getMember().getId().equals(PrincipalHandler.extractId());
     }
 }

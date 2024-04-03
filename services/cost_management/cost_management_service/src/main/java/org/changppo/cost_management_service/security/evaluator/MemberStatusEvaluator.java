@@ -3,16 +3,15 @@ package org.changppo.cost_management_service.security.evaluator;
 import lombok.RequiredArgsConstructor;
 import org.changppo.cost_management_service.entity.member.Member;
 import org.changppo.cost_management_service.entity.member.RoleType;
-import org.changppo.cost_management_service.response.exception.member.MemberNotFoundException;
 import org.changppo.cost_management_service.repository.member.MemberRepository;
+import org.changppo.cost_management_service.response.exception.member.MemberNotFoundException;
 import org.changppo.cost_management_service.security.PrincipalHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class MemberStatusEvaluator extends Evaluator {
 
     private final MemberRepository memberRepository;
