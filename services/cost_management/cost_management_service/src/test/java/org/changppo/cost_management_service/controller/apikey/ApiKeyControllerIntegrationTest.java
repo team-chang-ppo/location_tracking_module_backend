@@ -98,7 +98,8 @@ public class ApiKeyControllerIntegrationTest {
                             .andExpect(jsonPath("$.result.data.id").exists())
                             .andExpect(jsonPath("$.result.data.value").exists())
                             .andExpect(jsonPath("$.result.data.grade").value(GradeType.GRADE_FREE.name()))
-                            .andExpect(jsonPath("$.result.data.bannedAt").isEmpty())
+                            .andExpect(jsonPath("$.result.data.paymentFailureBannedAt").isEmpty())
+                            .andExpect(jsonPath("$.result.data.cardDeletionBannedAt").isEmpty())
                             .andExpect(jsonPath("$.result.data.createdAt").exists())
                             .andReturn();
 
@@ -153,7 +154,8 @@ public class ApiKeyControllerIntegrationTest {
                             .andExpect(jsonPath("$.result.data.id").exists())
                             .andExpect(jsonPath("$.result.data.value").exists())
                             .andExpect(jsonPath("$.result.data.grade").value(GradeType.GRADE_CLASSIC.name()))
-                            .andExpect(jsonPath("$.result.data.bannedAt").isEmpty())
+                            .andExpect(jsonPath("$.result.data.paymentFailureBannedAt").isEmpty())
+                            .andExpect(jsonPath("$.result.data.cardDeletionBannedAt").isEmpty())
                             .andExpect(jsonPath("$.result.data.createdAt").exists())
                             .andReturn();
 
@@ -217,7 +219,8 @@ public class ApiKeyControllerIntegrationTest {
                 .andExpect(jsonPath("$.result.data.id").value(freeApiKey.getId()))
                 .andExpect(jsonPath("$.result.data.value").value(freeApiKey.getValue()))
                 .andExpect(jsonPath("$.result.data.grade").value(freeApiKey.getGrade().getGradeType().name()))
-                .andExpect(jsonPath("$.result.data.bannedAt").isEmpty())
+                .andExpect(jsonPath("$.result.data.paymentFailureBannedAt").isEmpty())
+                .andExpect(jsonPath("$.result.data.cardDeletionBannedAt").isEmpty())
                 .andExpect(jsonPath("$.result.data.createdAt").exists());
     }
 
@@ -231,7 +234,8 @@ public class ApiKeyControllerIntegrationTest {
                 .andExpect(jsonPath("$.result.data.id").value(freeApiKey.getId()))
                 .andExpect(jsonPath("$.result.data.value").value(freeApiKey.getValue()))
                 .andExpect(jsonPath("$.result.data.grade").value(freeApiKey.getGrade().getGradeType().name()))
-                .andExpect(jsonPath("$.result.data.bannedAt").isEmpty())
+                .andExpect(jsonPath("$.result.data.paymentFailureBannedAt").isEmpty())
+                .andExpect(jsonPath("$.result.data.cardDeletionBannedAt").isEmpty())
                 .andExpect(jsonPath("$.result.data.createdAt").exists());
     }
 

@@ -18,7 +18,7 @@ public class Card extends EntityDate{
     @Column(name = "card_id")
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "`key`", unique = true, nullable = false)
     private String key;
 
     @Column(nullable = false)
