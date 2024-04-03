@@ -1,10 +1,7 @@
 package org.changppo.cost_management_service.security;
 
 import lombok.RequiredArgsConstructor;
-import org.changppo.cost_management_service.security.oauth.CustomLoginSuccessHandler;
-import org.changppo.cost_management_service.security.oauth.CustomLogoutSuccessHandler;
-import org.changppo.cost_management_service.security.oauth.CustomOAuth2UserService;
-import org.changppo.cost_management_service.security.oauth.PreOAuth2AuthorizationRequestFilter;
+import org.changppo.cost_management_service.security.oauth2.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -34,6 +31,7 @@ public class SecurityConfig {
     private final JdbcTemplate jdbcTemplate;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomLoginSuccessHandler customLoginSuccessHandler;
+    private final CustomLoginFailureHandler customLoginFailureHandler;
     private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
 
     @Bean
@@ -56,7 +54,8 @@ public class SecurityConfig {
                         .authorizedClientService(oAuth2AuthorizedClientService(jdbcTemplate, clientRegistrationRepository))
                         .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
                                             .userService(customOAuth2UserService))
-                        .successHandler(customLoginSuccessHandler))
+                        .successHandler(customLoginSuccessHandler)
+                        .failureHandler(customLoginFailureHandler))
 
                 .logout(logout -> logout
                         .logoutUrl("/logout/oauth2")
@@ -72,6 +71,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/apikeys/v1/createClassicKey").hasAnyRole("NORMAL", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/apikeys/**").hasAnyRole("FREE", "NORMAL", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/apikeys/**").hasAnyRole("FREE", "NORMAL", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/cards/**").hasAnyRole("FREE", "NORMAL", "ADMIN")
                         .requestMatchers(HttpMethod.GET).permitAll()
                         .anyRequest().hasAnyRole("ADMIN"));
 

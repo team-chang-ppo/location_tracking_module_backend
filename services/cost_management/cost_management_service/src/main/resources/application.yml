@@ -10,7 +10,7 @@ spring:
       - security/application-db.yml
       - security/application-oauth2.yml
       - security/application-token.yml
-      - security/application-payment.yml
+      - security/application-paymentgateway.yml
   servlet:
     multipart:
       max-file-size: 5MB

@@ -8,8 +8,4 @@ public class PaymentGatewayBusinessException extends BusinessException {
     public PaymentGatewayBusinessException(ExceptionType exceptionType, Throwable cause) {
         super(exceptionType, cause);
     }
-
-    public PaymentGatewayBusinessException(ExceptionType exceptionType) {
-        super(exceptionType);
-    }
 }
