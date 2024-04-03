@@ -6,7 +6,7 @@ import org.changppo.cost_management_service.dto.card.CardDto;
 import org.changppo.cost_management_service.dto.card.kakaopay.*;
 import org.changppo.cost_management_service.dto.paymentgateway.kakaopay.payment.*;
 import org.changppo.cost_management_service.entity.card.PaymentGatewayType;
-import org.changppo.cost_management_service.exception.card.CardCreateFailureException;
+import org.changppo.cost_management_service.response.exception.card.CardCreateFailureException;
 import org.changppo.cost_management_service.service.card.CardService;
 import org.changppo.cost_management_service.service.paymentgateway.kakaopay.KakaopayPaymentGatewayClient;
 import org.springframework.stereotype.Service;
@@ -34,7 +34,7 @@ public class KakaopayCardService {
     private KakaopayReadyRequest createKakaopayReadyRequest(KakaopayCardRegisterReadyRequest req) {
         String partnerOrderId = generateTemporaryValue();
         return new KakaopayReadyRequest(
-                "CCID",
+                CCID,
                 partnerOrderId,
                 req.getMemberId(),
                 "위치추적모듈 정기결제",

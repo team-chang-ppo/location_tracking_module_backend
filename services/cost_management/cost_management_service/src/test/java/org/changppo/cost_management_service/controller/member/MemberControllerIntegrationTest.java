@@ -3,7 +3,7 @@ package org.changppo.cost_management_service.controller.member;
 import org.changppo.cost_management_service.TestInitDB;
 import org.changppo.cost_management_service.entity.member.Member;
 import org.changppo.cost_management_service.entity.member.RoleType;
-import org.changppo.cost_management_service.exception.member.MemberNotFoundException;
+import org.changppo.cost_management_service.response.exception.member.MemberNotFoundException;
 import org.changppo.cost_management_service.repository.member.MemberRepository;
 import org.changppo.cost_management_service.security.oauth2.CustomOAuth2User;
 import org.junit.jupiter.api.BeforeEach;

@@ -42,7 +42,7 @@ public class Member extends EntityDate {
     private LocalDateTime deletedAt;
 
     @Column
-    private LocalDateTime bannedAt;
+    private LocalDateTime bannedAt; // TODO. 정기 결제 실패로 인한 정지. 추후 다른 이유로 인한 정지 기능 추가
 
     @Builder
     public Member(String name, String username, String profileImage,  Set<Role> roles) {

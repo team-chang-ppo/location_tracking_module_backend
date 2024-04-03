@@ -2,11 +2,11 @@ package org.changppo.cost_management_service.controller.apikey;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.changppo.cost_management_service.dto.apikey.ApiKeyCreateRequest;
-import org.changppo.cost_management_service.exception.apikey.ApiKeyNotFoundException;
-import org.changppo.cost_management_service.exception.apikey.GradeNotFoundException;
-import org.changppo.cost_management_service.exception.member.MemberNotFoundException;
-import org.changppo.cost_management_service.exception.common.ExceptionAdvice;
-import org.changppo.cost_management_service.exception.common.ResponseHandler;
+import org.changppo.cost_management_service.response.exception.apikey.ApiKeyNotFoundException;
+import org.changppo.cost_management_service.response.exception.apikey.GradeNotFoundException;
+import org.changppo.cost_management_service.response.exception.member.MemberNotFoundException;
+import org.changppo.cost_management_service.response.exception.common.ExceptionAdvice;
+import org.changppo.cost_management_service.response.exception.common.ResponseHandler;
 import org.changppo.cost_management_service.service.apikey.ApiKeyService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

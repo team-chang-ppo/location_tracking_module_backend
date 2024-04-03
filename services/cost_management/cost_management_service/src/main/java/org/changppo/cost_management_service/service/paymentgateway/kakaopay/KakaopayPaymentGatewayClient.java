@@ -6,7 +6,7 @@ import org.changppo.cost_management_service.dto.paymentgateway.kakaopay.payment.
 import org.changppo.cost_management_service.dto.paymentgateway.kakaopay.subscription.KakaopaySubscriptionInactiveResponse;
 import org.changppo.cost_management_service.dto.paymentgateway.kakaopay.subscription.KakaopaySubscriptionStatusResponse;
 import org.changppo.cost_management_service.entity.card.PaymentGatewayType;
-import org.changppo.cost_management_service.exception.paymentgateway.*;
+import org.changppo.cost_management_service.response.exception.paymentgateway.*;
 import org.changppo.cost_management_service.service.card.paymentgateway.PaymentGatewayClient;
 import org.changppo.cost_management_service.service.paymentgateway.PaymentGatewayProperties;
 import org.springframework.http.HttpEntity;
@@ -14,7 +14,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
 import java.util.HashMap;
 import java.util.Map;
 

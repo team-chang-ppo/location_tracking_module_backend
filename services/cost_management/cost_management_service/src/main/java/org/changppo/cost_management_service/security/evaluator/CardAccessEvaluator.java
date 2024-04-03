@@ -3,7 +3,7 @@ package org.changppo.cost_management_service.security.evaluator;
 import lombok.RequiredArgsConstructor;
 import org.changppo.cost_management_service.entity.card.Card;
 import org.changppo.cost_management_service.entity.member.RoleType;
-import org.changppo.cost_management_service.exception.card.CardNotFoundException;
+import org.changppo.cost_management_service.response.exception.card.CardNotFoundException;
 import org.changppo.cost_management_service.repository.card.CardRepository;
 import org.changppo.cost_management_service.security.PrincipalHandler;
 import org.springframework.stereotype.Component;

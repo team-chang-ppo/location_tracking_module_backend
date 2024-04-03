@@ -1,6 +1,9 @@
 package org.changppo.cost_management_service.service.member.oauth2;
 
-public interface OAuth2Client {
-    void unlink(String MemberId);
-    boolean supports(String provider);
+public abstract class OAuth2Client {
+    public abstract void unlink(String memberId);
+    protected abstract String getSupportedProvider();
+    public final boolean supports(String provider) {
+        return getSupportedProvider().equalsIgnoreCase(provider);
+    }
 }

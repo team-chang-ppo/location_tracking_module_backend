@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.changppo.cost_management_service.exception.common.ResponseHandler;
+import org.changppo.cost_management_service.response.exception.common.ResponseHandler;
 import org.changppo.cost_management_service.response.Response;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-import static org.changppo.cost_management_service.exception.common.ExceptionType.KAKAO_LOGIN_OAUTH2_FAILURE_EXCEPTION;
+import static org.changppo.cost_management_service.response.exception.common.ExceptionType.KAKAO_LOGIN_OAUTH2_FAILURE_EXCEPTION;
 
 @Component
 @RequiredArgsConstructor

@@ -2,10 +2,10 @@ package org.changppo.cost_management_service.controller.member;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.changppo.cost_management_service.exception.member.MemberNotFoundException;
-import org.changppo.cost_management_service.exception.member.MemberDeleteFailureException;
-import org.changppo.cost_management_service.exception.common.ExceptionAdvice;
-import org.changppo.cost_management_service.exception.common.ResponseHandler;
+import org.changppo.cost_management_service.response.exception.member.MemberNotFoundException;
+import org.changppo.cost_management_service.response.exception.member.MemberDeleteFailureException;
+import org.changppo.cost_management_service.response.exception.common.ExceptionAdvice;
+import org.changppo.cost_management_service.response.exception.common.ResponseHandler;
 import org.changppo.cost_management_service.service.member.MemberService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

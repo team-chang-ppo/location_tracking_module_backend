@@ -38,7 +38,7 @@ public class ApiKey extends EntityDate {
     private LocalDateTime deletedAt;
 
     @Column
-    private LocalDateTime bannedAt;
+    private LocalDateTime bannedAt; // TODO. 정기 결제 실패로 인한 정지. 추후 다른 이유로 인한 정지 기능 추가. member의 정지 해제로 인한 key의 정지 해제 기능 구현 시 다른 사유의 정지까지 해제 해버리는 것 주의 필요
 
     @Builder
     public ApiKey(String value, Grade grade, Member member) {
