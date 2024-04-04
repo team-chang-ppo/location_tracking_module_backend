@@ -19,13 +19,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.changppo.cost_management_service.service.member.oauth2.kakao.KakaoConstants.KAKAO_REGISTRATION_ID;
+
 @Service
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final MemberRepository memberRepository;
     private final RoleRepository roleRepository;
-    private static final List<String> SUPPORTED_REGISTRATION_IDS = List.of("kakao");
+    private static final List<String> SUPPORTED_REGISTRATION_IDS = List.of(KAKAO_REGISTRATION_ID);
     @Override
     @Transactional
     public OAuth2User loadUser(OAuth2UserRequest userRequest) {

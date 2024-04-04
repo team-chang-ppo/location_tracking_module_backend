@@ -63,19 +63,21 @@ public class CardService {
                 .member(member)
                 .build();
         card = cardRepository.save(card);
-        upgradeRole(member);
+
+        boolean hasFreeRole = member.getMemberRoles().stream().anyMatch(memberRole -> memberRole.getRole().getRoleType() == RoleType.ROLE_FREE);
+        if (hasFreeRole) {
+            upgradeRole(member);
+            unbanForCardDeletionApiKeys(member);
+        }
+
         return new CardDto(card.getId(), card.getType(), card.getIssuerCorporation(), card.getBin(),
                 card.getPaymentGateway().getPaymentGatewayType(), card.getCreatedAt());
     }
 
     private void upgradeRole(Member member) {
-        boolean hasFreeRole = member.getMemberRoles().stream().anyMatch(memberRole -> memberRole.getRole().getRoleType() == RoleType.ROLE_FREE);
-        if (hasFreeRole) {
-            Role normalRole = roleRepository.findByRoleType(RoleType.ROLE_NORMAL).orElseThrow(RoleNotFoundException::new);
-            member.changeRole(RoleType.ROLE_FREE, normalRole);
-            updateAuthentication(member);
-            unbanForCardDeletionApiKeys(member);
-        }
+        Role normalRole = roleRepository.findByRoleType(RoleType.ROLE_NORMAL).orElseThrow(RoleNotFoundException::new);
+        member.changeRole(RoleType.ROLE_FREE, normalRole);
+        updateAuthentication(member);
     }
 
     private void unbanForCardDeletionApiKeys(Member member) {
@@ -100,18 +102,19 @@ public class CardService {
     public void delete(@Param("id")Long id) {
         Card card = cardRepository.findById(id).orElseThrow(CardNotFoundException::new);
         cardRepository.delete(card);
-        downgradeRole(card.getMember());
         inactivePaymentGatewayCard(card);
+
+        long count = cardRepository.countByMemberId(card.getMember().getId());
+        if (count == 0) {
+            downgradeRole(card.getMember());
+            banForCardDeletionApiKeys(card.getMember());
+        }
     }
 
     private void downgradeRole(Member member) {
-        long count = cardRepository.countByMemberId(member.getId());
-        if (count == 0) {
-            Role freeRole = roleRepository.findByRoleType(RoleType.ROLE_FREE).orElseThrow(RoleNotFoundException::new);
-            member.changeRole(RoleType.ROLE_NORMAL, freeRole);
-            updateAuthentication(member);
-            banForCardDeletionApiKeys(member);
-        }
+        Role freeRole = roleRepository.findByRoleType(RoleType.ROLE_FREE).orElseThrow(RoleNotFoundException::new);
+        member.changeRole(RoleType.ROLE_NORMAL, freeRole);
+        updateAuthentication(member);
     }
 
     private void banForCardDeletionApiKeys(Member member) {

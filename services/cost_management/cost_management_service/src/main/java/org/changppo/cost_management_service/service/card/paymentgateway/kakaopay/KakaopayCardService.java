@@ -12,18 +12,14 @@ import org.changppo.cost_management_service.service.paymentgateway.kakaopay.Kaka
 import org.springframework.stereotype.Service;
 import java.util.UUID;
 
+import static org.changppo.cost_management_service.service.paymentgateway.kakaopay.KakaopayConstants.*;
+
 @RequiredArgsConstructor
 @Service
 public class KakaopayCardService {
 
     private final KakaopayPaymentGatewayClient kakaopayPaymentGatewayClient;
     private final CardService cardService;
-    private static final String CARD = "CARD";
-    private static final String MONEY = "MONEY";
-    private static final String MONEY_TYPE = "현금";
-    private static final String MONEY_CORPORATION = "카카오페이";
-    private static final String MONEY_BIN = "머니";
-    private static final String CCID = "CCID";
 
     public KakaopayCardRegisterRedirectResponse registerReady(KakaopayCardRegisterReadyRequest req) {
         KakaopayReadyResponse kakaopayReadyResponse = kakaopayPaymentGatewayClient.Ready(createKakaopayReadyRequest(req));
@@ -37,14 +33,14 @@ public class KakaopayCardService {
                 CCID,
                 partnerOrderId,
                 req.getMemberId(),
-                "위치추적모듈 정기결제",
+                MODULE_NAME,
                 0,
                 0,
                 0,
                 0,
-                "http://localhost:8080/api/cards/v1/kakaopay/register/approve?partner_order_id=" + partnerOrderId,
-                "http://localhost:8080/api/cards/v1/kakaopay/register/cancel?partner_order_id=" + partnerOrderId,
-                "http://localhost:8080/api/cards/v1/kakaopay/register/fail?partner_order_id=" + partnerOrderId
+                "http://localhost:8080" + APPROVE_CALLBACK_PATH + partnerOrderId,
+                "http://localhost:8080" + CANCEL_CALLBACK_PATH + partnerOrderId,
+                "http://localhost:8080" + FAIL_CALLBACK_PATH + partnerOrderId
         );
     }
 

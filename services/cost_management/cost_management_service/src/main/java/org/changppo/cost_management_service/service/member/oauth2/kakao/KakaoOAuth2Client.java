@@ -7,6 +7,7 @@ import org.changppo.cost_management_service.service.member.oauth2.OAuth2Properti
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import static org.changppo.cost_management_service.service.member.oauth2.kakao.KakaoConstants.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Service
@@ -15,9 +16,6 @@ public class KakaoOAuth2Client extends OAuth2Client {
 
     private final RestTemplate restTemplate;
     private final OAuth2Properties oauth2Properties;
-    private static final String KAKAO_REGISTRATION_ID = "kakao";
-    private static final String KAKAO_UNLINK_URL = "https://kapi.kakao.com/v1/user/unlink";
-    private static final String KAKAO_UNLINK_REQUEST_BODY_FORMAT = "target_id_type=user_id&target_id=%s";
 
     @Override
     protected String getSupportedProvider() {

@@ -17,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.changppo.cost_management_service.service.paymentgateway.kakaopay.KakaopayConstants.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @RequiredArgsConstructor
@@ -36,7 +37,7 @@ public class KakaopayPaymentGatewayClient extends PaymentGatewayClient {
         try {
             HttpEntity<Map<String, Object>> request = createReadyRequest(req);
             KakaopayReadyResponse kakaopayReadyResponse = restTemplate.postForObject(
-                    "https://open-api.kakaopay.com/online/v1/payment/ready",
+                    KAKAOPAY_READY_URL,
                     request,
                     KakaopayReadyResponse.class
             );
@@ -54,7 +55,7 @@ public class KakaopayPaymentGatewayClient extends PaymentGatewayClient {
 
     private HttpEntity<Map<String, Object>> createReadyRequest(KakaopayReadyRequest req) {
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("cid", "CID".equalsIgnoreCase(req.getCid()) ? paymentGatewayProperties.getKakaopay().getCid() : paymentGatewayProperties.getKakaopay().getCcid());
+        parameters.put("cid", CID.equalsIgnoreCase(req.getCid()) ? paymentGatewayProperties.getKakaopay().getCid() : paymentGatewayProperties.getKakaopay().getCcid());
         parameters.put("partner_order_id", req.getPartnerOrderId());
         parameters.put("partner_user_id", req.getPartnerUserId());
         parameters.put("item_name", req.getItemName());
@@ -75,7 +76,7 @@ public class KakaopayPaymentGatewayClient extends PaymentGatewayClient {
             removeTid(req.getPartnerOrderId());
             HttpEntity<Map<String, Object>> request = createApproveRequest(req, tid);
             KakaopayApproveResponse kakaopayApproveResponse = restTemplate.postForObject(
-                    "https://open-api.kakaopay.com/online/v1/payment/approve",
+                    KAKAOPAY_APPROVE_URL,
                     request,
                     KakaopayApproveResponse.class
             );
@@ -89,7 +90,7 @@ public class KakaopayPaymentGatewayClient extends PaymentGatewayClient {
 
     private HttpEntity<Map<String, Object>> createApproveRequest(KakaopayApproveRequest req, String tid) {
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("cid", "CID".equalsIgnoreCase(req.getCid()) ? paymentGatewayProperties.getKakaopay().getCid() : paymentGatewayProperties.getKakaopay().getCcid());
+        parameters.put("cid", CID.equalsIgnoreCase(req.getCid()) ? paymentGatewayProperties.getKakaopay().getCid() : paymentGatewayProperties.getKakaopay().getCcid());
         parameters.put("tid", tid);
         parameters.put("partner_order_id", req.getPartnerOrderId());
         parameters.put("partner_user_id", req.getPartnerUserId());
@@ -136,7 +137,7 @@ public class KakaopayPaymentGatewayClient extends PaymentGatewayClient {
         try {
             HttpEntity<Map<String, Object>> request = createStatusAndInactiveRequest(sid);
             KakaopaySubscriptionStatusResponse kakaopaySubscriptionStatusResponse = restTemplate.postForObject(
-                    "https://open-api.kakaopay.com/online/v1/payment/manage/subscription/status",
+                    KAKAOPAY_SUBSCRIPTION_STATUS_URL,
                     request,
                     KakaopaySubscriptionStatusResponse.class
             );
@@ -152,7 +153,7 @@ public class KakaopayPaymentGatewayClient extends PaymentGatewayClient {
         try {
             HttpEntity<Map<String, Object>> request = createStatusAndInactiveRequest(sid);
             KakaopaySubscriptionInactiveResponse kakaopaySubscriptionInactiveResponse = restTemplate.postForObject(
-                    "https://open-api.kakaopay.com/online/v1/payment/manage/subscription/inactive",
+                    KAKAOPAY_SUBSCRIPTION_INACTIVE_URL,
                     request,
                     KakaopaySubscriptionInactiveResponse.class
             );
@@ -172,7 +173,7 @@ public class KakaopayPaymentGatewayClient extends PaymentGatewayClient {
     }
 
     private void validateInactiveStatus(KakaopaySubscriptionInactiveResponse kakaopaySubscriptionInactiveResponse) {
-        if (!"INACTIVE".equalsIgnoreCase(kakaopaySubscriptionInactiveResponse.getStatus())) {
+        if (!INACTIVE.equalsIgnoreCase(kakaopaySubscriptionInactiveResponse.getStatus())) {
             throw new RuntimeException("Failed to deactivate subscription. Sid: " + kakaopaySubscriptionInactiveResponse.getSid() + ", Status: " + kakaopaySubscriptionInactiveResponse.getStatus());
         }
     }

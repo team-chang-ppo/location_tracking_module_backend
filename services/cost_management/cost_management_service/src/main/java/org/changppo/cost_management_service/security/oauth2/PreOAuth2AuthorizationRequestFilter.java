@@ -16,10 +16,11 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.changppo.cost_management_service.service.member.oauth2.kakao.KakaoConstants.*;
 
 
 @RequiredArgsConstructor
@@ -27,9 +28,6 @@ public class PreOAuth2AuthorizationRequestFilter extends OncePerRequestFilter {
 
     private final ClientRegistrationRepository clientRegistrationRepository;
     private final AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
-    private static final String KAKAO_REGISTRATION_ID = "kakao";
-    private static final String KAKAO_REDIRECT_URI = "/login/oauth2/code/kakao";
-    private static final String IOS_STATE = "ios";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -48,7 +46,7 @@ public class PreOAuth2AuthorizationRequestFilter extends OncePerRequestFilter {
     }
 
     private OAuth2AuthorizationRequest createAuthorizationRequest(HttpServletRequest request, String state) {
-        ClientRegistration clientRegistration = clientRegistrationRepository.findByRegistrationId(PreOAuth2AuthorizationRequestFilter.KAKAO_REGISTRATION_ID);
+        ClientRegistration clientRegistration = clientRegistrationRepository.findByRegistrationId(KAKAO_REGISTRATION_ID);
         if (clientRegistration == null) {
             return null;
         }
@@ -60,7 +58,7 @@ public class PreOAuth2AuthorizationRequestFilter extends OncePerRequestFilter {
                 .scopes(clientRegistration.getScopes())
                 .state(state)
                 .attributes(attributes -> {
-                    attributes.put(OAuth2ParameterNames.REGISTRATION_ID, PreOAuth2AuthorizationRequestFilter.KAKAO_REGISTRATION_ID);
+                    attributes.put(OAuth2ParameterNames.REGISTRATION_ID, KAKAO_REGISTRATION_ID);
                 });
 
         return builder.build();
