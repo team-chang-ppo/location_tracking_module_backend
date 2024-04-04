@@ -84,8 +84,8 @@ public class Member extends EntityDate {
                 });
     }
 
-    public void banForPaymentFailure() {
-        this.isPaymentFailureBanned = LocalDateTime.now();
+    public void banForPaymentFailure(LocalDateTime time) {
+        this.isPaymentFailureBanned = time;
     }
 
     public void unbanForPaymentFailure() {

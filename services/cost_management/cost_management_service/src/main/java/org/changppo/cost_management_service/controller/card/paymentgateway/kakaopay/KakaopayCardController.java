@@ -1,4 +1,4 @@
-package org.changppo.cost_management_service.controller.card.kakaopay;
+package org.changppo.cost_management_service.controller.card.paymentgateway.kakaopay;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

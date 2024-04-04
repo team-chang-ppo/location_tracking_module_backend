@@ -70,16 +70,16 @@ public class ApiKey extends EntityDate {
         this.value = value;
     }
 
-    public void banForPaymentFailure() {
-        this.paymentFailureBannedAt = LocalDateTime.now();
+    public void banForPaymentFailure(LocalDateTime time) {
+        this.paymentFailureBannedAt = time;
     }
 
     public void unbanForPaymentFailure() {
         this.paymentFailureBannedAt = null;
     }
 
-    public void banForCardDeletion() {
-        this.cardDeletionBannedAt = LocalDateTime.now();
+    public void banForCardDeletion(LocalDateTime time) {
+        this.cardDeletionBannedAt = time;
     }
 
     public void unbanForCardDeletion() {

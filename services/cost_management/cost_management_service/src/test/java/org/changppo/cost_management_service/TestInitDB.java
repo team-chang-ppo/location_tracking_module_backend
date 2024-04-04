@@ -17,6 +17,7 @@ import org.changppo.cost_management_service.repository.member.MemberRepository;
 import org.changppo.cost_management_service.repository.member.RoleRepository;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -104,7 +105,7 @@ public class TestInitDB {
                 .profileImage("bannedMemberProfileImage")
                 .roles(Collections.singleton(normalRole))
                 .build();
-        bannedMember.banForPaymentFailure();
+        bannedMember.banForPaymentFailure(LocalDateTime.now());
 
         memberRepository.saveAll(List.of(freeMember, normalMember, bannedMember));
     }
@@ -142,7 +143,7 @@ public class TestInitDB {
                 .grade(freeGrade)
                 .member(normalMember)
                 .build();
-        bannedApiKey.banForPaymentFailure();
+        bannedApiKey.banForPaymentFailure(LocalDateTime.now());
         apiKeyRepository.saveAll(List.of(freeApiKey, classicApiKey, classicApiKeyByBannedMember, bannedApiKey));
     }
 }

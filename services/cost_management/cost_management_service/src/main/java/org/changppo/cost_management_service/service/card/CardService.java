@@ -74,11 +74,11 @@ public class CardService {
             Role normalRole = roleRepository.findByRoleType(RoleType.ROLE_NORMAL).orElseThrow(RoleNotFoundException::new);
             member.changeRole(RoleType.ROLE_FREE, normalRole);
             updateAuthentication(member);
-            unbanForCardDeletionApiKey(member);
+            unbanForCardDeletionApiKeys(member);
         }
     }
 
-    private void unbanForCardDeletionApiKey(Member member) {
+    private void unbanForCardDeletionApiKeys(Member member) {
         apiKeyRepository.unbanForCardDeletionByMemberId(member.getId());
     }
 
@@ -110,11 +110,11 @@ public class CardService {
             Role freeRole = roleRepository.findByRoleType(RoleType.ROLE_FREE).orElseThrow(RoleNotFoundException::new);
             member.changeRole(RoleType.ROLE_NORMAL, freeRole);
             updateAuthentication(member);
-            banForCardDeletionApiKey(member);
+            banForCardDeletionApiKeys(member);
         }
     }
 
-    private void banForCardDeletionApiKey(Member member) {
+    private void banForCardDeletionApiKeys(Member member) {
         apiKeyRepository.banForCardDeletionByMemberId(member.getId());
     }
 
