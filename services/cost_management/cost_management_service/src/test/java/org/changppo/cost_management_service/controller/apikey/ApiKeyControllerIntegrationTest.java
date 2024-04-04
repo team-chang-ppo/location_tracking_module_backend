@@ -29,7 +29,7 @@ import org.springframework.web.context.WebApplicationContext;
 import static org.changppo.cost_management_service.builder.apikey.ApiKeyRequestBuilder.buildApiKeyCreateRequest;
 import static org.changppo.cost_management_service.builder.apikey.ApiKeyRequestBuilder.buildApiKeyReadAllRequest;
 import static org.changppo.cost_management_service.builder.member.CustomOAuth2UserBuilder.buildCustomOAuth2User;
-import static org.changppo.cost_management_service.builder.response.JsonResponseBuilder.buildJsonResponse;
+import static org.changppo.cost_management_service.builder.response.JsonNodeBuilder.buildJsonNode;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -103,7 +103,7 @@ public class ApiKeyControllerIntegrationTest {
                             .andExpect(jsonPath("$.result.data.createdAt").exists())
                             .andReturn();
 
-        Long id =  buildJsonResponse(result).getLongValue("result", "data", "id");
+        Long id =  buildJsonNode(result, objectMapper).getLongValue("result", "data", "id");
         ApiKey apiKey = apiKeyRepository.findById(id).orElseThrow(ApiKeyNotFoundException::new);
 
         // then
@@ -159,7 +159,7 @@ public class ApiKeyControllerIntegrationTest {
                             .andExpect(jsonPath("$.result.data.createdAt").exists())
                             .andReturn();
 
-        Long id =  buildJsonResponse(result).getLongValue("result", "data", "id");
+        Long id =  buildJsonNode(result, objectMapper).getLongValue("result", "data", "id");
         ApiKey apiKey = apiKeyRepository.findById(id).orElseThrow(ApiKeyNotFoundException::new);
 
         // then
@@ -262,7 +262,8 @@ public class ApiKeyControllerIntegrationTest {
                         .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.data.numberOfElements").value(freeMemberApiKeyCount))
-                .andExpect(jsonPath("$.result.data.hasNext").value(false));
+                .andExpect(jsonPath("$.result.data.hasNext").value(false))
+                .andExpect(jsonPath("$.result.data.apiKeyList.length()").value(freeMemberApiKeyCount));
     }
 
     @Test

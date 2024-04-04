@@ -7,7 +7,7 @@ import org.changppo.cost_management_service.dto.paymentgateway.kakaopay.subscrip
 import org.changppo.cost_management_service.dto.paymentgateway.kakaopay.subscription.KakaopaySubscriptionStatusResponse;
 import org.changppo.cost_management_service.entity.card.PaymentGatewayType;
 import org.changppo.cost_management_service.response.exception.paymentgateway.*;
-import org.changppo.cost_management_service.service.card.paymentgateway.PaymentGatewayClient;
+import org.changppo.cost_management_service.service.paymentgateway.PaymentGatewayClient;
 import org.changppo.cost_management_service.service.paymentgateway.PaymentGatewayProperties;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;

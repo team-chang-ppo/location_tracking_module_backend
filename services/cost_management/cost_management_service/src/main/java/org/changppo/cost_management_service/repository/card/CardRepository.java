@@ -24,4 +24,6 @@ public interface CardRepository extends JpaRepository<Card, Long> {
     long countByMemberId(Long memberId);
 
     void deleteAllByMemberId(Long memberId);
+
+    Optional<Card> findByKey(String key);
 }

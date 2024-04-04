@@ -1,4 +1,4 @@
-package org.changppo.cost_management_service.service.card.paymentgateway;
+package org.changppo.cost_management_service.service.paymentgateway;
 
 import org.changppo.cost_management_service.entity.card.PaymentGatewayType;
 

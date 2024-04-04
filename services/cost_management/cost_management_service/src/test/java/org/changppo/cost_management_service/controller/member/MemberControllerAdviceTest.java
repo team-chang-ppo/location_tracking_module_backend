@@ -62,7 +62,7 @@ class MemberControllerAdviceTest {
     }
 
     @Test
-    void deleteMemberDeleteFailureExceptionTest() throws Exception {
+    void deleteMemberUnsupportedOAuth2ExceptionTest() throws Exception {
         // given
         doThrow(new UnsupportedOAuth2Exception()).when(memberService).delete(anyLong(), any(HttpServletRequest.class), any(HttpServletResponse.class));
 

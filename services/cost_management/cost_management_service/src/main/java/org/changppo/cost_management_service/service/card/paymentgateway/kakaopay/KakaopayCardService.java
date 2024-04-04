@@ -10,6 +10,8 @@ import org.changppo.cost_management_service.response.exception.card.CardCreateFa
 import org.changppo.cost_management_service.service.card.CardService;
 import org.changppo.cost_management_service.service.paymentgateway.kakaopay.KakaopayPaymentGatewayClient;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.changppo.cost_management_service.service.paymentgateway.kakaopay.KakaopayConstants.*;
@@ -51,7 +53,7 @@ public class KakaopayCardService {
     public CardDto registerApprove(KakaopayCardRegisterApproveRequest req) {
         KakaopayApproveResponse kakaopayApproveResponse = kakaopayPaymentGatewayClient.Approve(createKakaopayApproveRequest(req));
         try {
-            CardCreateRequest cardCreateRequest = createCardCreateRequest(kakaopayApproveResponse, req.getMemberId());
+            CardCreateRequest cardCreateRequest = createCardCreateRequest(kakaopayApproveResponse);
             return cardService.create(cardCreateRequest);
         } catch (Exception e) {
             kakaopayPaymentGatewayClient.inactive(kakaopayApproveResponse.getSid());
@@ -68,8 +70,11 @@ public class KakaopayCardService {
         );
     }
 
-    private CardCreateRequest createCardCreateRequest(KakaopayApproveResponse response, Long memberId) {
+    private CardCreateRequest createCardCreateRequest(KakaopayApproveResponse response) {
         KakaopayCardDto kakaopayCardDto = createKakaopayCardDto(response);
+        Long memberId = Optional.ofNullable(response.getPartner_user_id())
+                .map(Long::valueOf)
+                .orElseThrow(() -> new IllegalArgumentException("invalid partner_user_id"));
         return new CardCreateRequest(response.getSid(), kakaopayCardDto.getType(), kakaopayCardDto.getAcquirerCorporation(),
                 kakaopayCardDto.getIssuerCorporation(), kakaopayCardDto.getBin(), PaymentGatewayType.PG_KAKAOPAY, memberId);
     }

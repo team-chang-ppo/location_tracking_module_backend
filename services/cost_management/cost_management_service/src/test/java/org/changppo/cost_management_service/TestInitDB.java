@@ -7,14 +7,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.changppo.cost_management_service.entity.apikey.ApiKey;
 import org.changppo.cost_management_service.entity.apikey.Grade;
 import org.changppo.cost_management_service.entity.apikey.GradeType;
+import org.changppo.cost_management_service.entity.card.Card;
+import org.changppo.cost_management_service.entity.card.PaymentGateway;
+import org.changppo.cost_management_service.entity.card.PaymentGatewayType;
 import org.changppo.cost_management_service.entity.member.Member;
 import org.changppo.cost_management_service.entity.member.Role;
 import org.changppo.cost_management_service.entity.member.RoleType;
-import org.changppo.cost_management_service.response.exception.member.RoleNotFoundException;
 import org.changppo.cost_management_service.repository.apikey.ApiKeyRepository;
 import org.changppo.cost_management_service.repository.apikey.GradeRepository;
+import org.changppo.cost_management_service.repository.card.CardRepository;
+import org.changppo.cost_management_service.repository.card.PaymentGatewayRepository;
 import org.changppo.cost_management_service.repository.member.MemberRepository;
 import org.changppo.cost_management_service.repository.member.RoleRepository;
+import org.changppo.cost_management_service.response.exception.apikey.GradeNotFoundException;
+import org.changppo.cost_management_service.response.exception.card.PaymentGatewayNotFoundException;
+import org.changppo.cost_management_service.response.exception.member.MemberNotFoundException;
+import org.changppo.cost_management_service.response.exception.member.RoleNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -34,6 +42,8 @@ public class TestInitDB {
     private final MemberRepository memberRepository;
     private final GradeRepository gradeRepository;
     private final ApiKeyRepository apiKeyRepository;
+    private final PaymentGatewayRepository paymentGatewayRepository;
+    private final CardRepository cardRepository;
 
     @Getter
     private final String adminMemberName = "kakao_0000";
@@ -51,6 +61,8 @@ public class TestInitDB {
     private final String classicApiKeyByBannedMemberValue = "classic-api-key-by-banned-member";
     @Getter
     private final String bannedApiKeyValue = "banned-api-key";
+    @Getter
+    private final String testCardKey = "test-card-key";
 
     @Transactional
     public void initMember() {
@@ -63,6 +75,12 @@ public class TestInitDB {
     public void initApiKey() {
         initGrade();
         initTestApiKey();
+    }
+
+    @Transactional
+    public void initCard() {
+        initPaymentGateway();
+        initTestCard();
     }
 
     private void initRole() {
@@ -117,11 +135,11 @@ public class TestInitDB {
     }
 
     private void initTestApiKey() {
-        Member freeMember = memberRepository.findByName(freeMemberName).orElseThrow();
-        Member normalMember = memberRepository.findByName(normalMemberName).orElseThrow();
-        Member bannedMember = memberRepository.findByName(bannedMemberName).orElseThrow();
-        Grade freeGrade = gradeRepository.findByGradeType(GradeType.GRADE_FREE).orElseThrow();
-        Grade classicGrade = gradeRepository.findByGradeType(GradeType.GRADE_CLASSIC).orElseThrow();
+        Member freeMember = memberRepository.findByName(freeMemberName).orElseThrow(MemberNotFoundException::new);
+        Member normalMember = memberRepository.findByName(normalMemberName).orElseThrow(MemberNotFoundException::new);
+        Member bannedMember = memberRepository.findByName(bannedMemberName).orElseThrow(MemberNotFoundException::new);
+        Grade freeGrade = gradeRepository.findByGradeType(GradeType.GRADE_FREE).orElseThrow(GradeNotFoundException::new);
+        Grade classicGrade = gradeRepository.findByGradeType(GradeType.GRADE_CLASSIC).orElseThrow(GradeNotFoundException::new);
 
         ApiKey freeApiKey = ApiKey.builder()
                 .value(freeApiKeyValue)
@@ -145,5 +163,28 @@ public class TestInitDB {
                 .build();
         bannedApiKey.banForPaymentFailure(LocalDateTime.now());
         apiKeyRepository.saveAll(List.of(freeApiKey, classicApiKey, classicApiKeyByBannedMember, bannedApiKey));
+    }
+
+    private void initPaymentGateway() {
+        paymentGatewayRepository.saveAll(
+                Stream.of(PaymentGatewayType.values()).map(PaymentGateway::new).collect(Collectors.toList())
+        );
+    }
+
+    private void initTestCard() {
+        Member normalMember = memberRepository.findByName(normalMemberName).orElseThrow(MemberNotFoundException::new);
+        PaymentGateway kakaopayPaymentGateway = paymentGatewayRepository.findByPaymentGatewayType(PaymentGatewayType.PG_KAKAOPAY).orElseThrow(PaymentGatewayNotFoundException::new);
+
+        Card card = Card.builder()
+                .key(testCardKey)
+                .member(normalMember)
+                .paymentGateway(kakaopayPaymentGateway)
+                .type("신용")
+                .issuerCorporation("Test Bank")
+                .acquirerCorporation("Test Acquirer")
+                .bin("123456")
+                .build();
+
+        cardRepository.save(card);
     }
 }

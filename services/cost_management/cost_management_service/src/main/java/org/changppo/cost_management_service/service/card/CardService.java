@@ -22,9 +22,11 @@ import org.changppo.cost_management_service.response.exception.card.UnsupportedP
 import org.changppo.cost_management_service.response.exception.member.MemberNotFoundException;
 import org.changppo.cost_management_service.response.exception.member.RoleNotFoundException;
 import org.changppo.cost_management_service.response.exception.member.UpdateAuthenticationFailureException;
-import org.changppo.cost_management_service.service.card.paymentgateway.PaymentGatewayClient;
+import org.changppo.cost_management_service.service.paymentgateway.PaymentGatewayClient;
 import org.springframework.data.repository.query.Param;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -32,6 +34,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -64,14 +67,17 @@ public class CardService {
                 .build();
         card = cardRepository.save(card);
 
-        boolean hasFreeRole = member.getMemberRoles().stream().anyMatch(memberRole -> memberRole.getRole().getRoleType() == RoleType.ROLE_FREE);
-        if (hasFreeRole) {
+        if (hasFreeRole(member)) {
             upgradeRole(member);
             unbanForCardDeletionApiKeys(member);
         }
-
         return new CardDto(card.getId(), card.getType(), card.getIssuerCorporation(), card.getBin(),
                 card.getPaymentGateway().getPaymentGatewayType(), card.getCreatedAt());
+    }
+
+    private boolean hasFreeRole(Member member) {
+        return member.getMemberRoles().stream()
+                .anyMatch(memberRole -> memberRole.getRole().getRoleType() == RoleType.ROLE_FREE);
     }
 
     private void upgradeRole(Member member) {
@@ -104,11 +110,14 @@ public class CardService {
         cardRepository.delete(card);
         inactivePaymentGatewayCard(card);
 
-        long count = cardRepository.countByMemberId(card.getMember().getId());
-        if (count == 0) {
+        if (isLastCard(card)) {
             downgradeRole(card.getMember());
             banForCardDeletionApiKeys(card.getMember());
         }
+    }
+
+    private boolean isLastCard(Card card) {
+        return cardRepository.countByMemberId(card.getMember().getId()) == 0;
     }
 
     private void downgradeRole(Member member) {
@@ -132,20 +141,32 @@ public class CardService {
 
     private void updateAuthentication(Member member) {
         Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
-                .filter(authentication1 -> authentication1 instanceof OAuth2AuthenticationToken)
+                .filter(this::isOAuth2Authentication)
                 .map(OAuth2AuthenticationToken.class::cast)
-                .map(oauth2AuthToken -> new OAuth2AuthenticationToken(
-                        oauth2AuthToken.getPrincipal(),
-                        member.getMemberRoles().stream()
-                                .map(memberRole -> new SimpleGrantedAuthority(memberRole.getRole().getRoleType().name()))
-                                .collect(Collectors.toSet()),
-                        oauth2AuthToken.getAuthorizedClientRegistrationId()
-                ))
+                .map(oauth2AuthenticationToken -> getOAuth2AuthenticationToken(oauth2AuthenticationToken, member))
                 .ifPresentOrElse(
                         SecurityContextHolder.getContext()::setAuthentication,
                         () -> {
                             throw new UpdateAuthenticationFailureException();
                         }
                 );
+    }
+
+    private boolean isOAuth2Authentication(Authentication authentication) {
+        return authentication instanceof OAuth2AuthenticationToken;
+    }
+
+    private OAuth2AuthenticationToken getOAuth2AuthenticationToken(OAuth2AuthenticationToken oauth2AuthenticationToken, Member member) {
+        return new OAuth2AuthenticationToken(
+                oauth2AuthenticationToken.getPrincipal(),
+                getAuthorities(member),
+                oauth2AuthenticationToken.getAuthorizedClientRegistrationId()
+        );
+    }
+
+    private Collection<GrantedAuthority> getAuthorities(Member member) {
+        return member.getMemberRoles().stream()
+                .map(memberRole -> new SimpleGrantedAuthority(memberRole.getRole().getRoleType().name()))
+                .collect(Collectors.toSet());
     }
 }
