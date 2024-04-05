@@ -22,6 +22,7 @@ import org.changppo.cost_management_service.response.exception.card.UnsupportedP
 import org.changppo.cost_management_service.response.exception.member.MemberNotFoundException;
 import org.changppo.cost_management_service.response.exception.member.RoleNotFoundException;
 import org.changppo.cost_management_service.response.exception.member.UpdateAuthenticationFailureException;
+import org.changppo.cost_management_service.security.oauth2.CustomOAuth2User;
 import org.changppo.cost_management_service.service.paymentgateway.PaymentGatewayClient;
 import org.springframework.data.repository.query.Param;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,9 +35,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -141,7 +142,7 @@ public class CardService {
 
     private void updateAuthentication(Member member) {
         Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
-                .filter(this::isOAuth2Authentication)
+                .filter(this::isOAuth2AuthenticationToken)
                 .map(OAuth2AuthenticationToken.class::cast)
                 .map(oauth2AuthenticationToken -> getOAuth2AuthenticationToken(oauth2AuthenticationToken, member))
                 .ifPresentOrElse(
@@ -152,19 +153,27 @@ public class CardService {
                 );
     }
 
-    private boolean isOAuth2Authentication(Authentication authentication) {
+    private boolean isOAuth2AuthenticationToken(Authentication authentication) {
         return authentication instanceof OAuth2AuthenticationToken;
     }
 
     private OAuth2AuthenticationToken getOAuth2AuthenticationToken(OAuth2AuthenticationToken oauth2AuthenticationToken, Member member) {
         return new OAuth2AuthenticationToken(
-                oauth2AuthenticationToken.getPrincipal(),
+                getPrincipal(member),
                 getAuthorities(member),
                 oauth2AuthenticationToken.getAuthorizedClientRegistrationId()
         );
     }
 
-    private Collection<GrantedAuthority> getAuthorities(Member member) {
+    private CustomOAuth2User getPrincipal(Member member) {
+        return new CustomOAuth2User(
+                member.getId(),
+                member.getName(),
+                getAuthorities(member)
+        );
+    }
+
+    private Set<GrantedAuthority> getAuthorities(Member member) {
         return member.getMemberRoles().stream()
                 .map(memberRole -> new SimpleGrantedAuthority(memberRole.getRole().getRoleType().name()))
                 .collect(Collectors.toSet());

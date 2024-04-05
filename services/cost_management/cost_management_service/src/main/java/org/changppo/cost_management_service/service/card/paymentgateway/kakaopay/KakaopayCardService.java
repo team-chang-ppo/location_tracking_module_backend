@@ -29,7 +29,7 @@ public class KakaopayCardService {
                 kakaopayReadyResponse.getNext_redirect_pc_url(), kakaopayReadyResponse.getAndroid_app_scheme(), kakaopayReadyResponse.getIos_app_scheme());
     }
 
-    private KakaopayReadyRequest createKakaopayReadyRequest(KakaopayCardRegisterReadyRequest req) {
+    private KakaopayReadyRequest createKakaopayReadyRequest(KakaopayCardRegisterReadyRequest req) { // TODO. 실행 환경 별로 redirect url 변경
         String partnerOrderId = generateTemporaryValue();
         return new KakaopayReadyRequest(
                 CCID,

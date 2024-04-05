@@ -15,11 +15,11 @@ public class KakaopayResponseBuilder {
 
     public static KakaopayReadyResponse buildKakaopayReadyResponse(LocalDateTime time) {
         String tid = UUID.randomUUID().toString();
-        String nextRedirectAppUrl = "kakaoapp://kakaopay/ready/" + UUID.randomUUID().toString();
-        String nextRedirectMobileUrl = "https://m.kakaopay.com/ready/" + UUID.randomUUID().toString();
-        String nextRedirectPcUrl = "https://kakaopay.com/ready/" + UUID.randomUUID().toString();
-        String androidAppScheme = "kakaopay-android-app-scheme://" + UUID.randomUUID().toString();
-        String iosAppScheme = "kakaopay-ios-app-scheme://" + UUID.randomUUID().toString();
+        String nextRedirectAppUrl = "kakaoapp://kakaopay/ready/" + UUID.randomUUID();
+        String nextRedirectMobileUrl = "https://m.kakaopay.com/ready/" + UUID.randomUUID();
+        String nextRedirectPcUrl = "https://kakaopay.com/ready/" + UUID.randomUUID();
+        String androidAppScheme = "kakaopay-android-app-scheme://" + UUID.randomUUID();
+        String iosAppScheme = "kakaopay-ios-app-scheme://" + UUID.randomUUID();
         String createdAt = time.toString();
 
         return new KakaopayReadyResponse(
