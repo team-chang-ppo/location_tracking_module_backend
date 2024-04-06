@@ -19,7 +19,9 @@ public class Tracking {
     @Id
     private String id;
 
-    private String authority = Authority.BASIC.name();
+    private String apiKeyId;
+
+    private List<String> scope;
 
     private Point startPoint;
 
@@ -36,13 +38,16 @@ public class Tracking {
     private List<Coordinates> coordinatesList;
 
     @Builder
-    public Tracking(String id, Point startPoint, Point endPoint, Long estimatedArrivalTime, LocalDateTime startedAt) {
+    public Tracking(String id, String apiKeyId, List<String> scope, Point startPoint, Point endPoint, Long estimatedArrivalTime, LocalDateTime startedAt) {
         this.id = id;
+        this.apiKeyId = apiKeyId;
+        this.scope = scope;
         this.startPoint = startPoint;
         this.endPoint = endPoint;
         this.estimatedArrivalTime = estimatedArrivalTime;
         this.startedAt = startedAt;
     }
+
 
     public void updateEndedAt(LocalDateTime endedAt) {
         this.endedAt = endedAt;
