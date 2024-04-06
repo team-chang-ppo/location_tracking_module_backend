@@ -3,6 +3,7 @@ package org.changppo.tracking.api;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.changppo.tracking.aop.TrackingContextParam;
 import org.changppo.tracking.api.request.GenerateTokenRequest;
 import org.changppo.tracking.api.request.TrackingRequest;
 import org.changppo.tracking.api.response.GenerateTokenResponse;
@@ -10,7 +11,6 @@ import org.changppo.tracking.api.response.TrackingResponse;
 import org.changppo.tracking.domain.TrackingContext;
 import org.changppo.tracking.service.TrackingService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -45,10 +45,11 @@ public class TrackingController {
      * @param context TrackingContext
      * @return TODO 반환처리
      */
+    @TrackingContextParam
     @PostMapping("/tracking")
     public ResponseEntity<Void> tracking(@RequestBody @Valid TrackingRequest request,
-                                         @AuthenticationPrincipal TrackingContext context) {
-        trackingService.tracking(request, context.trackingId());
+                                         TrackingContext context) {
+        trackingService.tracking(request, context);
 
         return ResponseEntity.ok().build();
     }
@@ -60,9 +61,10 @@ public class TrackingController {
      * @param context TrackingContext
      * @return TODO 반환처리
      */
+    @TrackingContextParam
     @DeleteMapping("/tracking")
-    public ResponseEntity<Void> finish(@AuthenticationPrincipal TrackingContext context) {
-        trackingService.finish(context.trackingId());
+    public ResponseEntity<Void> finish(TrackingContext context) {
+        trackingService.finish(context);
 
         return ResponseEntity.ok().build();
     }
@@ -74,9 +76,10 @@ public class TrackingController {
      * @param context TrackingContext
      * @return TrackingResponse
      */
+    @TrackingContextParam
     @GetMapping("/tracking")
-    public ResponseEntity<TrackingResponse> getTracking(@AuthenticationPrincipal TrackingContext context) {
-        TrackingResponse response = trackingService.getTracking(context.trackingId());
+    public ResponseEntity<TrackingResponse> getTracking(TrackingContext context) {
+        TrackingResponse response = trackingService.getTracking(context);
 
         return ResponseEntity.ok().body(response);
     }

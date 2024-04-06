@@ -39,6 +39,8 @@ dependencies {
 	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
 	// ConfigurationProperties
 	implementation 'org.springframework.boot:spring-boot-configuration-processor:3.2.0'
+	// aop
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
 	// test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
