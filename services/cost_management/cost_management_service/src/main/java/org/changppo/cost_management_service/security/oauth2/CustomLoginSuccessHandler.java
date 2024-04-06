@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.changppo.cost_management_service.response.Response;
-import org.changppo.cost_management_service.security.PrincipalHandler;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -21,7 +20,7 @@ public class CustomLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        response.getWriter().write(convertToJson(Response.success(PrincipalHandler.extractId())));
+        response.getWriter().write(convertToJson(Response.success()));
     }
 
     private String convertToJson(Response response) throws IOException {

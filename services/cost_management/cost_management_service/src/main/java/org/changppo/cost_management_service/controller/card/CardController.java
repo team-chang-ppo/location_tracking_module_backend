@@ -3,6 +3,7 @@ package org.changppo.cost_management_service.controller.card;
 import lombok.RequiredArgsConstructor;
 import org.changppo.cost_management_service.dto.card.CardDto;
 import org.changppo.cost_management_service.response.Response;
+import org.changppo.cost_management_service.security.PrincipalHandler;
 import org.changppo.cost_management_service.service.card.CardService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,13 @@ public class CardController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(Response.success(cardDto));
+    }
+
+    @GetMapping("/member/me")
+    public ResponseEntity<Response> readAllMe() {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(Response.success(cardService.readAll(PrincipalHandler.extractId())));
     }
 
     @GetMapping("/member/{id}")
