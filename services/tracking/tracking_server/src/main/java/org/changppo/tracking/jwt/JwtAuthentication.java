@@ -14,7 +14,7 @@ public record JwtAuthentication(
 ) implements Authentication {
 
     public JwtAuthentication(TrackingContext principal) {
-        this(principal.trackingId(), principal.trackingId(), principal.scopes());
+        this(principal.trackingId(), principal.apiKeyId(), principal.scopes());
     }
 
     @Override
