@@ -1,4 +1,4 @@
-package org.changppo.tracking.config;
+package org.changppo.tracking.jwt;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +11,5 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties("jwt")
 public class JwtProperties {
     private String secretKey;
-
-    private int tokenExpirySeconds;
+    private String issuer;
 }

@@ -1,10 +1,11 @@
+
 package org.changppo.tracking.api;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.changppo.tracking.api.request.ConnectRequest;
+import org.changppo.tracking.api.request.GenerateTokenRequest;
 import org.changppo.tracking.api.request.TrackingRequest;
-import org.changppo.tracking.api.response.ConnectResponse;
+import org.changppo.tracking.api.response.GenerateTokenResponse;
 import org.changppo.tracking.api.response.TrackingResponse;
 import org.changppo.tracking.domain.TrackingContext;
 import org.changppo.tracking.service.TrackingService;
@@ -20,15 +21,17 @@ public class TrackingController {
     private final TrackingService trackingService;
 
     /**
-     * 연결 API
+     * 토큰 생성 API
      * 해당 정보를 저장한 token 을 반환 200
      * 이미 사용자가 존재하면 409
      * @param request ConnectRequest
      * @return response ConnectResponse
+     * TODO : 토큰 헤더의 키 값은 상의 필요
      */
-    @PostMapping("/connect")
-    public ResponseEntity<ConnectResponse> connect(@RequestBody @Valid ConnectRequest request) {
-        ConnectResponse response = trackingService.connect(request);
+    @PostMapping("/generate-token")
+    public ResponseEntity<GenerateTokenResponse> generateToken(@RequestHeader("api-key-id") String apiKeyId,
+                                                               @RequestBody @Valid GenerateTokenRequest request) {
+        GenerateTokenResponse response = trackingService.generateToken(apiKeyId, request);
 
         return ResponseEntity.ok().body(response);
     }
