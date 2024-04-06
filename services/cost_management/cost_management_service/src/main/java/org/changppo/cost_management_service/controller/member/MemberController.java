@@ -3,6 +3,7 @@ package org.changppo.cost_management_service.controller.member;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.changppo.cost_management_service.dto.member.MemberDto;
 import org.changppo.cost_management_service.response.Response;
 import org.changppo.cost_management_service.security.PrincipalHandler;
 import org.changppo.cost_management_service.service.member.MemberService;
@@ -19,16 +20,18 @@ public class MemberController {
 
     @GetMapping("/me")
     public ResponseEntity<Response> readMe() {
+        MemberDto memberDto = memberService.read(PrincipalHandler.extractId());
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(Response.success(memberService.read(PrincipalHandler.extractId())));
+                .body(Response.success(memberDto));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Response> read(@PathVariable(name = "id") Long id) {
+        MemberDto memberDto = memberService.read(id);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(Response.success(memberService.read(id)));
+                .body(Response.success(memberDto));
     }
 
     @DeleteMapping("/me")

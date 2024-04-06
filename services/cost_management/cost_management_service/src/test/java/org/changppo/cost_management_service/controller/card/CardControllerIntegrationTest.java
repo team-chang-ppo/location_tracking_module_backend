@@ -134,12 +134,41 @@ public class CardControllerIntegrationTest {
     }
 
     @Test
+    void readUnauthorizedByNoneSessionTestTest() throws Exception{
+        // given, when, then
+        mockMvc.perform(
+                        get("/api/cards/v1/{id}", card.getId()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void readAccessDeniedByNotResourceOwnerTest() throws Exception{
         // given, when, then
         mockMvc.perform(
                         get("/api/cards/v1/{id}", card.getId())
                                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void readAllMeTest() throws Exception {
+        // given
+        long normalMemberCardCount = cardRepository.countByMemberId(normalMember.getId());
+
+        // when, then
+        mockMvc.perform(
+                        get("/api/cards/v1/member/me")
+                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2NormalMember)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.data.cardList.length()").value(normalMemberCardCount));
+    }
+
+    @Test
+    void readAllMeUnauthorizedByNoneSessionTest() throws Exception {
+        // given, when, then
+        mockMvc.perform(
+                    get("/api/cards/v1/member/me"))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -166,6 +195,14 @@ public class CardControllerIntegrationTest {
                                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2AdminMember)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.data.cardList.length()").value(normalMemberCardCount));
+    }
+
+    @Test
+    void readAllUnauthorizedByNoneSessionTest() throws Exception {
+        // given, when, then
+        mockMvc.perform(
+                        get("/api/cards/v1/member/{id}", normalMember.getId()))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -215,6 +252,20 @@ public class CardControllerIntegrationTest {
         assertTrue(cardRepository.findById(card.getId()).isEmpty());
         Member member = memberRepository.findById(normalMember.getId()).orElseThrow(MemberNotFoundException::new);
         assertTrue(member.getMemberRoles().stream().allMatch(role -> role.getRole().getRoleType() == RoleType.ROLE_FREE));
+    }
+
+    @Test
+    void deleteUnauthorizedByNoneSessionTest() throws Exception {
+        // given
+        String kakaopaySubscriptionInactiveResponseJson = convertToJson(KakaopayResponseBuilder.buildKakaopaySubscriptionInactiveResponse(LocalDateTime.now()));
+        mockServer.expect(requestTo(KAKAOPAY_SUBSCRIPTION_INACTIVE_URL))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(kakaopaySubscriptionInactiveResponseJson, MediaType.APPLICATION_JSON));
+
+        // when, then
+        mockMvc.perform(
+                        delete("/api/cards/v1/{id}", card.getId()))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
