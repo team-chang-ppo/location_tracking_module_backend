@@ -9,10 +9,7 @@ import org.changppo.tracking.api.response.TrackingResponse;
 import org.changppo.tracking.domain.Coordinates;
 import org.changppo.tracking.domain.Tracking;
 import org.changppo.tracking.domain.TrackingContext;
-import org.changppo.tracking.exception.CoordinatesNotFoundException;
-import org.changppo.tracking.exception.TrackingAlreadyExitedException;
-import org.changppo.tracking.exception.TrackingDuplicateException;
-import org.changppo.tracking.exception.TrackingNotFoundException;
+import org.changppo.tracking.exception.*;
 import org.changppo.tracking.jwt.TokenProvider;
 import org.changppo.tracking.repository.CoordinatesRepository;
 import org.changppo.tracking.repository.TrackingRepository;
@@ -46,23 +43,23 @@ public class TrackingService {
         return new GenerateTokenResponse(token);
     }
 
-    public void tracking(TrackingRequest request, String trackingId) {
-        Tracking tracking = checkTracking(trackingId);
+    public void tracking(TrackingRequest request, TrackingContext context) {
+        Tracking tracking = checkTracking(context);
 
         Coordinates coordinates = TrackingRequest.toCoordinatesEntity(request, tracking.getId());
         coordinatesRepository.save(coordinates);
     }
 
-    public void finish(String trackingId) {
-        Tracking tracking = checkTracking(trackingId);
+    public void finish(TrackingContext context) {
+        Tracking tracking = checkTracking(context);
 
         tracking.updateEndedAt(LocalDateTime.now().plusHours(9));
 
         trackingRepository.save(tracking);
     }
 
-    public TrackingResponse getTracking(String trackingId) {
-        Tracking tracking = checkTracking(trackingId);
+    public TrackingResponse getTracking(TrackingContext context) {
+        Tracking tracking = checkTracking(context);
 
         return coordinatesRepository.findByTrackingIdOrderByCreatedAtDesc(tracking.getId())
                 .stream().findFirst()
@@ -70,9 +67,18 @@ public class TrackingService {
                 .orElseThrow(CoordinatesNotFoundException::new);
     }
 
-    private Tracking checkTracking(String trackingId) {
-        Tracking tracking = trackingRepository.findById(trackingId)
+    /**
+     * 1. trackingId로 해당 tracking이 존재하는지 검사
+     * 2. 해당 tracking 정보를 볼 수 있는지 검사 (api-key-id가 동일한지)
+     * 3. 이미 끝난 tracking 정보가 아닌지 검사
+     */
+    private Tracking checkTracking(TrackingContext context) {
+        Tracking tracking = trackingRepository.findById(context.trackingId())
                 .orElseThrow(TrackingNotFoundException::new); // 404 error
+
+        if(!tracking.getApiKeyId().equals(context.apiKeyId())) {
+            throw new ApiKeyIdIsNotMatchedException(); // 401 error
+        }
 
         if(tracking.getEndedAt() != null) {
             throw new TrackingAlreadyExitedException(); // 400 error
