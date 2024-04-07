@@ -21,28 +21,30 @@ public class ExceptionAdvice {
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<Response> businessException(BusinessException e) {
-        log.info("e = {}", e.getMessage());
         ExceptionType exceptionType = e.getExceptionType();
+        log.info("e = {}", exceptionType.getMessage());
         return ResponseEntity.status(exceptionType.getStatus())
                 .body(responseHandler.getFailureResponse(exceptionType));
     }
 
     @ExceptionHandler(OAuth2BusinessException.class)
     public ResponseEntity<Response> oauth2BusinessException(OAuth2BusinessException e) {
-        log.error("Payment gateway exception occurred: {}, Cause: {}", e.getMessage(), e.getCause() != null ? e.getCause().toString() : "No cause available");
+        ExceptionType exceptionType = e.getExceptionType();
+        log.error("OAuth2 exception occurred: {}, Cause: {}", exceptionType.getMessage(), e.getCause() != null ? e.getCause().toString() : "No cause available");
         // TODO. Admin에게 알림
         return ResponseEntity
-                .status(e.getExceptionType().getStatus())
-                .body(responseHandler.getFailureResponse(e.getExceptionType()));
+                .status(exceptionType.getStatus())
+                .body(responseHandler.getFailureResponse(exceptionType));
     }
 
     @ExceptionHandler(PaymentGatewayBusinessException.class)
     public ResponseEntity<Response> paymentGatewayBusinessException(PaymentGatewayBusinessException e) {
-        log.error("Payment gateway exception occurred: {}, Cause: {}", e.getMessage(), e.getCause() != null ? e.getCause().toString() : "No cause available");
+        ExceptionType exceptionType = e.getExceptionType();
+        log.error("Payment gateway exception occurred: {}, Cause: {}", exceptionType.getMessage(), e.getCause() != null ? e.getCause().toString() : "No cause available");
         // TODO. Admin에게 알림
         return ResponseEntity
-                .status(e.getExceptionType().getStatus())
-                .body(responseHandler.getFailureResponse(e.getExceptionType()));
+                .status(exceptionType.getStatus())
+                .body(responseHandler.getFailureResponse(exceptionType));
     }
 
     @ExceptionHandler(Exception.class)
