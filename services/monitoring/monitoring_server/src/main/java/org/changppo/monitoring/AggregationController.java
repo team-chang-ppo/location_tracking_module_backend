@@ -1,6 +1,7 @@
 package org.changppo.monitoring;
 
 import lombok.RequiredArgsConstructor;
+import org.changppo.monitoring.RouteIdCountResult;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -19,6 +20,11 @@ import java.util.List;
 @RequestMapping("/api/aggregation/v1")
 public class AggregationController {
     private final MongoTemplate mongoTemplate;
+
+    @GetMapping("/ping")
+    public ResponseEntity<String> ping(){
+        return ResponseEntity.ok("pong");
+    }
 
 
     /*
@@ -53,8 +59,8 @@ public class AggregationController {
      */
     @GetMapping("/call_count")
     public ResponseEntity<List<RouteIdCountResult>> getCallCount(@RequestParam("api_key_id") Long apiKeyId,
-                                                           @RequestParam("or_after") Instant orAfter,
-                                                           @RequestParam("before") Instant before){
+                                                                 @RequestParam("or_after") Instant orAfter,
+                                                                 @RequestParam("before") Instant before){
         MatchOperation match = Aggregation.match(
                 Criteria.where("timestamp").gte(orAfter).lt(before).and("api_key_id").is(apiKeyId)
         );
