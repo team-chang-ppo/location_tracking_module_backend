@@ -8,7 +8,7 @@ public class ApiKeyRequestBuilder {
         return new ApiKeyCreateRequest(memberId);
     }
 
-    public static ApiKeyReadAllRequest buildApiKeyReadAllRequest(Long firstApiKeyId, Integer size, Long memberId) {
-        return new ApiKeyReadAllRequest(firstApiKeyId, size, memberId);
+    public static ApiKeyReadAllRequest buildApiKeyReadAllRequest(Long firstApiKeyId, Integer size) {
+        return new ApiKeyReadAllRequest(firstApiKeyId, size);
     }
 }

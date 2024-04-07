@@ -3,9 +3,9 @@ package org.changppo.cost_management_service.controller.member;
 import org.changppo.cost_management_service.TestInitDB;
 import org.changppo.cost_management_service.entity.member.Member;
 import org.changppo.cost_management_service.entity.member.RoleType;
-import org.changppo.cost_management_service.exception.MemberNotFoundException;
+import org.changppo.cost_management_service.response.exception.member.MemberNotFoundException;
 import org.changppo.cost_management_service.repository.member.MemberRepository;
-import org.changppo.cost_management_service.security.oauth.CustomOAuth2User;
+import org.changppo.cost_management_service.security.oauth2.CustomOAuth2User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +22,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.changppo.cost_management_service.builder.member.CustomOAuth2UserBuilder.buildCustomOAuth2User;
+import static org.changppo.cost_management_service.service.member.oauth2.kakao.KakaoConstants.KAKAO_UNLINK_URL;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
@@ -55,8 +56,8 @@ class MemberControllerIntegrationTest {
     @BeforeEach
     void beforeEach() {
         mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
-        testInitDB.initMember();
         mockServer = MockRestServiceServer.createServer(restTemplate);
+        testInitDB.initMember();
         setupMembers();
     }
 
@@ -89,7 +90,7 @@ class MemberControllerIntegrationTest {
     @Test
     void deleteTest() throws Exception {
         // given
-        mockServer.expect(requestTo("https://kapi.kakao.com/v1/user/unlink"))
+        mockServer.expect(requestTo(KAKAO_UNLINK_URL))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess());
 
@@ -107,7 +108,7 @@ class MemberControllerIntegrationTest {
     @Test
     void deleteByAdminTest() throws Exception {
         // given
-        mockServer.expect(requestTo("https://kapi.kakao.com/v1/user/unlink"))
+        mockServer.expect(requestTo(KAKAO_UNLINK_URL))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess());
 
@@ -132,7 +133,7 @@ class MemberControllerIntegrationTest {
     @Test
     void deleteAccessDeniedByNotResourceOwnerTest() throws Exception {
         // given
-        mockServer.expect(requestTo("https://kapi.kakao.com/v1/user/unlink"))
+        mockServer.expect(requestTo(KAKAO_UNLINK_URL))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess());
 
@@ -146,7 +147,7 @@ class MemberControllerIntegrationTest {
     @Test
     void deleteAccessDeniedByBannedMemberTest() throws Exception {
         // given
-        mockServer.expect(requestTo("https://kapi.kakao.com/v1/user/unlink"))
+        mockServer.expect(requestTo(KAKAO_UNLINK_URL))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess());
 

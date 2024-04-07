@@ -2,11 +2,11 @@ package org.changppo.cost_management_service.controller.apikey;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.changppo.cost_management_service.dto.apikey.ApiKeyCreateRequest;
-import org.changppo.cost_management_service.exception.ApiKeyNotFoundException;
-import org.changppo.cost_management_service.exception.GradeNotFoundException;
-import org.changppo.cost_management_service.exception.MemberNotFoundException;
-import org.changppo.cost_management_service.exception.advice.ExceptionAdvice;
-import org.changppo.cost_management_service.exception.response.ResponseHandler;
+import org.changppo.cost_management_service.response.exception.apikey.ApiKeyNotFoundException;
+import org.changppo.cost_management_service.response.exception.apikey.GradeNotFoundException;
+import org.changppo.cost_management_service.response.exception.member.MemberNotFoundException;
+import org.changppo.cost_management_service.response.exception.common.ExceptionAdvice;
+import org.changppo.cost_management_service.response.exception.common.ResponseHandler;
 import org.changppo.cost_management_service.service.apikey.ApiKeyService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,7 +45,7 @@ class ApiKeyControllerAdviceTest {
     void createFreeKeyMemberNotFoundExceptionTest() throws Exception {
         // given
         ApiKeyCreateRequest req = buildApiKeyCreateRequest(null);
-        doThrow(MemberNotFoundException.class).when(apiKeyService).createFreeKey(any());
+        doThrow(new MemberNotFoundException()).when(apiKeyService).createFreeKey(any());
 
         // when, then
         mockMvc.perform(
@@ -59,7 +59,7 @@ class ApiKeyControllerAdviceTest {
     void createFreeKeyGradeNotFoundExceptionTest() throws Exception {
         // given
         ApiKeyCreateRequest req = buildApiKeyCreateRequest(null);
-        doThrow(GradeNotFoundException.class).when(apiKeyService).createFreeKey(any());
+        doThrow(new GradeNotFoundException()).when(apiKeyService).createFreeKey(any());
 
         // when, then
         mockMvc.perform(
@@ -73,7 +73,7 @@ class ApiKeyControllerAdviceTest {
     void createClassicKeyMemberNotFoundExceptionTest() throws Exception {
         // given
         ApiKeyCreateRequest req = buildApiKeyCreateRequest(null);
-        doThrow(MemberNotFoundException.class).when(apiKeyService).createClassicKey(any());
+        doThrow(new MemberNotFoundException()).when(apiKeyService).createClassicKey(any());
 
         // when, then
         mockMvc.perform(
@@ -87,7 +87,7 @@ class ApiKeyControllerAdviceTest {
     void createClassicKeyGradeNotFoundExceptionTest() throws Exception {
         // given
         ApiKeyCreateRequest req = buildApiKeyCreateRequest(null);
-        doThrow(GradeNotFoundException.class).when(apiKeyService).createClassicKey(any());
+        doThrow(new GradeNotFoundException()).when(apiKeyService).createClassicKey(any());
 
         // when, then
         mockMvc.perform(
@@ -100,7 +100,7 @@ class ApiKeyControllerAdviceTest {
     @Test
     void readApiKeyNotFoundExceptionTest() throws Exception {
         // given
-        doThrow(ApiKeyNotFoundException.class).when(apiKeyService).read(any());
+        doThrow(new ApiKeyNotFoundException()).when(apiKeyService).read(any());
 
         // when, then
         mockMvc.perform(
@@ -111,7 +111,7 @@ class ApiKeyControllerAdviceTest {
     @Test
     void deleteApiKeyNotFoundExceptionTest() throws Exception {
         // given
-        doThrow(ApiKeyNotFoundException.class).when(apiKeyService).delete(any());
+        doThrow(new ApiKeyNotFoundException()).when(apiKeyService).delete(any());
 
         // when, then
         mockMvc.perform(

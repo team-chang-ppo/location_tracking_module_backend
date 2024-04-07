@@ -1,14 +1,13 @@
 package org.changppo.cost_management_service.security;
 
 import lombok.RequiredArgsConstructor;
-import org.changppo.cost_management_service.security.oauth.CustomLoginSuccessHandler;
-import org.changppo.cost_management_service.security.oauth.CustomLogoutSuccessHandler;
-import org.changppo.cost_management_service.security.oauth.CustomOAuth2UserService;
-import org.changppo.cost_management_service.security.oauth.PreOAuth2AuthorizationRequestFilter;
+import org.changppo.cost_management_service.security.oauth2.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -21,6 +20,9 @@ import org.springframework.security.oauth2.client.web.HttpSessionOAuth2Authorize
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.DelegatingSecurityContextRepository;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 
 @Configuration
 @EnableWebSecurity
@@ -34,6 +36,7 @@ public class SecurityConfig {
     private final JdbcTemplate jdbcTemplate;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomLoginSuccessHandler customLoginSuccessHandler;
+    private final CustomLoginFailureHandler customLoginFailureHandler;
     private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
 
     @Bean
@@ -42,6 +45,11 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
+
+                .securityContext((securityContext) -> {
+                    securityContext.securityContextRepository(delegatingSecurityContextRepository());
+                    securityContext.requireExplicitSave(true);
+                })
 
                 .exceptionHandling((exceptionConfig) ->
                         exceptionConfig.authenticationEntryPoint(customAuthenticationEntryPoint).accessDeniedHandler(customAccessDeniedHandler)
@@ -56,7 +64,8 @@ public class SecurityConfig {
                         .authorizedClientService(oAuth2AuthorizedClientService(jdbcTemplate, clientRegistrationRepository))
                         .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
                                             .userService(customOAuth2UserService))
-                        .successHandler(customLoginSuccessHandler))
+                        .successHandler(customLoginSuccessHandler)
+                        .failureHandler(customLoginFailureHandler))
 
                 .logout(logout -> logout
                         .logoutUrl("/logout/oauth2")
@@ -67,15 +76,27 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/oauth2/**").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/members/**").hasAnyRole("FREE", "NORMAL", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/apikeys/v1/createFreeKey").hasAnyRole("FREE", "NORMAL", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/apikeys/v1/createClassicKey").hasAnyRole("NORMAL", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/apikeys/**").hasAnyRole("FREE", "NORMAL", "ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/apikeys/**").hasAnyRole("FREE", "NORMAL", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/members/**").hasRole("FREE")
+                        .requestMatchers(HttpMethod.POST, "/api/apikeys/v1/createFreeKey").hasRole("FREE")
+                        .requestMatchers(HttpMethod.POST, "/api/apikeys/v1/createClassicKey").hasRole("NORMAL")
+                        .requestMatchers(HttpMethod.GET, "/api/apikeys/**").hasRole("FREE")
+                        .requestMatchers(HttpMethod.DELETE, "/api/apikeys/**").hasRole("FREE")
+                        .requestMatchers(HttpMethod.POST, "/api/cards/v1/kakaopay/**").hasRole("FREE")
+                        .requestMatchers(HttpMethod.GET, "/api/cards/v1/kakaopay/**").hasRole("FREE")
+                        .requestMatchers(HttpMethod.GET, "/api/cards/**").hasRole("NORMAL")
+                        .requestMatchers(HttpMethod.DELETE, "/api/cards/**").hasRole("NORMAL")
                         .requestMatchers(HttpMethod.GET).permitAll()
-                        .anyRequest().hasAnyRole("ADMIN"));
+                        .anyRequest().hasRole("ADMIN"));
 
         return http.build();
+    }
+
+    @Bean
+    public DelegatingSecurityContextRepository delegatingSecurityContextRepository() {
+        return new DelegatingSecurityContextRepository(
+                new RequestAttributeSecurityContextRepository(),
+                new HttpSessionSecurityContextRepository()
+        );
     }
 
     @Bean
@@ -86,5 +107,12 @@ public class SecurityConfig {
     @Bean
     public OAuth2AuthorizedClientService oAuth2AuthorizedClientService(JdbcTemplate jdbcTemplate, ClientRegistrationRepository clientRegistrationRepository) {
         return new JdbcOAuth2AuthorizedClientService(jdbcTemplate ,clientRegistrationRepository);
+    }
+
+    @Bean
+    public RoleHierarchy roleHierarchy() {
+        RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
+        roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_NORMAL > ROLE_FREE");
+        return roleHierarchy;
     }
 }
