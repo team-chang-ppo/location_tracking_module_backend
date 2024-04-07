@@ -4,7 +4,7 @@ package org.changppo.cost_management_service.security;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.changppo.cost_management_service.entity.member.RoleType;
-import org.changppo.cost_management_service.security.oauth.CustomOAuth2User;
+import org.changppo.cost_management_service.security.oauth2.CustomOAuth2User;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 

@@ -16,3 +16,4 @@ spring:
                 notAllowedStatus: TOO_MANY_REQUESTS
                 denyEmptyKey: true
                 emptyKeyStatus: UNAUTHORIZED
+            - name: ApiMetering
