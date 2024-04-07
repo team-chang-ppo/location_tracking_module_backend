@@ -19,7 +19,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.doThrow;
-import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -43,7 +42,7 @@ class MemberControllerAdviceTest {
     @Test
     void readMemberNotFoundExceptionTest() throws Exception {
         // given
-        given(memberService.read(anyLong())).willThrow(MemberNotFoundException.class);
+        doThrow(MemberNotFoundException.class).when(memberService).read(anyLong());
 
         // when, then
         mockMvc.perform(

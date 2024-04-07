@@ -9,6 +9,7 @@ import org.changppo.cost_management_service.dto.member.MemberDto;
 import org.changppo.cost_management_service.entity.member.Member;
 import org.changppo.cost_management_service.exception.MemberNotFoundException;
 import org.changppo.cost_management_service.exception.MemberUnlinkFailureException;
+import org.changppo.cost_management_service.repository.apikey.ApiKeyRepository;
 import org.changppo.cost_management_service.repository.member.MemberRepository;
 import org.changppo.cost_management_service.service.member.oauth.OAuth2Service;
 import org.springframework.data.repository.query.Param;
@@ -27,17 +28,18 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final List<OAuth2Service> oauth2Services;
+    private final ApiKeyRepository apiKeyRepository;
 
     public MemberDto read(Long id) {
-        Member member = memberRepository.findById(id).orElseThrow(MemberNotFoundException::new);
+        Member member = memberRepository.findByIdWithRoles(id).orElseThrow(MemberNotFoundException::new);
         return new MemberDto(member.getId(),member.getName(), member.getUsername(), member.getProfileImage(),
                 member.getRoles().stream()
                 .map(memberRole -> memberRole.getRole().getRoleType())
-                .collect(Collectors.toSet()), member.getCreatedAt());
+                .collect(Collectors.toSet()), member.getBannedAt(), member.getCreatedAt());
     }
 
     @Transactional
-    @PreAuthorize("@memberGuard.check(#id)")
+    @PreAuthorize("@memberAccessEvaluator.check(#id) and @memberStatusEvaluator.check(#id)")
     public void delete(@Param("id")Long id, HttpServletRequest request, HttpServletResponse response) {
         Member member = memberRepository.findById(id).orElseThrow(MemberNotFoundException::new);
         try {
@@ -47,6 +49,7 @@ public class MemberService {
         }
         deleteSession(request);
         deleteCookie(response);
+        deleteMemberApiKeys(member.getId());
         memberRepository.delete(member);
     }
 
@@ -79,5 +82,9 @@ public class MemberService {
         cookie.setPath("/");
         // refreshCookie.setSecure(true);
         response.addCookie(cookie);
+    }
+
+    private void deleteMemberApiKeys(Long id) {
+        apiKeyRepository.deleteAllByMemberId(id);
     }
 }

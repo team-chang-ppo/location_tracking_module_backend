@@ -1,0 +1,50 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.2.4'
+	id 'io.spring.dependency-management' version '1.1.4'
+}
+
+group = 'org.changppo'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = '17'
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	// web
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	// valid
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	// security
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	// mongodb
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+	// lombok
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	// jwt
+	implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
+	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
+	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
+	// ConfigurationProperties
+	implementation 'org.springframework.boot:spring-boot-configuration-processor:3.2.0'
+	// test
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:4.12.2'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

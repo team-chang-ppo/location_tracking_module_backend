@@ -11,7 +11,10 @@ public enum ExceptionType {
     LOGIN_FAILURE_EXCEPTION("loginFailureException.code", "loginFailureException.msg"),
     MEMBER_NOT_FOUND_EXCEPTION("memberNotFoundException.code", "memberNotFoundException.msg"),
     MEMBER_UNLINK_FAILURE_EXCEPTION("memberUnlinkFailureException.code", "memberUnlinkFailureException.msg"),
-    ROLE_NOT_FOUND_EXCEPTION("roleNotFoundException.code", "roleNotFoundException.msg");
+    ROLE_NOT_FOUND_EXCEPTION("roleNotFoundException.code", "roleNotFoundException.msg"),
+    GRADE_NOT_FOUND_EXCEPTION("gradeNotFoundException.code", "gradeNotFoundException.msg"),
+    APIKEY_NOT_FOUND_EXCEPTION("apiKeyNotFoundException.code", "apiKeyNotFoundException.msg");
+
     private final String code;
     private final String message;
 
