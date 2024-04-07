@@ -1,6 +1,6 @@
-package org.changppo.gateway;
+package org.changppo.gateway.ratelimit;
 
-import org.changppo.gateway.context.ApiRateContext;
+import org.changppo.gateway.ratelimit.context.ApiRateContext;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 

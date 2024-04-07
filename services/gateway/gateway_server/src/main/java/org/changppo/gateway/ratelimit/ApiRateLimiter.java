@@ -1,6 +1,6 @@
-package org.changppo.gateway;
+package org.changppo.gateway.ratelimit;
 
-import org.changppo.gateway.context.ValidApiRateContext;
+import org.changppo.gateway.ratelimit.context.ValidApiRateContext;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 
