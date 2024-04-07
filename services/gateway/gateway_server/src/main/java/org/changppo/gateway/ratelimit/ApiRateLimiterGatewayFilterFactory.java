@@ -1,11 +1,11 @@
-package org.changppo.gateway;
+package org.changppo.gateway.ratelimit;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.changppo.gateway.context.AbsentApiRateContext;
-import org.changppo.gateway.context.InvalidApiRateContext;
-import org.changppo.gateway.context.ValidApiRateContext;
+import org.changppo.gateway.ratelimit.context.AbsentApiRateContext;
+import org.changppo.gateway.ratelimit.context.InvalidApiRateContext;
+import org.changppo.gateway.ratelimit.context.ValidApiRateContext;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;

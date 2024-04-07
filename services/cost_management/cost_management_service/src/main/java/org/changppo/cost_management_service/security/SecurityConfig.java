@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -74,18 +76,18 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/oauth2/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/members/**").hasAnyRole("FREE", "NORMAL", "ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/members/**").hasAnyRole("FREE", "NORMAL", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/apikeys/v1/createFreeKey").hasAnyRole("FREE", "NORMAL", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/apikeys/v1/createClassicKey").hasAnyRole("NORMAL", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/apikeys/**").hasAnyRole("FREE", "NORMAL", "ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/apikeys/**").hasAnyRole("FREE", "NORMAL", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/cards/v1/kakaopay/**").hasAnyRole("FREE", "NORMAL", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/cards/v1/kakaopay/**").hasAnyRole("FREE", "NORMAL", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/cards/**").hasAnyRole("NORMAL", "ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/cards/**").hasAnyRole("NORMAL", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/members/**").hasRole("FREE")
+                        .requestMatchers(HttpMethod.DELETE, "/api/members/**").hasRole("FREE")
+                        .requestMatchers(HttpMethod.POST, "/api/apikeys/v1/createFreeKey").hasRole("FREE")
+                        .requestMatchers(HttpMethod.POST, "/api/apikeys/v1/createClassicKey").hasRole("NORMAL")
+                        .requestMatchers(HttpMethod.GET, "/api/apikeys/**").hasRole("FREE")
+                        .requestMatchers(HttpMethod.DELETE, "/api/apikeys/**").hasRole("FREE")
+                        .requestMatchers(HttpMethod.POST, "/api/cards/v1/kakaopay/**").hasRole("FREE")
+                        .requestMatchers(HttpMethod.GET, "/api/cards/v1/kakaopay/**").hasRole("FREE")
+                        .requestMatchers(HttpMethod.GET, "/api/cards/**").hasRole("NORMAL")
+                        .requestMatchers(HttpMethod.DELETE, "/api/cards/**").hasRole("NORMAL")
                         .requestMatchers(HttpMethod.GET).permitAll()
-                        .anyRequest().hasAnyRole("ADMIN"));
+                        .anyRequest().hasRole("ADMIN"));
 
         return http.build();
     }
@@ -106,5 +108,12 @@ public class SecurityConfig {
     @Bean
     public OAuth2AuthorizedClientService oAuth2AuthorizedClientService(JdbcTemplate jdbcTemplate, ClientRegistrationRepository clientRegistrationRepository) {
         return new JdbcOAuth2AuthorizedClientService(jdbcTemplate ,clientRegistrationRepository);
+    }
+
+    @Bean
+    public RoleHierarchy roleHierarchy() {
+        RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
+        roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_NORMAL > ROLE_FREE");
+        return roleHierarchy;
     }
 }

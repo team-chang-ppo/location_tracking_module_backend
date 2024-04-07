@@ -26,11 +26,11 @@ public class ApiKey extends EntityDate {
     @Column(name = "`value`", unique = true, nullable = false)
     private String value;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "grade_id", nullable = false)
     private Grade grade;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 

@@ -20,7 +20,7 @@ public class KakaopayCardController {
 
     @AssignMemberId
     @PostMapping("/register/ready")
-    public ResponseEntity<Response> registrationReady(@Valid @RequestBody KakaopayCardRegisterReadyRequest req) {
+    public ResponseEntity<Response> registerReady(@Valid @RequestBody KakaopayCardRegisterReadyRequest req) {
         KakaopayCardRegisterRedirectResponse kakaopayCardRegisterRedirectResponse = kakaopayCardService.registerReady(req);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -29,7 +29,7 @@ public class KakaopayCardController {
 
     @AssignMemberId
     @GetMapping("/register/approve")
-    public ResponseEntity<Response> registrationApprove(@Valid @ModelAttribute KakaopayCardRegisterApproveRequest req) {
+    public ResponseEntity<Response> registerApprove(@Valid @ModelAttribute KakaopayCardRegisterApproveRequest req) {
         CardDto cardDto = kakaopayCardService.registerApprove(req);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
