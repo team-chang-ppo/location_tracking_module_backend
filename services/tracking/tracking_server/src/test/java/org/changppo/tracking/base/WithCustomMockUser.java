@@ -9,5 +9,6 @@ import java.lang.annotation.RetentionPolicy;
 @WithSecurityContext(factory = WithCustomMockUserSecurityContextFactory.class)
 public @interface WithCustomMockUser {
     String trackingId() default "trackingId";
-    String authority() default "BASIC";
+    String apiKeyId() default "apiKeyId";
+    String[] scopes() default {"READ_TRACKING_COORDINATE", "WRITE_TRACKING_COORDINATE", "ACCESS_TRACKING_HISTORY"};
 }

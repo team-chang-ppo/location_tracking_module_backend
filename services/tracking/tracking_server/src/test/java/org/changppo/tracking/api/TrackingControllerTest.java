@@ -2,15 +2,16 @@ package org.changppo.tracking.api;
 
 import org.changppo.tracking.api.response.TrackingResponse;
 import org.changppo.tracking.base.WithCustomMockUser;
+import org.changppo.tracking.domain.Scope;
 import org.junit.jupiter.api.Nested;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.changppo.tracking.api.request.ConnectRequest;
+import org.changppo.tracking.api.request.GenerateTokenRequest;
 import org.changppo.tracking.api.request.TrackingRequest;
-import org.changppo.tracking.api.response.ConnectResponse;
+import org.changppo.tracking.api.response.GenerateTokenResponse;
 import org.changppo.tracking.service.TrackingService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,10 +21,13 @@ import org.springframework.data.geo.Point;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
+
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+        import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -41,23 +45,29 @@ public class TrackingControllerTest {
     private final String baseUrl = "/api/tracking/v1";
 
     @Nested
-    @DisplayName("<유저 프로필 조회>")
+    @DisplayName("<Tracking>")
     class mvpTest {
-        @DisplayName("연결을 성공함")
+        @DisplayName("토큰을 성공적으로 발급함")
         @Test
         void successConnect() throws Exception {
             // given
-            ConnectRequest request = new ConnectRequest("1",new Point(1,1), new Point(2,2), 3L);
-            ConnectResponse response = new ConnectResponse("TOKEN");
-            given(trackingService.connect(any(ConnectRequest.class))).willReturn(response);
+            GenerateTokenRequest request = new GenerateTokenRequest(
+                    new Point(1,1),
+                    new Point(2,2),
+                    3L,
+                    List.of(Scope.READ_TRACKING_COORDINATE.name()),
+                    3600L);
+            GenerateTokenResponse response = new GenerateTokenResponse("TOKEN");
+            given(trackingService.generateToken(anyString(), any(GenerateTokenRequest.class))).willReturn(response);
 
             //when
-            mockMvc.perform(post(baseUrl + "/connect")
+            mockMvc.perform(post(baseUrl + "/generate-token")
                             .contentType(MediaType.APPLICATION_JSON)
+                            .header("api-key-id", "test")
                             .content(objectMapper.writeValueAsString(request)))
                     //then
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.accessToken").value(response.getAccessToken()))
+                    .andExpect(jsonPath("$.token").value(response.getToken()))
                     .andDo(print());
         }
 
