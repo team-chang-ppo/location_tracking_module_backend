@@ -33,11 +33,11 @@ public class Card extends EntityDate{
     @Column(nullable = false)
     private String bin;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "payment_gateway_id", nullable = false)
     private PaymentGateway paymentGateway;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
