@@ -1,63 +1,61 @@
-package org.changppo.cost_management_service.entity.card;
+package org.changppo.cost_management_service.entity.payment;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.changppo.cost_management_service.entity.card.Card;
 import org.changppo.cost_management_service.entity.common.EntityDate;
 import org.changppo.cost_management_service.entity.member.Member;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE card SET deleted_at = CURRENT_TIMESTAMP WHERE card_id = ?")
+@SQLDelete(sql = "UPDATE payment SET deleted_at = CURRENT_TIMESTAMP WHERE payment_id = ?")
 @SQLRestriction("deleted_at is NULL")
-public class Card extends EntityDate{
+public class Payment extends EntityDate {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "card_id")
+    @Column(name = "payment_id")
     private Long id;
 
     @Column(name = "`key`", unique = true, nullable = false)
     private String key;
 
     @Column(nullable = false)
-    private String type;
-
-    @Column(nullable = false)
-    private String acquirerCorporation;
-
-    @Column(nullable = false)
-    private String issuerCorporation;
-
-    @Column(nullable = false)
-    private String bin;
+    private Integer amount;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "payment_gateway_id", nullable = false)
-    private PaymentGateway paymentGateway;
+    @JoinColumn(name = "card_id", nullable = false)
+    private Card card;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+    @Column(nullable = false)
+    private LocalDateTime startedAt;
+
+    @Column(nullable = false)
+    private LocalDateTime endedAt;
+
     @Column
     private LocalDateTime deletedAt;
 
     @Builder
-    public Card(String key, String type, String acquirerCorporation, String issuerCorporation, String bin, PaymentGateway paymentGateway, Member member) {
+    public Payment(String key, Integer amount, Card card, Member member, LocalDateTime startedAt, LocalDateTime endedAt) {
         this.key = key;
-        this.type = type;
-        this.acquirerCorporation = acquirerCorporation;
-        this.issuerCorporation = issuerCorporation;
-        this.bin = bin;
-        this.paymentGateway = paymentGateway;
+        this.amount = amount;
+        this.card = card;
         this.member = member;
+        this.startedAt = startedAt;
+        this.endedAt = endedAt;
         this.deletedAt = null;
     }
 }
