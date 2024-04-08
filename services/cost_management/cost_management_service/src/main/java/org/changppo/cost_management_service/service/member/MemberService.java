@@ -32,7 +32,8 @@ public class MemberService {
     private final ApiKeyRepository apiKeyRepository;
     private final CardRepository cardRepository;
 
-    public MemberDto read(Long id) {
+    @PreAuthorize("@memberAccessEvaluator.check(#id)")
+    public MemberDto read(@Param("id")Long id) {
         Member member = memberRepository.findByIdWithRoles(id).orElseThrow(MemberNotFoundException::new);
         return new MemberDto(member.getId(),member.getName(), member.getUsername(), member.getProfileImage(),
                 member.getMemberRoles().stream()

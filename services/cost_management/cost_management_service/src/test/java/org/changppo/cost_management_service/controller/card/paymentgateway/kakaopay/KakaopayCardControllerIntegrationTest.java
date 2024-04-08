@@ -123,7 +123,7 @@ public class KakaopayCardControllerIntegrationTest {
         card = cardRepository.findByKey(testInitDB.getTestCardKey()).orElseThrow(CardNotFoundException::new);
     }
     @Test
-    void readyTest() throws Exception{
+    void registerReadyTest() throws Exception{
         // given
         KakaopayCardRegisterReadyRequest kakaopayCardRegisterReadyRequest = buildKakaopayCardRegisterReadyRequest(null);
         KakaopayReadyResponse kakaopayReadyResponse = buildKakaopayReadyResponse(LocalDateTime.now());
@@ -147,7 +147,25 @@ public class KakaopayCardControllerIntegrationTest {
     }
 
     @Test
-    void approveTest() throws Exception {
+    void registerReadyUnauthorizedByNoneSessionTest() throws Exception{
+        // given
+        KakaopayCardRegisterReadyRequest kakaopayCardRegisterReadyRequest = buildKakaopayCardRegisterReadyRequest(null);
+        KakaopayReadyResponse kakaopayReadyResponse = buildKakaopayReadyResponse(LocalDateTime.now());
+        String kakaopayReadyResponseJson = convertToJson(kakaopayReadyResponse);
+        mockServer.expect(requestTo(KAKAOPAY_READY_URL))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(kakaopayReadyResponseJson, MediaType.APPLICATION_JSON));
+
+        // when, then
+        mockMvc.perform(
+                        post("/api/cards/v1/kakaopay/register/ready")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(kakaopayCardRegisterReadyRequest)))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void registerApproveTest() throws Exception {
         // given
         KakaopayCardRegisterApproveRequest kakaopayCardRegisterApproveRequest = buildKakaopayCardRegisterApproveRequest();
         KakaopayApproveResponse kakaopayApproveResponse = buildKakaopayApproveResponse(freeMember.getId(), LocalDateTime.now());
@@ -182,7 +200,28 @@ public class KakaopayCardControllerIntegrationTest {
     }
 
     @Test
-    void cancelTest() throws Exception {
+    void registerApproveUnauthorizedByNoneSessionTest() throws Exception {
+        // given
+        KakaopayCardRegisterApproveRequest kakaopayCardRegisterApproveRequest = buildKakaopayCardRegisterApproveRequest();
+        KakaopayApproveResponse kakaopayApproveResponse = buildKakaopayApproveResponse(freeMember.getId(), LocalDateTime.now());
+        String KakaopayApproveResponseJson = convertToJson(kakaopayApproveResponse);
+        mockServer.expect(requestTo(KAKAOPAY_APPROVE_URL))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(KakaopayApproveResponseJson, MediaType.APPLICATION_JSON));
+        mockSession.setAttribute(kakaopayCardRegisterApproveRequest.getPartner_order_id(), "tid_" + UUID.randomUUID());
+
+        // when, then
+        mockMvc.perform(
+                get("/api/cards/v1/kakaopay/register/approve")
+                    .session(mockSession)
+                    .param("partner_order_id", kakaopayCardRegisterApproveRequest.getPartner_order_id())
+                    .param("pg_token", kakaopayCardRegisterApproveRequest.getPg_token()))
+        .       andExpect(status().isUnauthorized());
+    }
+
+
+    @Test
+    void registerCancelTest() throws Exception {
         // given
         KakaopayCardRegisterCancelRequest kakaopayCardRegisterCancelRequest = buildKakaopayCardRegisterCancelRequest();
         mockSession.setAttribute(kakaopayCardRegisterCancelRequest.getPartner_order_id(), "tid_" + UUID.randomUUID());
@@ -197,7 +236,21 @@ public class KakaopayCardControllerIntegrationTest {
     }
 
     @Test
-    void failTest() throws Exception {
+    void registerCancelUnauthorizedByNoneSessionTest() throws Exception {
+        // given
+        KakaopayCardRegisterCancelRequest kakaopayCardRegisterCancelRequest = buildKakaopayCardRegisterCancelRequest();
+        mockSession.setAttribute(kakaopayCardRegisterCancelRequest.getPartner_order_id(), "tid_" + UUID.randomUUID());
+
+        // when, then
+        mockMvc.perform(
+                get("/api/cards/v1/kakaopay/register/cancel")
+                    .session(mockSession)
+                    .param("partner_order_id", kakaopayCardRegisterCancelRequest.getPartner_order_id()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void registerFailTest() throws Exception {
         // given
         KakaopayCardRegisterFailRequest kakaopayCardRegisterFailRequest = buildKakaopayCardRegisterFailRequest();
         mockSession.setAttribute(kakaopayCardRegisterFailRequest.getPartner_order_id(), "tid_" + UUID.randomUUID());
@@ -210,6 +263,20 @@ public class KakaopayCardControllerIntegrationTest {
                     .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof KakaopayPaymentGatewayFailException))
                 .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    void registerFailUnauthorizedByNoneSessionTest() throws Exception {
+        // given
+        KakaopayCardRegisterFailRequest kakaopayCardRegisterFailRequest = buildKakaopayCardRegisterFailRequest();
+        mockSession.setAttribute(kakaopayCardRegisterFailRequest.getPartner_order_id(), "tid_" + UUID.randomUUID());
+
+        // when, then
+        mockMvc.perform(
+                    get("/api/cards/v1/kakaopay/register/fail")
+                        .session(mockSession)
+                        .param("partner_order_id", kakaopayCardRegisterFailRequest.getPartner_order_id()))
+                    .andExpect(status().isUnauthorized());
     }
 
     private String convertToJson(Object object) throws IOException {
