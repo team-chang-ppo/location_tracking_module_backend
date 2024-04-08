@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.changppo.tracking.aop.TrackingContextParam;
 import org.changppo.tracking.api.request.GenerateTokenRequest;
+import org.changppo.tracking.api.request.StartTrackingRequest;
 import org.changppo.tracking.api.request.TrackingRequest;
 import org.changppo.tracking.api.response.GenerateTokenResponse;
 import org.changppo.tracking.api.response.TrackingResponse;
@@ -23,7 +24,6 @@ public class TrackingController {
     /**
      * 토큰 생성 API
      * 해당 정보를 저장한 token 을 반환 200
-     * 이미 사용자가 존재하면 409
      * @param request ConnectRequest
      * @return response ConnectResponse
      * TODO : 토큰 헤더의 키 값은 상의 필요
@@ -34,6 +34,23 @@ public class TrackingController {
         GenerateTokenResponse response = trackingService.generateToken(apiKeyId, request);
 
         return ResponseEntity.ok().body(response);
+    }
+
+    /**
+     * 배달 시작시 정적인 정보 받아오기
+     * 성공 시 200
+     * 이미 사용자가 존재하면 409
+     * @param request StartTrackingRequest
+     * @param context TrackingContext
+     * @return void
+     */
+    @TrackingContextParam
+    @PostMapping("/start")
+    public ResponseEntity<GenerateTokenResponse> startTracking(@RequestBody @Valid StartTrackingRequest request,
+                                                               TrackingContext context) {
+        trackingService.startTracking(request, context);
+
+        return ResponseEntity.ok().build();
     }
 
     /**
