@@ -15,7 +15,7 @@ import java.util.Map;
 @Setter
 @EqualsAndHashCode(of = "id")
 @Document(collection = "api_record")
-@TypeAlias("api_record_document")
+@TypeAlias("api_metering_event")
 public class ApiMeteringEventDocument {
 
     @Id
@@ -28,11 +28,9 @@ public class ApiMeteringEventDocument {
     private String routeId;
     @Field("timestamp")
     private Instant timestamp;
-    @Field("details")
-    private Map<String, String> details;
 
     @Builder
-    public ApiMeteringEventDocument(String id, Long apiKeyId, Long memberId, String routeId, Instant timestamp, Map<String, String> details) {
+    public ApiMeteringEventDocument(String id, Long apiKeyId, Long memberId, String routeId, Instant timestamp) {
         Assert.notNull(id, "id must not be null");
         Assert.notNull(apiKeyId, "apiKeyId must not be null");
         Assert.notNull(memberId, "memberId must not be null");
@@ -43,18 +41,17 @@ public class ApiMeteringEventDocument {
         this.memberId = memberId;
         this.routeId = routeId;
         this.timestamp = timestamp;
-        this.details = details;
     }
 
-    public static ApiMeteringEventDocument createFromApiMeteringEvent(ApiMeteringEvent event) {
+    public static ApiMeteringEventDocument createFromApiMeteringEvent(ApiMeteringEvent event, Instant timestamp) {
         Assert.notNull(event, "event must not be null");
+        Assert.notNull(timestamp, "timestamp must not be null");
         return ApiMeteringEventDocument.builder()
                 .id(event.eventId())
                 .apiKeyId(event.apiKeyId())
                 .memberId(event.memberId())
                 .routeId(event.routeId())
-                .timestamp(event.timestamp())
-                .details(event.details())
+                .timestamp(timestamp)
                 .build();
     }
 }

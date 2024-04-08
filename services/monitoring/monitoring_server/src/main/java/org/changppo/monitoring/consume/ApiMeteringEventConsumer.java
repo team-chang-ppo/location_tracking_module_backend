@@ -9,8 +9,12 @@ import org.changppo.monitoring.ApiMeteringEventRepository;
 import org.changppo.monitoring.exception.InvalidFormattedEventException;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.List;
 
 @Slf4j
@@ -22,11 +26,10 @@ public class ApiMeteringEventConsumer {
     private final static String API_METERING_TOPIC = "api-metering-trace";
 
     @KafkaListener(topics = API_METERING_TOPIC, containerFactory = "defaultConsumerFactory")
-    public void consume(List<String> event, Acknowledgment acknowledgment) {
+    public void consume(@Payload List<Message<String>> events, Acknowledgment acknowledgment) {
         try {
-            List<ApiMeteringEventDocument> documents = event.stream()
+            List<ApiMeteringEventDocument> documents = events.stream()
                     .map(this::createFromApiMeteringEvent)
-                    .map(ApiMeteringEventDocument::createFromApiMeteringEvent)
                     .toList();
             apiMeteringEventRepository.saveAll(documents);
             acknowledgment.acknowledge();
@@ -39,12 +42,25 @@ public class ApiMeteringEventConsumer {
         }
     }
 
-    private ApiMeteringEvent createFromApiMeteringEvent(String event) {
+    private ApiMeteringEventDocument createFromApiMeteringEvent(Message<String> event) {
         try {
-            return objectMapper.readValue(event, ApiMeteringEvent.class);
+            //발송된 timestamp
+            Long timestampLong = event.getHeaders().get(KafkaHeaders.RECEIVED_TIMESTAMP, Long.class);
+            Instant timestamp;
+            if (timestampLong != null) {
+                timestamp = Instant.ofEpochMilli(timestampLong);
+            } else {
+                log.warn("Timestamp is not found in the event. Set current time as timestamp.");
+                timestamp = Instant.now();
+            }
+            // payload
+            String payload = event.getPayload();
+            ApiMeteringEvent apiMeteringEvent = objectMapper.readValue(payload, ApiMeteringEvent.class);
+
+            return ApiMeteringEventDocument.createFromApiMeteringEvent(apiMeteringEvent, timestamp);
         } catch (Exception e) {
             log.error("Failed to parse event: {}", event, e);
-            throw new InvalidFormattedEventException(event);
+            throw new InvalidFormattedEventException("Failed to parse event");
         }
     }
 }

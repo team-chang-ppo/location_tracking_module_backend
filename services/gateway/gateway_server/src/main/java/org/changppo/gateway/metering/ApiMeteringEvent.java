@@ -12,18 +12,13 @@ public record ApiMeteringEvent(
         String eventId,
         Long memberId,
         Long apiKeyId,
-        String routeId,
-        Instant timestamp,
-        @JsonInclude(JsonInclude.Include.NON_EMPTY)
-        Map<String, String> details
+        String routeId
 ) {
 
     public static ApiMeteringEvent createFromApiKey(ApiKey apiKey, String routeId) {
         String eventId = UUID.randomUUID().toString();
         Long apiKeyId = apiKey.id();
         Long memberId = apiKey.memberId();
-
-
-        return new ApiMeteringEvent(eventId, memberId, apiKeyId, routeId, Instant.now(), Collections.emptyMap());
+        return new ApiMeteringEvent(eventId, memberId, apiKeyId, routeId);
     }
 }
