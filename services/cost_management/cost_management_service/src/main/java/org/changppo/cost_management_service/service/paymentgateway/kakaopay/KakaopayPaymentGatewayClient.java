@@ -9,11 +9,10 @@ import org.changppo.cost_management_service.entity.card.PaymentGatewayType;
 import org.changppo.cost_management_service.response.exception.paymentgateway.*;
 import org.changppo.cost_management_service.service.paymentgateway.PaymentGatewayClient;
 import org.changppo.cost_management_service.service.paymentgateway.PaymentGatewayProperties;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,7 +60,6 @@ public class KakaopayPaymentGatewayClient extends PaymentGatewayClient {
         parameters.put("item_name", req.getItemName());
         parameters.put("quantity", req.getQuantity());
         parameters.put("total_amount", req.getTotalAmount());
-        parameters.put("vat_amount", req.getVatAmount());
         parameters.put("tax_free_amount", req.getTaxFreeAmount());
         parameters.put("approval_url", req.getApprovalUrl());
         parameters.put("cancel_url", req.getCancelUrl());
@@ -190,6 +188,34 @@ public class KakaopayPaymentGatewayClient extends PaymentGatewayClient {
         httpSession.removeAttribute(partnerOrderId);
     }
 
+    public KakaopayApproveResponse payment(KakaopayPaymentRequest req) {
+        try {
+            HttpEntity<Map<String, Object>> request = createPaymentRequest(req);
+            KakaopayApproveResponse kakaopayApproveResponse = restTemplate.postForObject(
+                    KAKAOPAY_PAYMENT_URL,
+                    request,
+                    KakaopayApproveResponse.class
+            );
+            handleResponse(kakaopayApproveResponse);
+            return kakaopayApproveResponse;
+        } catch (Exception e) {
+            throw new KakaopayPaymentGatewayPaymentFailureException(e);
+        }
+    }
+
+    private HttpEntity<Map<String, Object>> createPaymentRequest(KakaopayPaymentRequest req) {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("cid", paymentGatewayProperties.getKakaopay().getCcid());
+        parameters.put("sid", req.getSid());
+        parameters.put("partner_order_id", req.getPartnerOrderId());
+        parameters.put("partner_user_id", req.getPartnerUserId());
+        parameters.put("item_name", req.getItemName());
+        parameters.put("quantity", req.getQuantity());
+        parameters.put("total_amount", req.getTotalAmount());
+        parameters.put("tax_free_amount", req.getTaxFreeAmount());
+        HttpHeaders headers = getHeaders();
+        return new HttpEntity<>(parameters, headers);
+    }
 
     public static <T> void handleResponse(T response) {
         if (response == null) {

@@ -11,6 +11,7 @@ public class KakaopayConstants {
     public static final String KAKAOPAY_APPROVE_URL = "https://open-api.kakaopay.com/online/v1/payment/approve";
     public static final String KAKAOPAY_SUBSCRIPTION_STATUS_URL = "https://open-api.kakaopay.com/online/v1/payment/manage/subscription/status";
     public static final String KAKAOPAY_SUBSCRIPTION_INACTIVE_URL = "https://open-api.kakaopay.com/online/v1/payment/manage/subscription/inactive";
+    public static final String KAKAOPAY_PAYMENT_URL = "https://open-api.kakaopay.com/online/v1/payment/subscription";
     public static final String CID = "CID";
     public static final String CCID = "CCID";
     public static final String CARD = "CARD";
