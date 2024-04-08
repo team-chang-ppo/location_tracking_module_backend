@@ -60,7 +60,7 @@ public class ApiMeteringEventConsumer {
             return ApiMeteringEventDocument.createFromApiMeteringEvent(apiMeteringEvent, timestamp);
         } catch (Exception e) {
             log.error("Failed to parse event: {}", event, e);
-            throw new InvalidFormattedEventException("Failed to parse event");
+            throw new InvalidFormattedEventException(event.getPayload());
         }
     }
 }
