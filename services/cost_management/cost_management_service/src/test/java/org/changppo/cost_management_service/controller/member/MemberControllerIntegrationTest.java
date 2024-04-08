@@ -73,18 +73,99 @@ class MemberControllerIntegrationTest {
     }
 
     @Test
-    void readTest() throws Exception {
+    void readMeTest() throws Exception {
         // given, when, then
         mockMvc.perform(
-                        get("/api/members/v1/{id}", freeMember.getId()))
+                        get("/api/members/v1/me")
+                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.data.id").value(freeMember.getId()))
                 .andExpect(jsonPath("$.result.data.name").value(freeMember.getName()))
                 .andExpect(jsonPath("$.result.data.username").value(freeMember.getUsername()))
                 .andExpect(jsonPath("$.result.data.profileImage").value(freeMember.getProfileImage()))
                 .andExpect(jsonPath("$.result.data.roles").value(RoleType.ROLE_FREE.name()))
-                .andExpect(jsonPath("$.result.data.bannedAt").isEmpty())
+                .andExpect(jsonPath("$.result.data.paymentFailureBannedAt").isEmpty())
                 .andExpect(jsonPath("$.result.data.createdAt").exists());
+    }
+
+    @Test
+    void readMeUnauthorizedByNoneSessionTest() throws Exception {
+        // given, when, then
+        mockMvc.perform(
+                        get("/api/members/v1/me"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void readTest() throws Exception {
+        // given, when, then
+        mockMvc.perform(
+                        get("/api/members/v1/{id}", freeMember.getId())
+                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.data.id").value(freeMember.getId()))
+                .andExpect(jsonPath("$.result.data.name").value(freeMember.getName()))
+                .andExpect(jsonPath("$.result.data.username").value(freeMember.getUsername()))
+                .andExpect(jsonPath("$.result.data.profileImage").value(freeMember.getProfileImage()))
+                .andExpect(jsonPath("$.result.data.roles").value(RoleType.ROLE_FREE.name()))
+                .andExpect(jsonPath("$.result.data.paymentFailureBannedAt").isEmpty())
+                .andExpect(jsonPath("$.result.data.createdAt").exists());
+    }
+
+    @Test
+    void readUnauthorizedByNoneSessionTest() throws Exception {
+        // given, when, then
+        mockMvc.perform(
+                        get("/api/members/v1/{id}", freeMember.getId()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void readAccessDeniedByNotResourceOwnerTestTest() throws Exception {
+        // given, when, then
+        mockMvc.perform(
+                        get("/api/members/v1/{id}", freeMember.getId())
+                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2NormalMember)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void deleteMeTest() throws Exception {
+        // given
+        mockServer.expect(requestTo(KAKAO_UNLINK_URL))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess());
+
+        // when
+        mockMvc.perform(
+                        delete("/api/members/v1/me")
+                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
+                .andExpect(status().isOk());
+
+        // then
+        assertTrue(memberRepository.findById(freeMember.getId()).isEmpty());
+    }
+
+    @Test
+    void deleteMeUnauthorizedByNoneSessionTest() throws Exception {
+        // given, when, then
+        mockMvc.perform(
+                        delete("/api/members/v1/me"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void deleteMeAccessDeniedByBannedMemberTest() throws Exception {
+        // given
+        mockServer.expect(requestTo(KAKAO_UNLINK_URL))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess());
+
+        // when, then
+        mockMvc.perform(
+                        delete("/api/members/v1/me")
+                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2BannedMember)))
+                .andExpect(status().isForbidden());
     }
 
     @Test

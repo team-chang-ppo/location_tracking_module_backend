@@ -7,6 +7,7 @@ import org.changppo.cost_management_service.dto.apikey.ApiKeyCreateRequest;
 import org.changppo.cost_management_service.dto.apikey.ApiKeyDto;
 import org.changppo.cost_management_service.dto.apikey.ApiKeyReadAllRequest;
 import org.changppo.cost_management_service.response.Response;
+import org.changppo.cost_management_service.security.PrincipalHandler;
 import org.changppo.cost_management_service.service.apikey.ApiKeyService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,6 +44,13 @@ public class ApiKeyController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(Response.success(apiKeyDto));
+    }
+
+    @GetMapping("/member/me")
+    public ResponseEntity<Response> readAll(@Valid @ModelAttribute ApiKeyReadAllRequest req) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(Response.success(apiKeyService.readAll(PrincipalHandler.extractId(), req)));
     }
 
     @GetMapping("/member/{id}")
