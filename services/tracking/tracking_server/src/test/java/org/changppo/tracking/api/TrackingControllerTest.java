@@ -1,5 +1,7 @@
 package org.changppo.tracking.api;
 
+import de.flapdoodle.reverse.transitions.Start;
+import org.changppo.tracking.api.request.StartTrackingRequest;
 import org.changppo.tracking.api.response.TrackingResponse;
 import org.changppo.tracking.base.WithCustomMockUser;
 import org.changppo.tracking.domain.Scope;
@@ -21,6 +23,7 @@ import org.springframework.data.geo.Point;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -49,13 +52,11 @@ public class TrackingControllerTest {
     class mvpTest {
         @DisplayName("토큰을 성공적으로 발급함")
         @Test
-        void successConnect() throws Exception {
+        void successGenerateToken() throws Exception {
             // given
             GenerateTokenRequest request = new GenerateTokenRequest(
-                    new Point(1,1),
-                    new Point(2,2),
-                    3L,
-                    List.of(Scope.READ_TRACKING_COORDINATE.name()),
+                    "DEFAULT",
+                    List.of("READ_TRACKING_COORDINATE"),
                     3600L);
             GenerateTokenResponse response = new GenerateTokenResponse("TOKEN");
             given(trackingService.generateToken(anyString(), any(GenerateTokenRequest.class))).willReturn(response);
@@ -71,6 +72,27 @@ public class TrackingControllerTest {
                     .andDo(print());
         }
 
+        @DisplayName("Tracking 시작 성공")
+        @WithCustomMockUser
+        @Test
+        void successStartTracking() throws Exception {
+            // given
+            StartTrackingRequest request = new StartTrackingRequest(
+                    new Point(1,1),
+                    new Point(2,2),
+                    3L
+            );
+
+            //when
+            mockMvc.perform(post(baseUrl + "/start")
+                            .header("Authorization", "Bearer {TOKEN}")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    //then
+                    .andExpect(status().isOk())
+                    .andDo(print());
+        }
+
         @DisplayName("Tracking 성공함")
         @WithCustomMockUser
         @Test
@@ -80,7 +102,7 @@ public class TrackingControllerTest {
 
             //when
             mockMvc.perform(post(baseUrl + "/tracking")
-                            .header("Authorization", "Bearer {ACCESS_TOKEN}")
+                            .header("Authorization", "Bearer {TOKEN}")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     //then
@@ -95,7 +117,7 @@ public class TrackingControllerTest {
             // given
 
             //when
-            mockMvc.perform(delete(baseUrl + "/tracking")
+            mockMvc.perform(delete(baseUrl + "/finish")
                             .header("Authorization", "Bearer {ACCESS_TOKEN}"))
                     //then
                     .andExpect(status().isOk())
