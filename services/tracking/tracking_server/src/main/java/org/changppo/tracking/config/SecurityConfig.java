@@ -23,7 +23,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity
 @RequiredArgsConstructor
 @Configuration
 public class SecurityConfig {
