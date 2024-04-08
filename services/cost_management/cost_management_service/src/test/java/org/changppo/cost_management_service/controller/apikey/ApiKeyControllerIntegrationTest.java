@@ -478,21 +478,21 @@ public class ApiKeyControllerIntegrationTest {
                 .andExpect(status().isForbidden());
     }
 
-    @Test
-    void deleteAccessDeniedByBannedMemberTest() throws Exception {
-        // given, when, then
-        mockMvc.perform(
-                delete("/api/apikeys/v1/{id}", classicApiKeyByBannedMember.getId())
-                        .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2BannedMember)))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
-    void deleteAccessDeniedByBannedApiKeyTest() throws Exception {
-        // given, when, then
-        mockMvc.perform(
-                delete("/api/apikeys/v1/{id}", bannedApiKey.getId())
-                        .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2NormalMember)))
-                .andExpect(status().isForbidden());
-    }
+//    @Test
+//    void deleteAccessDeniedByBannedMemberTest() throws Exception {
+//        // given, when, then
+//        mockMvc.perform(
+//                delete("/api/apikeys/v1/{id}", classicApiKeyByBannedMember.getId())
+//                        .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2BannedMember)))
+//                .andExpect(status().isForbidden());
+//    }
+//
+//    @Test
+//    void deleteAccessDeniedByBannedApiKeyTest() throws Exception {
+//        // given, when, then
+//        mockMvc.perform(
+//                delete("/api/apikeys/v1/{id}", bannedApiKey.getId())
+//                        .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2NormalMember)))
+//                .andExpect(status().isForbidden());
+//    }
 }
