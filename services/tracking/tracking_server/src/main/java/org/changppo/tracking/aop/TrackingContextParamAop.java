@@ -25,13 +25,12 @@ public class TrackingContextParamAop {
     @Around("@annotation(org.changppo.tracking.aop.TrackingContextParam)")
     public Object getTrackingContext(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof TrackingContext context)) {
             log.error("인증이 필요한 접근입니다. 현재 인증 정보(Principal: {}, Authorities: {})",
                     authentication.getPrincipal(), authentication.getAuthorities());
             throw new RequiredAuthenticationException();
         }
 
-        TrackingContext context = (TrackingContext)authentication.getPrincipal();
         Object[] modifiedArgs = modifyArgsWithTrackingContext(context, proceedingJoinPoint);
 
         return proceedingJoinPoint.proceed(modifiedArgs);
@@ -45,7 +44,7 @@ public class TrackingContextParamAop {
 
         for (int i = 0; i < methodParameters.length; i++) {
             Parameter parameter = methodParameters[i];
-            if (parameter.getType().equals(TrackingContext.class)) {
+            if (parameter.getType().isAssignableFrom(trackingContext.getClass())) {
                 parameters[i] = trackingContext;
                 break;
             }
