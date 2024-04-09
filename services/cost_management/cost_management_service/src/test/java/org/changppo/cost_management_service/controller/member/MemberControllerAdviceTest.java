@@ -2,10 +2,10 @@ package org.changppo.cost_management_service.controller.member;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.changppo.cost_management_service.exception.MemberNotFoundException;
-import org.changppo.cost_management_service.exception.MemberUnlinkFailureException;
-import org.changppo.cost_management_service.exception.advice.ExceptionAdvice;
-import org.changppo.cost_management_service.exception.response.ResponseHandler;
+import org.changppo.cost_management_service.response.exception.member.MemberNotFoundException;
+import org.changppo.cost_management_service.response.exception.member.UnsupportedOAuth2Exception;
+import org.changppo.cost_management_service.response.exception.common.ExceptionAdvice;
+import org.changppo.cost_management_service.response.exception.common.ResponseHandler;
 import org.changppo.cost_management_service.service.member.MemberService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,7 +42,7 @@ class MemberControllerAdviceTest {
     @Test
     void readMemberNotFoundExceptionTest() throws Exception {
         // given
-        doThrow(MemberNotFoundException.class).when(memberService).read(anyLong());
+        doThrow(new MemberNotFoundException()).when(memberService).read(anyLong());
 
         // when, then
         mockMvc.perform(
@@ -53,7 +53,7 @@ class MemberControllerAdviceTest {
     @Test
     void deleteMemberNotFoundExceptionTest() throws Exception{
         // given
-        doThrow(MemberNotFoundException.class).when(memberService).delete(anyLong(), any(HttpServletRequest.class), any(HttpServletResponse.class));
+        doThrow(new MemberNotFoundException()).when(memberService).delete(anyLong(), any(HttpServletRequest.class), any(HttpServletResponse.class));
 
         // when, then
         mockMvc.perform(
@@ -62,13 +62,12 @@ class MemberControllerAdviceTest {
     }
 
     @Test
-    void deleteMemberUnlinkFailureExceptionTest() throws Exception {
+    void deleteMemberUnsupportedOAuth2ExceptionTest() throws Exception {
         // given
-        doThrow(MemberUnlinkFailureException.class).when(memberService).delete(anyLong(), any(HttpServletRequest.class), any(HttpServletResponse.class));
+        doThrow(new UnsupportedOAuth2Exception()).when(memberService).delete(anyLong(), any(HttpServletRequest.class), any(HttpServletResponse.class));
 
         // when, then
         mockMvc.perform(delete("/api/members/v1/{id}", 1L))
                 .andExpect(status().isInternalServerError());
     }
-
 }

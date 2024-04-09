@@ -7,17 +7,18 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.changppo.cost_management_service.dto.member.MemberDto;
 import org.changppo.cost_management_service.entity.member.Member;
-import org.changppo.cost_management_service.exception.MemberNotFoundException;
-import org.changppo.cost_management_service.exception.MemberUnlinkFailureException;
 import org.changppo.cost_management_service.repository.apikey.ApiKeyRepository;
+import org.changppo.cost_management_service.repository.card.CardRepository;
 import org.changppo.cost_management_service.repository.member.MemberRepository;
-import org.changppo.cost_management_service.service.member.oauth.OAuth2Service;
+import org.changppo.cost_management_service.response.exception.member.MemberNotFoundException;
+import org.changppo.cost_management_service.response.exception.member.UnsupportedOAuth2Exception;
+import org.changppo.cost_management_service.service.member.oauth2.OAuth2Client;
 import org.springframework.data.repository.query.Param;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.io.IOException;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,44 +28,37 @@ import java.util.stream.Collectors;
 public class MemberService {
 
     private final MemberRepository memberRepository;
-    private final List<OAuth2Service> oauth2Services;
+    private final List<OAuth2Client> oauth2Clients;
     private final ApiKeyRepository apiKeyRepository;
+    private final CardRepository cardRepository;
 
-    public MemberDto read(Long id) {
+    @PreAuthorize("@memberAccessEvaluator.check(#id)")
+    public MemberDto read(@Param("id")Long id) {
         Member member = memberRepository.findByIdWithRoles(id).orElseThrow(MemberNotFoundException::new);
         return new MemberDto(member.getId(),member.getName(), member.getUsername(), member.getProfileImage(),
-                member.getRoles().stream()
+                member.getMemberRoles().stream()
                 .map(memberRole -> memberRole.getRole().getRoleType())
-                .collect(Collectors.toSet()), member.getBannedAt(), member.getCreatedAt());
+                .collect(Collectors.toSet()), member.getIsPaymentFailureBanned(), member.getCreatedAt());
     }
 
     @Transactional
-    @PreAuthorize("@memberAccessEvaluator.check(#id) and @memberStatusEvaluator.check(#id)")
+    @PreAuthorize("@memberAccessEvaluator.check(#id) and @memberPaymentFailureStatusEvaluator.check(#id)") //TODO. 현재 사용자의 남은 요금으로 인한 실패 처리도 해야함
     public void delete(@Param("id")Long id, HttpServletRequest request, HttpServletResponse response) {
         Member member = memberRepository.findById(id).orElseThrow(MemberNotFoundException::new);
-        try {
-            unlinkSocialAccount(member.getName());
-        } catch (Exception e) {
-            throw new MemberUnlinkFailureException(e);
-        }
+        deleteMemberApiKeys(member.getId());
+        deleteMemberCards(member.getId());
+        memberRepository.delete(member);
         deleteSession(request);
         deleteCookie(response);
-        deleteMemberApiKeys(member.getId());
-        memberRepository.delete(member);
+        unlinkOAuth2Member(member.getName());
     }
 
-    public void unlinkSocialAccount(String memberName) throws IOException {
-        String[] parts = memberName.split("_");
-        if (parts.length < 2) {
-            throw new IllegalArgumentException("Invalid member name format");
-        }
-        String provider = parts[0];
-        String providerUserId = parts[1];
-        oauth2Services.stream()
-                .filter(service -> service.supports(provider))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Unsupported provider: " + provider))
-                .unlinkUser(providerUserId);
+    private void deleteMemberApiKeys(Long id) {
+        apiKeyRepository.deleteAllByMemberId(id);
+    }
+
+    private void deleteMemberCards(Long id) {
+        cardRepository.deleteAllByMemberId(id);
     }
 
     public void deleteSession(HttpServletRequest request){
@@ -84,7 +78,17 @@ public class MemberService {
         response.addCookie(cookie);
     }
 
-    private void deleteMemberApiKeys(Long id) {
-        apiKeyRepository.deleteAllByMemberId(id);
+    public void unlinkOAuth2Member(String memberName){
+        String[] parts = memberName.split("_");
+        if (parts.length < 2) {
+            throw new UnsupportedOAuth2Exception();
+        }
+        String provider = parts[0];
+        String MemberId = parts[1];
+        oauth2Clients.stream()
+                .filter(service -> service.supports(provider))
+                .findFirst()
+                .orElseThrow(UnsupportedOAuth2Exception::new)
+                .unlink(MemberId);
     }
 }

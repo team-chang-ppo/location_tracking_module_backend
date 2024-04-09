@@ -4,9 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.changppo.cost_management_service.entity.apikey.Grade;
 import org.changppo.cost_management_service.entity.apikey.GradeType;
+import org.changppo.cost_management_service.entity.card.PaymentGateway;
+import org.changppo.cost_management_service.entity.card.PaymentGatewayType;
 import org.changppo.cost_management_service.entity.member.Role;
 import org.changppo.cost_management_service.entity.member.RoleType;
 import org.changppo.cost_management_service.repository.apikey.GradeRepository;
+import org.changppo.cost_management_service.repository.card.PaymentGatewayRepository;
 import org.changppo.cost_management_service.repository.member.RoleRepository;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Profile;
@@ -24,11 +27,13 @@ public class InitData {
 
     private final RoleRepository roleRepository;
     private final GradeRepository gradeRepository;
+    private final PaymentGatewayRepository paymentGatewayRepository;
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
     public void initData() {
         initRole();
         initGrade();
+        initPaymentGateway();
     }
 
     private void initRole() {
@@ -40,6 +45,12 @@ public class InitData {
     private void initGrade() {
         gradeRepository.saveAll(
                 Stream.of(GradeType.values()).map(Grade::new).collect(Collectors.toList())
+        );
+    }
+
+    private void initPaymentGateway() {
+        paymentGatewayRepository.saveAll(
+                Stream.of(PaymentGatewayType.values()).map(PaymentGateway::new).collect(Collectors.toList())
         );
     }
 }
