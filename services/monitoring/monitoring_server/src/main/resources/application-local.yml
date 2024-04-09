@@ -1,4 +1,12 @@
 spring:
+  kafka:
+    bootstrap-servers: localhost:29092
+    consumer:
+      group-id: monitoring
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      enable-auto-commit: false
   data:
     mongodb:
       uri: mongodb://root:root@localhost:27017/monitoring?authSource=admin

@@ -1,8 +1,11 @@
-package org.changppo.gateway;
+package org.changppo.gateway.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.changppo.gateway.apikey.*;
+import org.changppo.gateway.metering.ApiMeteringEvent;
 import org.changppo.gateway.metering.ApiMeteringGatewayFilterFactory;
+import org.changppo.gateway.metering.ApiMeteringEventPublisher;
+import org.changppo.gateway.metering.KafkaApiMeteringEventPublisher;
 import org.changppo.gateway.ratelimit.*;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -11,10 +14,10 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.script.RedisScript;
+import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.scripting.support.ResourceScriptSource;
 import reactor.core.publisher.Mono;
 
@@ -34,6 +37,14 @@ public class GatewayConfig {
         return (id) -> Mono.just(true);
     }
 
+    @Bean
+    public ApiMeteringEventPublisher apiMeteringEventPublisher(
+            ReactiveKafkaProducerTemplate<String, String> kafkaProducerTemplate,
+            ObjectMapper objectMapper
+    ) {
+        return new KafkaApiMeteringEventPublisher(kafkaProducerTemplate, objectMapper);
+    }
+
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @Bean
     public ApiKeyResolverFilter apiKeyContextResolverFilter(
@@ -45,10 +56,9 @@ public class GatewayConfig {
 
     @Bean
     public ApiMeteringGatewayFilterFactory apiMeteringGatewayFilterFactory(
-            ReactiveRedisTemplate<String, String> redisTemplate,
-            ObjectMapper objectMapper
+            ApiMeteringEventPublisher apiMeteringEventPublisher
     ) {
-        return new ApiMeteringGatewayFilterFactory(redisTemplate, objectMapper);
+        return new ApiMeteringGatewayFilterFactory(apiMeteringEventPublisher);
     }
 
     @Bean("apiKeyRateLimiter")

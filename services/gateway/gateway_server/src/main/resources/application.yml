@@ -3,6 +3,20 @@ spring:
   cloud:
     gateway:
       routes:
+        - id: aggregation
+          uri: http://localhost:8010
+          predicates:
+            - Path=/api/aggregation/**
+          filters:
+            - name: ApiRateLimiter
+              args:
+                contextResolver: "#{@apiRateContextResolver}"
+                rateLimiter: "#{@apiKeyRateLimiter}"
+                requestedTokens: 100
+                notAllowedStatus: TOO_MANY_REQUESTS
+                denyEmptyKey: true
+                emptyKeyStatus: UNAUTHORIZED
+            - name: ApiMetering
         - id: route1
           uri: http://localhost:8000
           predicates:
@@ -17,3 +31,9 @@ spring:
                 denyEmptyKey: true
                 emptyKeyStatus: UNAUTHORIZED
             - name: ApiMetering
+  kafka:
+    producer:
+      bootstrap-servers: localhost:29092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    bootstrap-servers: localhost:29092
