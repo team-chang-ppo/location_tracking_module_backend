@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ErrorResponse {
-    private final LocalDateTime timestamp = LocalDateTime.now();
+    private final String timestamp = LocalDateTime.now().toString();
     private String code;
     private int status;
     private String message;

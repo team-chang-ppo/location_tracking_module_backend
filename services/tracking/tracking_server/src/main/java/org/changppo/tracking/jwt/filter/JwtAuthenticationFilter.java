@@ -1,11 +1,14 @@
 package org.changppo.tracking.jwt.filter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.changppo.tracking.exception.common.ErrorResponse;
+import org.changppo.tracking.jwt.exception.JwtAuthenticationException;
 import org.changppo.tracking.jwt.exception.JwtNotExistException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -33,12 +36,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String tokenValue = resolveToken(request).orElseThrow(JwtNotExistException::new);
-        JwtAuthenticationToken token = new JwtAuthenticationToken(tokenValue); // 인증되지 않은 토큰
-        Authentication authentication = this.authenticationManager.authenticate(token);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        try {
+            String tokenValue = resolveToken(request).orElseThrow(JwtNotExistException::new);
+            JwtAuthenticationToken token = new JwtAuthenticationToken(tokenValue); // 인증되지 않은 토큰
+            Authentication authentication = this.authenticationManager.authenticate(token);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        filterChain.doFilter(request, response);
+            filterChain.doFilter(request, response);
+        } catch (JwtAuthenticationException e) {
+            handleJwtAuthenticationException(response, e);
+        }
+
     }
 
     private Optional<String> resolveToken(HttpServletRequest request){
@@ -48,4 +56,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         return Optional.empty();
     }
+
+    private void handleJwtAuthenticationException(HttpServletResponse response, JwtAuthenticationException e) throws IOException {
+        response.setStatus(e.getErrorCode().getStatus());
+        response.setContentType("application/json;charset=UTF-8");
+        ObjectMapper objectMapper = new ObjectMapper();
+        String errorResponse = objectMapper.writeValueAsString(ErrorResponse.of(e.getErrorCode(), null));
+        response.getWriter().write(errorResponse);
+        response.flushBuffer(); // 커밋
+        response.getWriter().close();
+    }
+
 }

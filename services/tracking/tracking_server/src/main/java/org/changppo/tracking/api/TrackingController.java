@@ -1,15 +1,17 @@
+
 package org.changppo.tracking.api;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.changppo.tracking.api.request.ConnectRequest;
+import org.changppo.tracking.aop.TrackingContextParam;
+import org.changppo.tracking.api.request.GenerateTokenRequest;
+import org.changppo.tracking.api.request.StartTrackingRequest;
 import org.changppo.tracking.api.request.TrackingRequest;
-import org.changppo.tracking.api.response.ConnectResponse;
+import org.changppo.tracking.api.response.GenerateTokenResponse;
 import org.changppo.tracking.api.response.TrackingResponse;
 import org.changppo.tracking.domain.TrackingContext;
 import org.changppo.tracking.service.TrackingService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -20,17 +22,35 @@ public class TrackingController {
     private final TrackingService trackingService;
 
     /**
-     * 연결 API
+     * 토큰 생성 API
      * 해당 정보를 저장한 token 을 반환 200
-     * 이미 사용자가 존재하면 409
      * @param request ConnectRequest
      * @return response ConnectResponse
+     * TODO : 토큰 헤더의 키 값은 상의 필요
      */
-    @PostMapping("/connect")
-    public ResponseEntity<ConnectResponse> connect(@RequestBody @Valid ConnectRequest request) {
-        ConnectResponse response = trackingService.connect(request);
+    @PostMapping("/generate-token")
+    public ResponseEntity<GenerateTokenResponse> generateToken(@RequestHeader("api-key-id") String apiKeyId,
+                                                               @RequestBody @Valid GenerateTokenRequest request) {
+        GenerateTokenResponse response = trackingService.generateToken(apiKeyId, request);
 
         return ResponseEntity.ok().body(response);
+    }
+
+    /**
+     * 배달 시작시 정적인 정보 받아오기
+     * 성공 시 200
+     * 이미 사용자가 존재하면 409
+     * @param request StartTrackingRequest
+     * @param context TrackingContext
+     * @return void
+     */
+    @TrackingContextParam
+    @PostMapping("/start")
+    public ResponseEntity<GenerateTokenResponse> startTracking(@RequestBody @Valid StartTrackingRequest request,
+                                                               TrackingContext context) {
+        trackingService.startTracking(request, context);
+
+        return ResponseEntity.ok().build();
     }
 
     /**
@@ -42,10 +62,11 @@ public class TrackingController {
      * @param context TrackingContext
      * @return TODO 반환처리
      */
+    @TrackingContextParam
     @PostMapping("/tracking")
     public ResponseEntity<Void> tracking(@RequestBody @Valid TrackingRequest request,
-                                         @AuthenticationPrincipal TrackingContext context) {
-        trackingService.tracking(request, context.trackingId());
+                                         TrackingContext context) {
+        trackingService.tracking(request, context);
 
         return ResponseEntity.ok().build();
     }
@@ -57,9 +78,10 @@ public class TrackingController {
      * @param context TrackingContext
      * @return TODO 반환처리
      */
-    @DeleteMapping("/tracking")
-    public ResponseEntity<Void> finish(@AuthenticationPrincipal TrackingContext context) {
-        trackingService.finish(context.trackingId());
+    @TrackingContextParam
+    @DeleteMapping("/finish")
+    public ResponseEntity<Void> finish(TrackingContext context) {
+        trackingService.finish(context);
 
         return ResponseEntity.ok().build();
     }
@@ -71,9 +93,10 @@ public class TrackingController {
      * @param context TrackingContext
      * @return TrackingResponse
      */
+    @TrackingContextParam
     @GetMapping("/tracking")
-    public ResponseEntity<TrackingResponse> getTracking(@AuthenticationPrincipal TrackingContext context) {
-        TrackingResponse response = trackingService.getTracking(context.trackingId());
+    public ResponseEntity<TrackingResponse> getTracking(TrackingContext context) {
+        TrackingResponse response = trackingService.getTracking(context);
 
         return ResponseEntity.ok().body(response);
     }

@@ -1,7 +1,10 @@
 package org.changppo.tracking.domain;
 
+import java.util.List;
+
 public record TrackingContext(
         String trackingId,
-        String authority
+        String apiKeyId,
+        List<String> scopes
 ) {
 }

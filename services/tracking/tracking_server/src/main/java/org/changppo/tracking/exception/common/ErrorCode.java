@@ -16,6 +16,7 @@ public enum ErrorCode {
     TRACKING_NOT_FOUND(404, "TRACKING_0002", "해당 TRACKING 정보가 존재하지 않습니다."),
     TRACKING_ALREADY_EXITED(400, "TRACKING_0003", "해당 TRACKING은 이미 종료되었습니다."),
     COORDINATES_NOT_FOUND(404, "TRACKING_0004", "해당 COORDINATES 정보가 존재하지 않습니다."),
+    API_KEY_ID_IS_NOT_MATCHED(403, "TRACKING_0005", "해당 Tracking 정보를 볼 권한이 없습니다."),
 
     // jwt
     AUTHORIZED_FAILED(401,"SECURITY_0001","인증이 필요합니다."),
@@ -23,6 +24,8 @@ public enum ErrorCode {
     JWT_INVALID(401, "SECURITY_0003", "JWT 토큰이 올바르지 않습니다."),
     JWT_NOT_EXIST(401, "SECURITY_0004", "JWT 토큰이 존재하지 않습니다."),
     ACCESS_DENIED(403, "SECURITY_0005", "해당 리소스에 접근할 권한이 없습니다."),
+    REQUIRED_AUTHENTICATION(401, "SECURITY_0006", "토큰이 필요한 접근입니다."),
+
 
     ;
 
