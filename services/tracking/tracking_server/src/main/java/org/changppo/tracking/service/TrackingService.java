@@ -7,8 +7,8 @@ import org.changppo.tracking.api.request.StartTrackingRequest;
 import org.changppo.tracking.api.request.TrackingRequest;
 import org.changppo.tracking.api.response.GenerateTokenResponse;
 import org.changppo.tracking.api.response.TrackingResponse;
-import org.changppo.tracking.domain.Coordinates;
-import org.changppo.tracking.domain.Tracking;
+import org.changppo.tracking.domain.mongodb.Coordinates;
+import org.changppo.tracking.domain.mongodb.Tracking;
 import org.changppo.tracking.domain.TrackingContext;
 import org.changppo.tracking.exception.*;
 import org.changppo.tracking.jwt.TokenProvider;
@@ -93,4 +93,11 @@ public class TrackingService {
     }
 
 
+    public void test1(StartTrackingRequest request, TrackingContext context) {
+        // Redis와 MongoDB에 같이 적재
+
+    }
+
+    public void test2(StartTrackingRequest request, TrackingContext context) {
+    }
 }

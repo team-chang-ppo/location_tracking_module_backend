@@ -1,11 +1,10 @@
 package org.changppo.tracking.api.request;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.changppo.tracking.api.validation.ValidPoint;
-import org.changppo.tracking.domain.Coordinates;
+import org.changppo.tracking.domain.mongodb.Coordinates;
 import org.springframework.data.geo.Point;
 
 import java.time.LocalDateTime;

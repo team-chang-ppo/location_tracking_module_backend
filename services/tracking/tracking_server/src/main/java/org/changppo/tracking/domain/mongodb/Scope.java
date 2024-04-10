@@ -1,4 +1,4 @@
-package org.changppo.tracking.domain;
+package org.changppo.tracking.domain.mongodb;
 
 public enum Scope {
     READ_TRACKING_COORDINATE, // tracking 중인 최근 좌표 하나 받아오기

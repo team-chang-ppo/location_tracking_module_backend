@@ -1,12 +1,11 @@
 package org.changppo.tracking.repository;
 
 
-import org.changppo.tracking.domain.Coordinates;
+import org.changppo.tracking.domain.mongodb.Coordinates;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
 import java.util.Set;
 
 @Repository

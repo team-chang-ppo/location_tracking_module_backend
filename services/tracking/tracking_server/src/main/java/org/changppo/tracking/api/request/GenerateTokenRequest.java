@@ -7,11 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.changppo.tracking.api.validation.ValidPoint;
-import org.changppo.tracking.domain.Tracking;
-import org.springframework.data.geo.Point;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter

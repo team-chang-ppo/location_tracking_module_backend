@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.changppo.tracking.domain.Coordinates;
+import org.changppo.tracking.domain.mongodb.Coordinates;
 import org.springframework.data.geo.Point;
 
 @Getter

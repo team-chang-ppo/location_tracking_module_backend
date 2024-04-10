@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.changppo.tracking.api.validation.ValidPoint;
-import org.changppo.tracking.domain.Tracking;
+import org.changppo.tracking.domain.mongodb.Tracking;
 import org.changppo.tracking.domain.TrackingContext;
 import org.springframework.data.geo.Point;
 

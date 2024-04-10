@@ -1,7 +1,7 @@
 package org.changppo.tracking.repository;
 
 
-import org.changppo.tracking.domain.Coordinates;
+import org.changppo.tracking.domain.mongodb.Coordinates;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

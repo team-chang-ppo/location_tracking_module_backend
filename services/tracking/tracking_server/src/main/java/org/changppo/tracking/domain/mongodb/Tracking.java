@@ -1,4 +1,4 @@
-package org.changppo.tracking.domain;
+package org.changppo.tracking.domain.mongodb;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -8,10 +8,8 @@ import org.springframework.data.annotation.ReadOnlyProperty;
 import org.springframework.data.geo.Point;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 
 @Getter

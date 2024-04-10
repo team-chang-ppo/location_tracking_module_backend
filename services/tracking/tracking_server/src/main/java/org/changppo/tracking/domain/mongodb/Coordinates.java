@@ -1,4 +1,4 @@
-package org.changppo.tracking.domain;
+package org.changppo.tracking.domain.mongodb;
 
 import lombok.Builder;
 import lombok.Getter;
