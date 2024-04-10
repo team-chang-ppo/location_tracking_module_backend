@@ -7,7 +7,10 @@ import org.changppo.tracking.api.validation.ValidPoint;
 import org.changppo.tracking.domain.mongodb.Coordinates;
 import org.springframework.data.geo.Point;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Getter
 @NoArgsConstructor
@@ -22,7 +25,8 @@ public class TrackingRequest {
     public static Coordinates toCoordinatesEntity(TrackingRequest request, String trackingId) {
         return Coordinates.builder()
                 .locations(request.getLocations())
-                .createdAt(LocalDateTime.now().plusHours(9))
+                .createdAt(ZonedDateTime.ofInstant(Instant.now(), ZoneId.of("Asia/Seoul"))
+                        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")))
                 .trackingId(trackingId)
                 .build();
     }

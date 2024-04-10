@@ -9,7 +9,10 @@ import org.changppo.tracking.domain.mongodb.Tracking;
 import org.changppo.tracking.domain.TrackingContext;
 import org.springframework.data.geo.Point;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Getter
 @AllArgsConstructor
@@ -32,7 +35,8 @@ public class StartTrackingRequest {
                 .startPoint(request.getStartPoint())
                 .endPoint(request.getEndPoint())
                 .estimatedArrivalTime(request.getEstimatedArrivalTime())
-                .startedAt(LocalDateTime.now().plusHours(9))
+                .startedAt(ZonedDateTime.ofInstant(Instant.now(), ZoneId.of("Asia/Seoul"))
+                        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")))
                 .build();
     }
 }

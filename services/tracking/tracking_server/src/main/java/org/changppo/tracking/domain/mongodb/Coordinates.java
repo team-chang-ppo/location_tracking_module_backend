@@ -1,5 +1,6 @@
 package org.changppo.tracking.domain.mongodb;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,14 +19,15 @@ public class Coordinates {
 
     private Point locations;
 
-    private LocalDateTime createdAt;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "Asia/Seoul")
+    private String createdAt;
 
 //    private Long remainingArrivalTime; // TODO : 추후 프론트와 협의 후 도입
 
     private String trackingId;
 
     @Builder
-    public Coordinates(Point locations, LocalDateTime createdAt, String trackingId) {
+    public Coordinates(Point locations, String createdAt, String trackingId) {
         this.locations = locations;
         this.createdAt = createdAt;
         this.trackingId = trackingId;
