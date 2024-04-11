@@ -30,6 +30,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	// mongodb
 	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+	// redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	// lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
