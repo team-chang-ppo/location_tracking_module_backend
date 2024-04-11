@@ -25,7 +25,7 @@ public class Member extends EntityDate {
     @Column(name = "member_id")
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String name;
 
     @Column(nullable = false, length = 10)
@@ -64,13 +64,6 @@ public class Member extends EntityDate {
     public void updateInfo(String username, String profileImage) {
         this.username = username;
         this.profileImage = profileImage;
-    }
-
-    public void reactivate(String username, String profileImage, Set<Role> roles) {
-        this.username = username;
-        this.profileImage = profileImage;
-        this.deletedAt = null;
-        roles.forEach(role -> this.memberRoles.add(new MemberRole(this, role)));
     }
 
     public void changeRole(RoleType fromRoleType, Role toRole) {

@@ -10,9 +10,12 @@ import java.util.Optional;
 public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByName(String name);
 
+    @Query("select m from Member m join fetch m.memberRoles where m.name = :name")
+    Optional<Member> findByNameWithRoles(@Param("name") String name);
+
     @Query(value = "select * from member where name = :name", nativeQuery = true)
     Optional<Member> findByNameIgnoringDeleted(@Param("name") String name);
 
-    @Query("select a from Member a join fetch a.memberRoles where a.id = :id")
+    @Query("select m from Member m join fetch m.memberRoles where m.id = :id")
     Optional<Member> findByIdWithRoles(@Param("id") Long id);
 }
