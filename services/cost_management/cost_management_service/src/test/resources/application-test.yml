@@ -15,5 +15,10 @@ spring:
         highlight_sql: true         # SQL 색깔
         hbm2ddl.auto: create-drop
         default_batch_fetch_size: 100
-    open-in-view: true
+    open-in-view: false
     show-sql: true
+
+logging:
+  level:
+    org.hibernate.orm.jdbc.bind: trace
+    org.springframework.transaction.interceptor: trace
