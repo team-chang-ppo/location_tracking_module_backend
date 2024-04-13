@@ -5,18 +5,16 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.changppo.cost_management_service.entity.card.Card;
 import org.changppo.cost_management_service.entity.common.EntityDate;
 import org.changppo.cost_management_service.entity.member.Member;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
-
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE payment SET deleted_at = CURRENT_TIMESTAMP WHERE payment_id = ?")
+@SQLDelete(sql = "UPDATE payment SET deleted_at = CURRENT_TIMESTAMP WHERE payment_id = ?")  // TODO. member 탈퇴시 삭제
 @SQLRestriction("deleted_at is NULL")
 public class Payment extends EntityDate {
 
@@ -31,13 +29,9 @@ public class Payment extends EntityDate {
     @Column(nullable = false)
     private Integer amount;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "card_id", nullable = false)
-    private Card card;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PaymentStatus status;
 
     @Column(nullable = false)
     private LocalDateTime startedAt;
@@ -45,17 +39,25 @@ public class Payment extends EntityDate {
     @Column(nullable = false)
     private LocalDateTime endedAt;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
+
+    @Embedded
+    private PaymentCardInfo cardInfo;
+
     @Column
     private LocalDateTime deletedAt;
 
     @Builder
-    public Payment(String key, Integer amount, Card card, Member member, LocalDateTime startedAt, LocalDateTime endedAt) {
+    public Payment(String key, Integer amount, PaymentStatus status, LocalDateTime startedAt, LocalDateTime endedAt, Member member, PaymentCardInfo cardInfo) {
         this.key = key;
         this.amount = amount;
-        this.card = card;
-        this.member = member;
+        this.status = status;
         this.startedAt = startedAt;
         this.endedAt = endedAt;
+        this.member = member;
+        this.cardInfo = cardInfo;
         this.deletedAt = null;
     }
 }

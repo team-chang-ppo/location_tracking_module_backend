@@ -10,6 +10,7 @@ import org.changppo.cost_management_service.entity.member.Member;
 import org.changppo.cost_management_service.repository.apikey.ApiKeyRepository;
 import org.changppo.cost_management_service.repository.card.CardRepository;
 import org.changppo.cost_management_service.repository.member.MemberRepository;
+import org.changppo.cost_management_service.repository.payment.PaymentRepository;
 import org.changppo.cost_management_service.response.exception.member.MemberNotFoundException;
 import org.changppo.cost_management_service.response.exception.member.UnsupportedOAuth2Exception;
 import org.changppo.cost_management_service.service.member.oauth2.OAuth2Client;
@@ -31,6 +32,7 @@ public class MemberService {
     private final List<OAuth2Client> oauth2Clients;
     private final ApiKeyRepository apiKeyRepository;
     private final CardRepository cardRepository;
+    private final PaymentRepository paymentRepository;
 
     @PreAuthorize("@memberAccessEvaluator.check(#id)")
     public MemberDto read(@Param("id")Long id) {
@@ -47,6 +49,7 @@ public class MemberService {
         Member member = memberRepository.findById(id).orElseThrow(MemberNotFoundException::new);
         deleteMemberApiKeys(member.getId());
         deleteMemberCards(member.getId());
+        deleteMemberPayment(member.getId());
         memberRepository.delete(member);
         deleteSession(request);
         deleteCookie(response);
@@ -59,6 +62,10 @@ public class MemberService {
 
     private void deleteMemberCards(Long id) {
         cardRepository.deleteAllByMemberId(id);
+    }
+
+    private void deleteMemberPayment(Long id) {
+        paymentRepository.deleteAllByMemberId(id);
     }
 
     public void deleteSession(HttpServletRequest request){

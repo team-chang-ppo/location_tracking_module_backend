@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import org.changppo.cost_management_service.entity.common.EntityDate;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
-
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,7 +15,7 @@ import java.util.Set;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE member SET deleted_at = CURRENT_TIMESTAMP WHERE member_id = ?")
+@SQLDelete(sql = "UPDATE member SET deleted_at = CURRENT_TIMESTAMP, name = CONCAT(name, '_', CURRENT_TIMESTAMP) WHERE member_id = ?")
 @SQLRestriction("deleted_at is NULL")
 public class Member extends EntityDate {
 
@@ -25,7 +24,7 @@ public class Member extends EntityDate {
     @Column(name = "member_id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
     @Column(nullable = false, length = 10)

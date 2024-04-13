@@ -4,8 +4,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.changppo.cost_management_service.entity.card.Card;
 import org.changppo.cost_management_service.entity.member.Member;
+import org.changppo.cost_management_service.entity.payment.PaymentCardInfo;
+import org.changppo.cost_management_service.entity.payment.PaymentStatus;
 
 import java.time.LocalDateTime;
 
@@ -17,12 +18,13 @@ public class PaymentCreateRequest {
     private String key;
     @NotNull(message = "{paymentCreateRequest.amount.notNull}")
     private Integer amount;
-    @NotNull(message = "{paymentCreateRequest.card.notNull}")
-    private Card card;
-    @NotNull(message = "{paymentCreateRequest.member.notNull}")
-    private Member member;
+    @NotNull(message = "{paymentCreateRequest.status.notNull}")
+    private PaymentStatus status;
     @NotNull(message = "{paymentCreateRequest.startedAt.notNull}")
     private LocalDateTime startedAt;
     @NotNull(message = "{paymentCreateRequest.endedAt.notNull}")
     private LocalDateTime endedAt;
+    @NotNull(message = "{paymentCreateRequest.member.notNull}")
+    private Member member;
+    private PaymentCardInfo cardInfo; //nullable
 }
