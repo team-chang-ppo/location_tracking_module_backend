@@ -15,7 +15,13 @@ spring:
     open-in-view: false
     show-sql: true
 
-logging:
-  level:
-    org.hibernate.orm.jdbc.bind: trace
-    org.springframework.transaction.interceptor: trace
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: always
+
+#logging:
+#  level:
+#    org.hibernate.orm.jdbc.bind: trace
+#    org.springframework.transaction.interceptor: trace

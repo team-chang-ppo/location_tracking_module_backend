@@ -9,6 +9,7 @@ import org.changppo.cost_management_service.entity.common.EntityDate;
 import org.changppo.cost_management_service.entity.member.Member;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -22,9 +23,6 @@ public class Payment extends EntityDate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "payment_id")
     private Long id;
-
-    @Column(name = "`key`", unique = true, nullable = false)
-    private String key;
 
     @Column(nullable = false)
     private Integer amount;
@@ -50,8 +48,7 @@ public class Payment extends EntityDate {
     private LocalDateTime deletedAt;
 
     @Builder
-    public Payment(String key, Integer amount, PaymentStatus status, LocalDateTime startedAt, LocalDateTime endedAt, Member member, PaymentCardInfo cardInfo) {
-        this.key = key;
+    public Payment(Integer amount, PaymentStatus status, LocalDateTime startedAt, LocalDateTime endedAt, Member member, PaymentCardInfo cardInfo) {
         this.amount = amount;
         this.status = status;
         this.startedAt = startedAt;

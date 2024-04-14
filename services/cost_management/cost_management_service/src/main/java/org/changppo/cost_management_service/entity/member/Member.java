@@ -40,7 +40,7 @@ public class Member extends EntityDate {
     private LocalDateTime deletedAt;
 
     @Column
-    private LocalDateTime isPaymentFailureBanned; // TODO. 정기 결제 실패로 인한 정지.
+    private LocalDateTime paymentFailureBannedAt; // TODO. 정기 결제 실패로 인한 정지.
 
     @Builder
     public Member(String name, String username, String profileImage,  Set<Role> roles) {
@@ -49,7 +49,7 @@ public class Member extends EntityDate {
         this.profileImage = profileImage;
         roles.forEach(role -> this.memberRoles.add(new MemberRole(this, role)));
         this.deletedAt = null;
-        this.isPaymentFailureBanned = null;
+        this.paymentFailureBannedAt = null;
     }
 
     public boolean isDeleted() {
@@ -57,7 +57,7 @@ public class Member extends EntityDate {
     }
 
     public boolean isPaymentFailureBanned() {
-        return this.isPaymentFailureBanned != null;
+        return this.paymentFailureBannedAt != null;
     }
 
     public void updateInfo(String username, String profileImage) {
@@ -76,10 +76,10 @@ public class Member extends EntityDate {
     }
 
     public void banForPaymentFailure(LocalDateTime time) {
-        this.isPaymentFailureBanned = time;
+        this.paymentFailureBannedAt = time;
     }
 
     public void unbanForPaymentFailure() {
-        this.isPaymentFailureBanned = null;
+        this.paymentFailureBannedAt = null;
     }
 }

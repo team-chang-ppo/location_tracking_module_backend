@@ -1,4 +1,4 @@
-package org.changppo.cost_management_service.config;
+package org.changppo.cost_management_service.service.payment.scheduled;
 
 import lombok.RequiredArgsConstructor;
 import org.quartz.spi.TriggerFiredBundle;

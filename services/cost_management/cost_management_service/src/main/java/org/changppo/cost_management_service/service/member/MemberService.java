@@ -40,7 +40,7 @@ public class MemberService {
         return new MemberDto(member.getId(),member.getName(), member.getUsername(), member.getProfileImage(),
                 member.getMemberRoles().stream()
                 .map(memberRole -> memberRole.getRole().getRoleType())
-                .collect(Collectors.toSet()), member.getIsPaymentFailureBanned(), member.getCreatedAt());
+                .collect(Collectors.toSet()), member.getPaymentFailureBannedAt(), member.getCreatedAt());
     }
 
     @Transactional
