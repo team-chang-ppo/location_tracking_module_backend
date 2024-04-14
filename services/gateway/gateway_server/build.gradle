@@ -20,6 +20,8 @@ ext {
 }
 
 dependencies {
+	implementation project(':services:gateway:gateway_domain')
+
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
 	implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
 	implementation 'com.auth0:java-jwt:4.4.0'

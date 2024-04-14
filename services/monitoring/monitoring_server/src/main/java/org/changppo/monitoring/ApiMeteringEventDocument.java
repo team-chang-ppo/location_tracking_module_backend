@@ -1,6 +1,7 @@
 package org.changppo.monitoring;
 
 import lombok.*;
+import org.changppo.monioring.domain.ApiMeteringEventPayLoad;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -8,7 +9,6 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.util.Assert;
 
 import java.time.Instant;
-import java.util.Map;
 
 @NoArgsConstructor
 @Getter
@@ -43,7 +43,7 @@ public class ApiMeteringEventDocument {
         this.timestamp = timestamp;
     }
 
-    public static ApiMeteringEventDocument createFromApiMeteringEvent(ApiMeteringEvent event, Instant timestamp) {
+    public static ApiMeteringEventDocument createFromApiMeteringEvent(ApiMeteringEventPayLoad event, Instant timestamp) {
         Assert.notNull(event, "event must not be null");
         Assert.notNull(timestamp, "timestamp must not be null");
         return ApiMeteringEventDocument.builder()

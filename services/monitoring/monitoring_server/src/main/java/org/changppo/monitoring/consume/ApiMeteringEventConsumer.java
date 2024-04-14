@@ -3,7 +3,7 @@ package org.changppo.monitoring.consume;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.changppo.monitoring.ApiMeteringEvent;
+import org.changppo.monioring.domain.ApiMeteringEventPayLoad;
 import org.changppo.monitoring.ApiMeteringEventDocument;
 import org.changppo.monitoring.ApiMeteringEventRepository;
 import org.changppo.monitoring.exception.InvalidFormattedEventException;
@@ -55,7 +55,7 @@ public class ApiMeteringEventConsumer {
             }
             // payload
             String payload = event.getPayload();
-            ApiMeteringEvent apiMeteringEvent = objectMapper.readValue(payload, ApiMeteringEvent.class);
+            ApiMeteringEventPayLoad apiMeteringEvent = objectMapper.readValue(payload, ApiMeteringEventPayLoad.class);
 
             return ApiMeteringEventDocument.createFromApiMeteringEvent(apiMeteringEvent, timestamp);
         } catch (Exception e) {

@@ -1,0 +1,6 @@
+rootProject.name = 'location_tracking_model'
+include(':services:gateway:gateway_server')
+include('services:gateway:gateway_domain')
+include(':services:monitoring:monitoring_server')
+findProject(':services:gateway:gateway_domain')?.name = 'gateway_domain'
+
