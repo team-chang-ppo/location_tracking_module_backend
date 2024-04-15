@@ -49,4 +49,12 @@ public interface ApiKeyRepository extends JpaRepository<ApiKey, Long> {
     @Modifying
     @Query("UPDATE ApiKey a SET a.paymentFailureBannedAt = NULL WHERE a.member.id = :memberId")
     void unbanApiKeysForPaymentFailure(@Param("memberId") Long memberId);
+
+    @Modifying
+    @Query("UPDATE ApiKey a SET a.deletionRequestedAt = :time WHERE a.member.id = :memberId")
+    void requestApiKeyDeletion(@Param("memberId") Long memberId, @Param("time") LocalDateTime time);
+
+    @Modifying
+    @Query("UPDATE ApiKey a SET a.deletionRequestedAt = NULL WHERE a.member.id = :memberId")
+    void cancelApiKeyDeletionRequest(@Param("memberId") Long memberId);
 }

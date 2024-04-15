@@ -15,8 +15,8 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.data.RepositoryItemReader;
+import org.springframework.batch.item.support.ClassifierCompositeItemWriter;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -46,7 +46,7 @@ public class JobConfig{
     @Bean
     public Step processPaymentStep(RepositoryItemReader<Member> memberItemReader,
                                     ItemProcessor<Member, Payment> paymentProcessor,
-                                    ItemWriter<Payment> paymentWriter) {
+                                   ClassifierCompositeItemWriter<Payment> paymentWriter) {
         return new StepBuilder("paymentStep", jobRepository)
                 .<Member, Payment>chunk(10, transactionManager)
                 .reader(memberItemReader)

@@ -42,6 +42,9 @@ public class Member extends EntityDate {
     @Column
     private LocalDateTime paymentFailureBannedAt; // TODO. 정기 결제 실패로 인한 정지.
 
+    @Column
+    private LocalDateTime deletionRequestedAt; // TODO. 회원 탈퇴 요청.
+
     @Builder
     public Member(String name, String username, String profileImage,  Set<Role> roles) {
         this.name = name;
@@ -50,6 +53,7 @@ public class Member extends EntityDate {
         roles.forEach(role -> this.memberRoles.add(new MemberRole(this, role)));
         this.deletedAt = null;
         this.paymentFailureBannedAt = null;
+        this.deletionRequestedAt = null;
     }
 
     public boolean isDeleted() {
@@ -58,6 +62,10 @@ public class Member extends EntityDate {
 
     public boolean isPaymentFailureBanned() {
         return this.paymentFailureBannedAt != null;
+    }
+
+    public boolean isDeletionRequested() {
+        return this.deletionRequestedAt != null;
     }
 
     public void updateInfo(String username, String profileImage) {
@@ -81,5 +89,13 @@ public class Member extends EntityDate {
 
     public void unbanForPaymentFailure() {
         this.paymentFailureBannedAt = null;
+    }
+
+    public void requestDeletion(LocalDateTime time) {
+        this.deletionRequestedAt =time;
+    }
+
+    public void cancelDeletionRequest() {
+        this.deletionRequestedAt = null;
     }
 }

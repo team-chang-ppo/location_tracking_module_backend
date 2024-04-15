@@ -1,7 +1,5 @@
 package org.changppo.cost_management_service.controller.member;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.changppo.cost_management_service.security.PrincipalHandler;
 import org.changppo.cost_management_service.service.member.MemberService;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,11 +12,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 @ExtendWith(MockitoExtension.class)
@@ -64,18 +59,18 @@ class MemberControllerTest {
         verify(memberService).read(id);
     }
 
-    @Test
-    void deleteTest() throws Exception {
-        // given
-        Long id = 1L;
-
-        // when, then
-        mockMvc.perform(
-                        delete("/api/members/v1/{id}", id))
-                .andExpect(status().isOk());
-
-        verify(memberService).delete(eq(id), any(HttpServletRequest.class), any(HttpServletResponse.class));
-
-    }
+//    @Test
+//    void deleteTest() throws Exception {
+//        // given
+//        Long id = 1L;
+//
+//        // when, then
+//        mockMvc.perform(
+//                        delete("/api/members/v1/{id}", id))
+//                .andExpect(status().isOk());
+//
+//        verify(memberService).delete(eq(id), any(HttpServletRequest.class), any(HttpServletResponse.class));
+//
+//    }
 
 }

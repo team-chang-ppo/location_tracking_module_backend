@@ -6,15 +6,11 @@ import org.changppo.cost_management_service.entity.member.RoleType;
 import org.changppo.cost_management_service.entity.payment.Payment;
 import org.changppo.cost_management_service.entity.payment.PaymentCardInfo;
 import org.changppo.cost_management_service.entity.payment.PaymentStatus;
-import org.changppo.cost_management_service.repository.apikey.ApiKeyRepository;
 import org.changppo.cost_management_service.repository.payment.PaymentRepository;
 import org.changppo.cost_management_service.service.payment.batch.fake.FakePaymentInfoClient;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
-import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,13 +20,12 @@ import java.time.temporal.TemporalAdjusters;
 
 @Configuration
 @RequiredArgsConstructor
-public class ProcessorConfig {  // TODO. ClassifierCompositeItemProcessor 사용해서 Refactoring
+public class ProcessorConfig {
 
     private final JobLauncher jobLauncher;
     private final JobRepository jobRepository;
     private final Job paymentJob;
     private final FakePaymentInfoClient fakePaymentInfoClient;
-    private final ApiKeyRepository apiKeyRepository;
     private final PaymentRepository paymentRepository;
 
     @Bean
@@ -64,20 +59,16 @@ public class ProcessorConfig {  // TODO. ClassifierCompositeItemProcessor 사용
                 .addLong("amount", (long) amount)
                 .addLocalDateTime("date", periodEnd)
                 .toJobParameters();
-        try {
-            JobExecution jobExecution = jobLauncher.run(paymentJob, jobParameters);
-            PaymentCardInfo cardInfo = (PaymentCardInfo) jobExecution.getExecutionContext().get("paymentCardInfo");
-            if (cardInfo == null) {
-                throw new IllegalStateException("Card information could not be retrieved from the execution context.");
+        JobExecution jobExecution = jobRepository.getLastJobExecution(paymentJob.getName(), jobParameters);
+        if (jobExecution == null) {
+            try {
+                jobExecution = jobLauncher.run(paymentJob, jobParameters);
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to execute payment job due to critical error", e);
             }
-            return jobExecution.getStatus() == BatchStatus.COMPLETED ? createCompletedPaidPayment(member, amount, cardInfo, periodStart, periodEnd) : createFailedPayment(member, amount, periodStart, periodEnd);
-        } catch (JobRestartException | JobExecutionAlreadyRunningException | JobInstanceAlreadyCompleteException e) {
-            JobExecution jobExecution = jobRepository.getLastJobExecution(paymentJob.getName(), jobParameters);
-            PaymentCardInfo cardInfo = (PaymentCardInfo) jobExecution.getExecutionContext().get("paymentCardInfo");
-            return createCompletedPaidPayment(member, amount, cardInfo, periodStart, periodEnd);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to execute payment job due to critical error", e);
         }
+        PaymentCardInfo cardInfo = (PaymentCardInfo) jobExecution.getExecutionContext().get("paymentCardInfo");
+        return jobExecution.getStatus() == BatchStatus.COMPLETED ? createCompletedPaidPayment(member, amount, cardInfo, periodStart, periodEnd) : createFailedPayment(member, amount, periodStart, periodEnd);
     }
 
     private Payment createCompletedFreePayment(Member member, int amount, LocalDateTime periodStart, LocalDateTime periodEnd) {
@@ -92,7 +83,6 @@ public class ProcessorConfig {  // TODO. ClassifierCompositeItemProcessor 사용
     }
 
     private Payment createFailedPayment(Member member, int amount, LocalDateTime periodStart, LocalDateTime periodEnd) {
-        handlePaymentFailure(member);
         return Payment.builder()
                 .amount(amount)
                 .status(PaymentStatus.FAILED)
@@ -101,11 +91,6 @@ public class ProcessorConfig {  // TODO. ClassifierCompositeItemProcessor 사용
                 .member(member)
                 .cardInfo(null)
                 .build();
-    }
-
-    private void handlePaymentFailure(Member member) {
-        member.banForPaymentFailure(LocalDateTime.now());
-        apiKeyRepository.banApiKeysForPaymentFailure(member.getId(), LocalDateTime.now());
     }
 
     private Payment createCompletedPaidPayment(Member member, int amount, PaymentCardInfo paymentCardInfo, LocalDateTime periodStart, LocalDateTime periodEnd) {
