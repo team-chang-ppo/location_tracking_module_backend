@@ -74,10 +74,11 @@ public class TrackingService {
     public TrackingResponse getTracking(TrackingContext context) {
         TrackingRedisEntity trackingCache = checkTracking(context);
 
-        return coordinatesRepository.findByTrackingIdOrderByCreatedAtDesc(trackingCache.trackingId())
-                .stream().findFirst()
-                .map(TrackingResponse::new)
+        Coordinates latestCoordinates = coordinatesRepository
+                .findTopByTrackingIdOrderByCreatedAtDesc(trackingCache.trackingId())
                 .orElseThrow(CoordinatesNotFoundException::new);
+
+        return new TrackingResponse(latestCoordinates);
     }
 
     private TrackingRedisEntity checkTracking(TrackingContext context) {
@@ -92,12 +93,5 @@ public class TrackingService {
             throw new TrackingAlreadyExitedException(); // 400 error
         }
         return trackingCache;
-    }
-
-
-    public void test1(TrackingRequest request, TrackingContext context) {
-    }
-
-    public void test2(TrackingRequest request, TrackingContext context) {
     }
 }
