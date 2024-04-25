@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.changppo.tracking.domain.mongodb.Coordinates;
+import org.changppo.tracking.domain.redis.CoordinateRedisEntity;
 import org.springframework.data.geo.Point;
 
 @Getter
@@ -12,9 +13,17 @@ import org.springframework.data.geo.Point;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TrackingResponse {
-    private Point locations;
+    double latitude;
+    double longitude;
 
     public TrackingResponse(Coordinates coordinates) {
-        this.locations = coordinates.getLocations();
+        this.latitude = coordinates.getLatitude();
+        this.longitude = coordinates.getLongitude();
     }
+
+    public TrackingResponse(CoordinateRedisEntity coordinateRedisEntity) {
+        this.latitude = coordinateRedisEntity.latitude();
+        this.longitude = coordinateRedisEntity.longitude();
+    }
+
 }

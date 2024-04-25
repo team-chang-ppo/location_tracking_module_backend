@@ -26,9 +26,13 @@ public class Tracking {
 
     private List<String> scope;
 
-    private Point startPoint;
+    private double startLatitude;
 
-    private Point endPoint;
+    private double startLongitude;
+
+    private double endLatitude;
+
+    private double endLongitude;
 
     private Long estimatedArrivalTime; // 분 단위
 
@@ -41,16 +45,17 @@ public class Tracking {
     private List<Coordinates> coordinatesList;
 
     @Builder
-    public Tracking(String id, String apiKeyId, List<String> scope, Point startPoint, Point endPoint, Long estimatedArrivalTime, String startedAt) {
+    public Tracking(String id, String apiKeyId, List<String> scope, double startLatitude, double startLongitude, double endLatitude, double endLongitude, Long estimatedArrivalTime, String startedAt) {
         this.id = id;
         this.apiKeyId = apiKeyId;
         this.scope = scope;
-        this.startPoint = startPoint;
-        this.endPoint = endPoint;
+        this.startLatitude = startLatitude;
+        this.startLongitude = startLongitude;
+        this.endLatitude = endLatitude;
+        this.endLongitude = endLongitude;
         this.estimatedArrivalTime = estimatedArrivalTime;
         this.startedAt = startedAt;
     }
-
 
     public void updateEndedAt() {
         this.endedAt = ZonedDateTime.ofInstant(Instant.now(), ZoneId.of("Asia/Seoul"))

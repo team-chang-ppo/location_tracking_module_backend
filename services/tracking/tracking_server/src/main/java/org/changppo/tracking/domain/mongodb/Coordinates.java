@@ -17,7 +17,9 @@ public class Coordinates {
     @Id
     private String id;
 
-    private Point locations;
+    private double latitude;
+
+    private double longitude;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "Asia/Seoul")
     private String createdAt;
@@ -27,8 +29,9 @@ public class Coordinates {
     private String trackingId;
 
     @Builder
-    public Coordinates(Point locations, String createdAt, String trackingId) {
-        this.locations = locations;
+    public Coordinates(double latitude, double longitude, String createdAt, String trackingId) {
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.createdAt = createdAt;
         this.trackingId = trackingId;
     }

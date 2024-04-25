@@ -75,8 +75,8 @@ public class TrackingControllerTest {
         void successStartTracking() throws Exception {
             // given
             StartTrackingRequest request = new StartTrackingRequest(
-                    new Point(1,1),
-                    new Point(2,2),
+                    1,1,
+                    2,2,
                     3L
             );
 
@@ -126,7 +126,7 @@ public class TrackingControllerTest {
         @Test
         void successGetTracking() throws Exception {
             // given
-            TrackingResponse response = new TrackingResponse(new Point(1, 2));
+            TrackingResponse response = new TrackingResponse(1,1);
             given(trackingService.getTracking(any())).willReturn(response);
 
             //when
