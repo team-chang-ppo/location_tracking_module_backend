@@ -10,6 +10,7 @@ import org.changppo.tracking.api.response.TrackingResponse;
 import org.changppo.tracking.domain.mongodb.Coordinates;
 import org.changppo.tracking.domain.mongodb.Tracking;
 import org.changppo.tracking.domain.TrackingContext;
+import org.changppo.tracking.domain.redis.CoordinateRedisEntity;
 import org.changppo.tracking.domain.redis.TrackingRedisEntity;
 import org.changppo.tracking.exception.*;
 import org.changppo.tracking.jwt.TokenProvider;
@@ -18,6 +19,7 @@ import org.changppo.tracking.repository.RedisRepository;
 import org.changppo.tracking.repository.TrackingRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -28,8 +30,8 @@ public class TrackingService {
     private final TokenProvider tokenProvider;
     private final TrackingRepository trackingRepository;
     private final CoordinatesRepository coordinatesRepository;
-    private final RedisRepository redisRepository;
     private final TrackingCacheService trackingCacheService;
+    private final RedisRepository redisRepository;
 
     public GenerateTokenResponse generateToken(String apiKeyId, GenerateTokenRequest request) {
         if(request.getIdentifier().equals("DEFAULT")){ // DEFAULT 가 입력되면 처음 생성이라 생각하고, 랜덤 UUID 값을 생성
@@ -57,28 +59,42 @@ public class TrackingService {
         TrackingRedisEntity trackingCache = checkTracking(context);
 
         Coordinates coordinates = TrackingRequest.toCoordinatesEntity(request, trackingCache.trackingId());
-        coordinatesRepository.save(coordinates);
+
+        CoordinateRedisEntity coordinateRedisEntity = new CoordinateRedisEntity(coordinates);
+        redisRepository.rightPush(trackingCache.trackingId(), coordinateRedisEntity);
     }
 
     public void finish(TrackingContext context) {
         TrackingRedisEntity trackingCache = checkTracking(context);
 
+        // 끝남 처리
         Tracking tracking = trackingRepository.findById(trackingCache.trackingId()).orElseThrow(TrackingNotFoundException::new);
-        tracking.updateEndedAt(); // 현재 시간
+        tracking.updateEndedAt();
 
-        trackingCacheService.updateTrackingCache(tracking); // 캐시도 업데이트
+        trackingCacheService.updateTrackingCache(tracking);
+        Tracking savedTracking = trackingRepository.save(tracking);
 
-        trackingRepository.save(tracking);
+        // 벌크성 저장
+        List<Object> objectList = redisRepository.findAll(savedTracking.getId());
+
+        List<Coordinates> coordinatesList = objectList.stream()
+                .filter(obj -> obj instanceof CoordinateRedisEntity)
+                .map(obj -> (CoordinateRedisEntity) obj)
+                .map(CoordinateRedisEntity::toCoordinates)
+                .toList();
+
+        coordinatesRepository.saveAll(coordinatesList);
     }
 
     public TrackingResponse getTracking(TrackingContext context) {
         TrackingRedisEntity trackingCache = checkTracking(context);
 
-        Coordinates latestCoordinates = coordinatesRepository
-                .findTopByTrackingIdOrderByCreatedAtDesc(trackingCache.trackingId())
-                .orElseThrow(CoordinatesNotFoundException::new);
-
-        return new TrackingResponse(latestCoordinates);
+        Object latestCoordinatesObj = redisRepository.getTail(trackingCache.trackingId());
+        if (latestCoordinatesObj instanceof CoordinateRedisEntity latestCoordinates) {
+            return new TrackingResponse(latestCoordinates);
+        } else {
+            throw new IllegalArgumentException("좌표 데이터가 올바른 형식이 아닙니다.");
+        }
     }
 
     private TrackingRedisEntity checkTracking(TrackingContext context) {
@@ -90,7 +106,7 @@ public class TrackingService {
 
         if(trackingCache.endedAt() != null) {
             trackingCacheService.deleteTrackingCache(context.trackingId()); // 종료된 tracking은 캐시에서 삭제
-            throw new TrackingAlreadyExitedException(); // 400 error
+            throw new TrackingAlreadyExitedException(); // 410 error
         }
         return trackingCache;
     }
