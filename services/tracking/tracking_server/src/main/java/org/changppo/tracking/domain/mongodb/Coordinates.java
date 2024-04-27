@@ -1,6 +1,10 @@
 package org.changppo.tracking.domain.mongodb;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,18 +25,20 @@ public class Coordinates {
 
     private double longitude;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "Asia/Seoul")
-    private String createdAt;
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    private LocalDateTime createdAt;
 
 //    private Long remainingArrivalTime; // TODO : 추후 프론트와 협의 후 도입
 
     private String trackingId;
 
     @Builder
-    public Coordinates(double latitude, double longitude, String createdAt, String trackingId) {
+    public Coordinates(double latitude, double longitude, LocalDateTime createdAt, String trackingId) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.createdAt = createdAt;
         this.trackingId = trackingId;
     }
+
 }

@@ -5,14 +5,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.ReadOnlyProperty;
-import org.springframework.data.geo.Point;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -36,16 +32,16 @@ public class Tracking {
 
     private Long estimatedArrivalTime; // 분 단위
 
-    private String startedAt;
+    private LocalDateTime startedAt;
 
-    private String endedAt;
+    private LocalDateTime endedAt;
 
     @ReadOnlyProperty
     @DocumentReference(lookup="{'trackingId':?#{#self._id} }")
     private List<Coordinates> coordinatesList;
 
     @Builder
-    public Tracking(String id, String apiKeyId, List<String> scope, double startLatitude, double startLongitude, double endLatitude, double endLongitude, Long estimatedArrivalTime, String startedAt) {
+    public Tracking(String id, String apiKeyId, List<String> scope, double startLatitude, double startLongitude, double endLatitude, double endLongitude, Long estimatedArrivalTime, LocalDateTime startedAt) {
         this.id = id;
         this.apiKeyId = apiKeyId;
         this.scope = scope;
@@ -58,7 +54,6 @@ public class Tracking {
     }
 
     public void updateEndedAt() {
-        this.endedAt = ZonedDateTime.ofInstant(Instant.now(), ZoneId.of("Asia/Seoul"))
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"));
+        this.endedAt = LocalDateTime.now();
     }
 }

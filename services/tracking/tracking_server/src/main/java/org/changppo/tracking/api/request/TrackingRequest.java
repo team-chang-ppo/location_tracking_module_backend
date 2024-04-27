@@ -2,16 +2,12 @@ package org.changppo.tracking.api.request;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.changppo.tracking.domain.mongodb.Coordinates;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
@@ -32,8 +28,7 @@ public class TrackingRequest {
         return Coordinates.builder()
                 .latitude(request.getLatitude())
                 .longitude(request.getLongitude())
-                .createdAt(ZonedDateTime.ofInstant(Instant.now(), ZoneId.of("Asia/Seoul"))
-                        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")))
+                .createdAt(LocalDateTime.now())
                 .trackingId(trackingId)
                 .build();
     }

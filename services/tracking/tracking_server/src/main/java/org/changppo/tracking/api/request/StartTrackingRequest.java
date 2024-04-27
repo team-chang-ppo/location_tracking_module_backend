@@ -8,10 +8,7 @@ import lombok.Getter;
 import org.changppo.tracking.domain.mongodb.Tracking;
 import org.changppo.tracking.domain.TrackingContext;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
@@ -47,8 +44,7 @@ public class StartTrackingRequest {
                 .endLatitude(request.getEndLatitude())
                 .endLongitude(request.getEndLongitude())
                 .estimatedArrivalTime(request.getEstimatedArrivalTime())
-                .startedAt(ZonedDateTime.ofInstant(Instant.now(), ZoneId.of("Asia/Seoul"))
-                        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")))
+                .startedAt(LocalDateTime.now())
                 .build();
     }
 }

@@ -26,8 +26,8 @@ public class CoordinatesRepositoryTest {
     @Test
     void getCoordinatesTest() {
         // given
-        Coordinates coordinates1 = new Coordinates(1,2, "", "test");
-        Coordinates coordinates2 = new Coordinates(1,2, "", "test");
+        Coordinates coordinates1 = new Coordinates(1,2, LocalDateTime.now(), "test");
+        Coordinates coordinates2 = new Coordinates(1,2, LocalDateTime.now(), "test");
         coordinatesRepository.save(coordinates1);
         coordinatesRepository.save(coordinates2);
 

@@ -113,31 +113,4 @@ public class TrackingController {
      * 고민 : API 를 따로 구성해야할지 or 권한 정보를 헤더나 바디로 받아서 처리해야할지
      * API 를 구성하거나, 권한 정보를 헤더로 넣으면 API GATEWAY 에서 거르기 쉬울듯?
      */
-
-
-    /**
-     * test 1
-     * Redis 와 MongoDB 에 둘다 같이 쓰기, Redis 에는 set 으로 덮어쓰기
-     */
-    @TrackingContextParam
-    @PostMapping("/test1")
-    public ResponseEntity<Void> test1(@RequestBody @Valid TrackingRequest request,
-                                      TrackingContext context) {
-        trackingService.test1(request, context);
-
-        return ResponseEntity.ok().build();
-    }
-
-    /**
-     * test 2
-     * Redis 에 먼저 다 쓰기, 벌크성으로 MongoDB로 적재하기
-     */
-    @TrackingContextParam
-    @PostMapping("/test2")
-    public ResponseEntity<Void> test2(@RequestBody @Valid TrackingRequest request,
-                                      TrackingContext context) {
-        trackingService.test2(request, context);
-
-        return ResponseEntity.ok().build();
-    }
 }
