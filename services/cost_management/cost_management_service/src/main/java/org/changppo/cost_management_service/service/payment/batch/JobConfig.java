@@ -27,12 +27,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
-public class JobConfig{
+public class JobConfig {
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;
@@ -71,36 +72,41 @@ public class JobConfig{
     public Step paymentStep(@Value("#{jobParameters[memberId]}") Long memberId,
                             @Value("#{jobParameters[amount]}") Long amount) {
         return new StepBuilder("paymentStep", jobRepository)
-                .tasklet((contribution, chunkContext) ->{
-            List<Card> cards = cardRepository.findAllCardByMemberId(memberId);
-            PaymentCardInfo paymentCardInfo = null;
-            for (Card card : cards) {
-                try {
-                    KakaopayPaymentRequest request = new KakaopayPaymentRequest(
-                            card.getKey(),
-                            UUID.randomUUID().toString(),
-                            memberId,
-                            "위치 추적 모듈 정기 결제",
-                            1,
-                            amount.intValue(),
-                            0
-                    );
-                    paymentGatewayClients.stream()
-                            .filter(c -> c.supports(card.getPaymentGateway().getPaymentGatewayType()))
+                .tasklet((contribution, chunkContext) -> {
+                    List<Card> cards = cardRepository.findAllCardByMemberId(memberId);
+                    PaymentCardInfo paymentCardInfo = cards.stream()
+                            .map(card -> ProcessPayment(card, memberId, amount.intValue()))
+                            .filter(Objects::nonNull)
                             .findFirst()
-                            .orElseThrow(() -> new IllegalStateException("Unsupported payment gateway"))
-                            .payment(request);
-                    paymentCardInfo = new PaymentCardInfo(card.getType(), card.getIssuerCorporation(), card.getBin());
-                    break;
-                } catch (PaymentGatewayBusinessException e) {
-                    log.info("Failed to process payment for card {}", card.getKey());
-                }
-            }
-            // TODO. 테스트용 로직 제거
-            // paymentCardInfo = new PaymentCardInfo("card.getType()", "card.getIssuerCorporation()", "card.getBin()");
-            contribution.getStepExecution().getJobExecution().getExecutionContext().put("paymentCardInfo", paymentCardInfo);
-            return RepeatStatus.FINISHED;
-        }, transactionManager)
-        .build();
+                            .orElseThrow(() -> new RuntimeException("All payment attempts failed for memberId: " + memberId));
+                    // TODO. 테스트용 로직 제거
+                    // PaymentCardInfo paymentCardInfo = new PaymentCardInfo("card.getType()", "card.getIssuerCorporation()", "card.getBin()");
+                    contribution.getStepExecution().getJobExecution().getExecutionContext().put("paymentCardInfo", paymentCardInfo);
+                    return RepeatStatus.FINISHED;
+                }, transactionManager)
+                .build();
+    }
+
+    private PaymentCardInfo ProcessPayment(Card card, Long memberId, int amount) {
+        try {
+            KakaopayPaymentRequest request = new KakaopayPaymentRequest(
+                    card.getKey(),
+                    UUID.randomUUID().toString(),
+                    memberId,
+                    "위치 추적 모듈 정기 결제",
+                    1,
+                    amount,
+                    0
+            );
+            paymentGatewayClients.stream()
+                    .filter(client -> client.supports(card.getPaymentGateway().getPaymentGatewayType()))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalStateException("Unsupported payment gateway"))
+                    .payment(request);
+            return new PaymentCardInfo(card.getType(), card.getIssuerCorporation(), card.getBin());
+        } catch (PaymentGatewayBusinessException e) {
+            log.info("Failed to process payment for card {}", card.getKey());
+            return null;
+        }
     }
 }

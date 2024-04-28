@@ -88,6 +88,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/cards/v1/kakaopay/**").hasRole("FREE")
                         .requestMatchers(HttpMethod.GET, "/api/cards/**").hasRole("NORMAL")
                         .requestMatchers(HttpMethod.DELETE, "/api/cards/**").hasRole("NORMAL")
+                        .requestMatchers(HttpMethod.POST, "/api/payments/**").hasRole("FREE")
                         .requestMatchers(HttpMethod.GET).permitAll()
                         .anyRequest().hasRole("ADMIN"));
 

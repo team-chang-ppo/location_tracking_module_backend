@@ -61,6 +61,11 @@ public class Payment extends EntityDate {  // TODO. 동시성 문제 고려
         this.deletedAt = null;
     }
 
+    public void changeStatus(PaymentStatus status, PaymentCardInfo cardInfo) {
+        this.status = status;
+        this.cardInfo = cardInfo;
+    }
+
     public void publishCreatedEvent(ApplicationEventPublisher publisher) {
         if (status == PaymentStatus.FAILED) {
             publishPaymentFailedEvent(publisher);

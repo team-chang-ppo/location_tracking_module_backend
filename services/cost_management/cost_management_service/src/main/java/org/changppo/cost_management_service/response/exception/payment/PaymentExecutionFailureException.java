@@ -4,10 +4,10 @@ import org.changppo.cost_management_service.response.exception.common.ExceptionT
 
 public class PaymentExecutionFailureException extends PaymentBusinessException {
     public PaymentExecutionFailureException() {
-        super(ExceptionType.PAYMENT_EXECUTION_FAILURE);
+        super(ExceptionType.PAYMENT_EXECUTION_FAILURE_EXCEPTION);
     }
 
     public PaymentExecutionFailureException(Throwable cause) {
-        super(ExceptionType.PAYMENT_EXECUTION_FAILURE, cause);
+        super(ExceptionType.PAYMENT_EXECUTION_FAILURE_EXCEPTION, cause);
     }
 }

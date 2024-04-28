@@ -1,13 +1,13 @@
 package org.changppo.cost_management_service.service.payment.batch.config;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.changppo.cost_management_service.entity.member.Member;
 import org.changppo.cost_management_service.entity.member.RoleType;
 import org.changppo.cost_management_service.entity.payment.Payment;
 import org.changppo.cost_management_service.entity.payment.PaymentCardInfo;
 import org.changppo.cost_management_service.entity.payment.PaymentStatus;
 import org.changppo.cost_management_service.repository.payment.PaymentRepository;
-import org.changppo.cost_management_service.response.exception.payment.PaymentExecutionFailureException;
 import org.changppo.cost_management_service.service.payment.batch.fake.FakePaymentInfoClient;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
@@ -21,6 +21,7 @@ import java.time.temporal.TemporalAdjusters;
 
 @Configuration
 @RequiredArgsConstructor
+@Slf4j
 public class ProcessorConfig {
 
     private final JobLauncher jobLauncher;
@@ -38,7 +39,7 @@ public class ProcessorConfig {
             LocalDateTime periodEnd = LocalDateTime.now().with(TemporalAdjusters.firstDayOfMonth()).withHour(0).withMinute(0).withSecond(0).withNano(0);
             int paymentAmount =  fakePaymentInfoClient.getPaymentAmountForPeriod(member.getId(), periodStart, periodEnd);
             if (paymentAmount <= 100) {
-                return createCompletedPayment(member, paymentAmount, null,periodStart, periodEnd);
+                return createCompletedPayment(member, paymentAmount, null, periodStart, periodEnd);
             } else {
                 return createPaymentDecision(member, paymentAmount, periodStart, periodEnd);
             }
@@ -64,15 +65,12 @@ public class ProcessorConfig {
             try {
                 jobExecution = jobLauncher.run(paymentJob, jobParameters);
             } catch (Exception e) {
-                throw new PaymentExecutionFailureException(e);
+                log.error("Payment execution failed", e);
             }
         }
-
         if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
             PaymentCardInfo cardInfo = (PaymentCardInfo) jobExecution.getExecutionContext().get("paymentCardInfo");
-            if (cardInfo != null) {
-                return createCompletedPayment(member, paymentAmount, cardInfo, periodStart, periodEnd);
-            }
+            return createCompletedPayment(member, paymentAmount, cardInfo, periodStart, periodEnd);
         }
         return createFailedPayment(member, paymentAmount, periodStart, periodEnd);
     }
