@@ -12,10 +12,7 @@ public class SchedulerService {
 
     private final Scheduler scheduler;
 
-    public <T extends QuartzJobBean> void addJob(
-            Class<T> jobClass, final String jobName, String description, Map<String, Object> paramsMap, String cronExpression)
-            throws SchedulerException {
-
+    public <T extends QuartzJobBean> void addJob(Class<T> jobClass, final String jobName, String description, Map<String, Object> paramsMap, String cronExpression) throws SchedulerException {
         JobDetail jobDetail = buildJobDetail(jobClass, jobName, description, paramsMap);
         Trigger trigger = buildCronTrigger(jobDetail, cronExpression, jobName);
 

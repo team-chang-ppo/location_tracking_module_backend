@@ -11,19 +11,6 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @Transactional(readOnly = true)
 public class PaymentService {
-
     private final PaymentRepository paymentRepository;
 
-//    @Transactional
-//    public void create(@Valid PaymentCreateRequest req) {
-//        Payment payment = Payment.builder()
-//                .key(req.getKey())
-//                .amount(req.getAmount())
-//                .card(req.getCard())
-//                .member(req.getMember())
-//                .startedAt(req.getStartedAt())
-//                .endedAt(req.getEndedAt())
-//                .build();
-//        paymentRepository.save(payment);
-//    }
 }

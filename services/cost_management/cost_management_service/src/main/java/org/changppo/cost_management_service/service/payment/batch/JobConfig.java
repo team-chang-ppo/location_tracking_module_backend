@@ -2,10 +2,13 @@ package org.changppo.cost_management_service.service.payment.batch;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.changppo.cost_management_service.dto.paymentgateway.kakaopay.payment.KakaopayPaymentRequest;
+import org.changppo.cost_management_service.entity.card.Card;
 import org.changppo.cost_management_service.entity.member.Member;
 import org.changppo.cost_management_service.entity.payment.Payment;
 import org.changppo.cost_management_service.entity.payment.PaymentCardInfo;
 import org.changppo.cost_management_service.repository.card.CardRepository;
+import org.changppo.cost_management_service.response.exception.paymentgateway.PaymentGatewayBusinessException;
 import org.changppo.cost_management_service.service.paymentgateway.PaymentGatewayClient;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -15,8 +18,8 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.data.RepositoryItemReader;
-import org.springframework.batch.item.support.ClassifierCompositeItemWriter;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -24,6 +27,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.List;
+import java.util.UUID;
 
 @Configuration
 @RequiredArgsConstructor
@@ -45,8 +49,8 @@ public class JobConfig{
 
     @Bean
     public Step processPaymentStep(RepositoryItemReader<Member> memberItemReader,
-                                    ItemProcessor<Member, Payment> paymentProcessor,
-                                   ClassifierCompositeItemWriter<Payment> paymentWriter) {
+                                   ItemProcessor<Member, Payment> paymentProcessor,
+                                   ItemWriter<Payment> paymentWriter) {
         return new StepBuilder("paymentStep", jobRepository)
                 .<Member, Payment>chunk(10, transactionManager)
                 .reader(memberItemReader)
@@ -68,34 +72,32 @@ public class JobConfig{
                             @Value("#{jobParameters[amount]}") Long amount) {
         return new StepBuilder("paymentStep", jobRepository)
                 .tasklet((contribution, chunkContext) ->{
-            if (memberId == null || amount == null) {
-                throw new IllegalArgumentException("Member ID and amount must be provided");
+            List<Card> cards = cardRepository.findAllCardByMemberId(memberId);
+            PaymentCardInfo paymentCardInfo = null;
+            for (Card card : cards) {
+                try {
+                    KakaopayPaymentRequest request = new KakaopayPaymentRequest(
+                            card.getKey(),
+                            UUID.randomUUID().toString(),
+                            memberId,
+                            "위치 추적 모듈 정기 결제",
+                            1,
+                            amount.intValue(),
+                            0
+                    );
+                    paymentGatewayClients.stream()
+                            .filter(c -> c.supports(card.getPaymentGateway().getPaymentGatewayType()))
+                            .findFirst()
+                            .orElseThrow(() -> new IllegalStateException("Unsupported payment gateway"))
+                            .payment(request);
+                    paymentCardInfo = new PaymentCardInfo(card.getType(), card.getIssuerCorporation(), card.getBin());
+                    break;
+                } catch (PaymentGatewayBusinessException e) {
+                    log.info("Failed to process payment for card {}", card.getKey());
+                }
             }
-//            List<Card> cards = cardRepository.findAllCardByMemberId(memberId);
-//            for (Card card : cards) {
-//                try {
-//                    PaymentGatewayClient client = paymentGatewayClients.stream()
-//                            .filter(c -> c.supports(card.getPaymentGateway().getPaymentGatewayType()))
-//                            .findFirst()
-//                            .orElseThrow(() -> new IllegalStateException("Unsupported payment gateway"));
-//                    KakaopayPaymentRequest request = new KakaopayPaymentRequest(
-//                            card.getKey(),
-//                            UUID.randomUUID().toString(),
-//                            memberId,
-//                            "위치 추적 모듈 정기 결제",
-//                            1,
-//                            amount.intValue(),
-//                            0
-//                    );
-//                    client.payment(request);
-//                    PaymentCardInfo paymentCardInfo = new PaymentCardInfo(card.getType(), card.getIssuerCorporation(), card.getBin());
-//                    contribution.getStepExecution().getJobExecution().getExecutionContext().put("paymentCardInfo", paymentCardInfo);
-//                    break;
-//                } catch (PaymentGatewayBusinessException e) {
-//                    log.info("Failed to process payment for card {}", card.getKey());
-//                }
-//            }
-            PaymentCardInfo paymentCardInfo = new PaymentCardInfo("card.getType()", "card.getIssuerCorporation()", "card.getBin()");
+            // TODO. 테스트용 로직 제거
+            // paymentCardInfo = new PaymentCardInfo("card.getType()", "card.getIssuerCorporation()", "card.getBin()");
             contribution.getStepExecution().getJobExecution().getExecutionContext().put("paymentCardInfo", paymentCardInfo);
             return RepeatStatus.FINISHED;
         }, transactionManager)

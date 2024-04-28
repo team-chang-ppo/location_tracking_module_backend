@@ -7,15 +7,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.changppo.cost_management_service.entity.common.EntityDate;
 import org.changppo.cost_management_service.entity.member.Member;
+import org.changppo.cost_management_service.service.payment.PaymentFailedEvent;
+import org.changppo.cost_management_service.service.payment.PaymentMemberDeleteEvent;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE payment SET deleted_at = CURRENT_TIMESTAMP WHERE payment_id = ?")  // TODO. member 탈퇴시 삭제
+@SQLDelete(sql = "UPDATE payment SET deleted_at = CURRENT_TIMESTAMP WHERE payment_id = ?")
 @SQLRestriction("deleted_at is NULL")
 public class Payment extends EntityDate {  // TODO. 동시성 문제 고려
 
@@ -58,8 +61,19 @@ public class Payment extends EntityDate {  // TODO. 동시성 문제 고려
         this.deletedAt = null;
     }
 
-    public void setDeletedAt(LocalDateTime time) {
-        this.deletedAt = time;
+    public void publishCreatedEvent(ApplicationEventPublisher publisher) {
+        if (status == PaymentStatus.FAILED) {
+            publishPaymentFailedEvent(publisher);
+        } else if (member.isDeletionRequested()) {
+            publishMemberDeletionEvent(publisher);
+        }
     }
 
+    private void publishPaymentFailedEvent(ApplicationEventPublisher publisher) {
+        publisher.publishEvent(new PaymentFailedEvent(member));
+    }
+
+    private void publishMemberDeletionEvent(ApplicationEventPublisher publisher) {
+        publisher.publishEvent(new PaymentMemberDeleteEvent(member));
+    }
 }
