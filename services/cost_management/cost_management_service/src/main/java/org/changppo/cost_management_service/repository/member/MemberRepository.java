@@ -22,4 +22,5 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByIdWithRoles(@Param("id") Long id);
 
     Slice<Member> findByPaymentFailureBannedAtIsNull(Pageable pageable);
+    Slice<Member> findByIdGreaterThanAndPaymentFailureBannedAtIsNull(Long lastId, Pageable pageable);
 }
