@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 public class ApiKeyReadAllRequest {
     @NotNull(message = "{apiKeyReadAllRequest.firstApiKeyId.notNull}")
     @Positive(message = "{apiKeyReadAllRequest.firstApiKeyId.positive}")
+    @Max(value = Long.MAX_VALUE - 1, message = "{apiKeyReadAllRequest.firstApiKeyId.maxValue}")
     private Long firstApiKeyId;
 
     @NotNull(message = "{apiKeyReadAllRequest.size.notNull}")

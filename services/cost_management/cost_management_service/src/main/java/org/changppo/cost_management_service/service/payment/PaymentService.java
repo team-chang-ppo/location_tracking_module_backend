@@ -2,6 +2,8 @@ package org.changppo.cost_management_service.service.payment;
 
 import lombok.RequiredArgsConstructor;
 import org.changppo.cost_management_service.dto.payment.PaymentDto;
+import org.changppo.cost_management_service.dto.payment.PaymentListDto;
+import org.changppo.cost_management_service.dto.payment.PaymentReadAllRequest;
 import org.changppo.cost_management_service.entity.payment.Payment;
 import org.changppo.cost_management_service.entity.payment.PaymentCardInfo;
 import org.changppo.cost_management_service.entity.payment.PaymentStatus;
@@ -13,11 +15,12 @@ import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.repository.query.Param;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -70,5 +73,11 @@ public class PaymentService {
     private void updatePaymentStatus(Payment payment, JobExecution jobExecution) {
         PaymentCardInfo cardInfo = (PaymentCardInfo) jobExecution.getExecutionContext().get("paymentCardInfo");
         payment.changeStatus(PaymentStatus.COMPLETED_PAID, cardInfo);
+    }
+
+    @PreAuthorize("@paymentAccessEvaluator.check(#memberId)")
+    public PaymentListDto readAll(@Param("memberId")Long memberId, PaymentReadAllRequest req){
+        Slice<PaymentDto> slice = paymentRepository.findAllByMemberIdOrderByDesc(memberId, req.getLastPaymentId(), Pageable.ofSize(req.getSize()));
+        return new PaymentListDto(slice.getNumberOfElements(), slice.hasNext(), slice.getContent());
     }
 }
