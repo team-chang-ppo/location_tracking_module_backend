@@ -39,7 +39,7 @@ public class PaymentService {
     public PaymentDto repayment(@Param("id") Long id) {
         Payment payment = paymentRepository.findById(id).orElseThrow(PaymentNotFoundException::new);
         JobParameters jobParameters = createJobParameters(payment);
-        JobExecution jobExecution = createJobExecution(jobParameters);
+        JobExecution jobExecution = createJobExecution(jobParameters); //TODO. 추후 멀티모듈 적용시 의존성 분리
         if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
             updatePaymentStatus(payment, jobExecution);
         }
