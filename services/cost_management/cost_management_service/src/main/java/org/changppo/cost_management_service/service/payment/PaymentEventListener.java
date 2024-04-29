@@ -1,6 +1,8 @@
 package org.changppo.cost_management_service.service.payment;
 
 import lombok.RequiredArgsConstructor;
+import org.changppo.cost_management_service.dto.payment.event.PaymentFailedEvent;
+import org.changppo.cost_management_service.dto.payment.event.PaymentMemberDeleteEvent;
 import org.changppo.cost_management_service.entity.card.Card;
 import org.changppo.cost_management_service.entity.card.PaymentGatewayType;
 import org.changppo.cost_management_service.entity.member.Member;
@@ -35,6 +37,14 @@ public class PaymentEventListener{
         Member member = event.getMember();
         member.banForPaymentFailure(LocalDateTime.now());
         apiKeyRepository.banApiKeysForPaymentFailure(member.getId(), LocalDateTime.now());
+    }
+
+    @EventListener
+    @Transactional
+    public void handlePaymentComplete(PaymentFailedEvent event) {
+        Member member = event.getMember();
+        member.unbanForPaymentFailure();
+        apiKeyRepository.unbanApiKeysForPaymentFailure(member.getId());
     }
 
     @EventListener

@@ -43,7 +43,7 @@ public class PaymentService {
         if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
             updatePaymentStatus(payment, jobExecution);
         }
-        payment.publishCreatedEvent(publisher);
+        payment.publishUpdatedEvent(publisher);
         return new PaymentDto(payment.getId(), payment.getAmount(), payment.getStatus(), payment.getStartedAt(), payment.getEndedAt(), payment.getCardInfo(), payment.getCreatedAt());
     }
 

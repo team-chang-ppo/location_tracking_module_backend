@@ -7,8 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.changppo.cost_management_service.entity.common.EntityDate;
 import org.changppo.cost_management_service.entity.member.Member;
-import org.changppo.cost_management_service.service.payment.PaymentFailedEvent;
-import org.changppo.cost_management_service.service.payment.PaymentMemberDeleteEvent;
+import org.changppo.cost_management_service.dto.payment.event.PaymentCompletedEvent;
+import org.changppo.cost_management_service.dto.payment.event.PaymentFailedEvent;
+import org.changppo.cost_management_service.dto.payment.event.PaymentMemberDeleteEvent;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import org.springframework.context.ApplicationEventPublisher;
@@ -74,8 +75,21 @@ public class Payment extends EntityDate {  // TODO. 동시성 문제 고려
         }
     }
 
+    public void publishUpdatedEvent(ApplicationEventPublisher publisher) {
+        if (status == PaymentStatus.COMPLETED_PAID) {
+            publishPaymentCompletedEvent(publisher);
+            if (member.isDeletionRequested()) {
+                publishMemberDeletionEvent(publisher);
+            }
+        }
+    }
+
     private void publishPaymentFailedEvent(ApplicationEventPublisher publisher) {
         publisher.publishEvent(new PaymentFailedEvent(member));
+    }
+
+    private void publishPaymentCompletedEvent(ApplicationEventPublisher publisher) {
+        publisher.publishEvent(new PaymentCompletedEvent(member));
     }
 
     private void publishMemberDeletionEvent(ApplicationEventPublisher publisher) {
