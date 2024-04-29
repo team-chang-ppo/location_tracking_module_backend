@@ -1,8 +1,8 @@
 package org.changppo.cost_management_service.repository.member;
 
 import org.changppo.cost_management_service.entity.member.Member;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,5 +21,5 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("select m from Member m join fetch m.memberRoles where m.id = :id")
     Optional<Member> findByIdWithRoles(@Param("id") Long id);
 
-    Page<Member> findByPaymentFailureBannedAtIsNull(Pageable pageable);
+    Slice<Member> findByPaymentFailureBannedAtIsNull(Pageable pageable);
 }

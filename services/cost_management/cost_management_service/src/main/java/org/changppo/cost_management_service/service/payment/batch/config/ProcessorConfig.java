@@ -20,13 +20,13 @@ import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 
 @Configuration
-@RequiredArgsConstructor
 @Slf4j
+@RequiredArgsConstructor
 public class ProcessorConfig {
 
     private final JobLauncher jobLauncher;
     private final JobRepository jobRepository;
-    private final Job paymentJob;
+    private final Job paymentExecutionJob;
     private final FakePaymentInfoClient fakePaymentInfoClient;
     private final PaymentRepository paymentRepository;
 
@@ -60,10 +60,10 @@ public class ProcessorConfig {
                 .addLong("amount", (long) paymentAmount)
                 .addLocalDateTime("date", periodEnd)
                 .toJobParameters();
-        JobExecution jobExecution = jobRepository.getLastJobExecution(paymentJob.getName(), jobParameters);
+        JobExecution jobExecution = jobRepository.getLastJobExecution(paymentExecutionJob.getName(), jobParameters);
         if (jobExecution == null) {
             try {
-                jobExecution = jobLauncher.run(paymentJob, jobParameters);
+                jobExecution = jobLauncher.run(paymentExecutionJob, jobParameters);
             } catch (Exception e) {
                 log.error("Payment execution failed", e);
             }

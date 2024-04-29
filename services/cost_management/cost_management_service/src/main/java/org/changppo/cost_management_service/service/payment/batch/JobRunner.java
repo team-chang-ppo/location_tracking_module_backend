@@ -12,6 +12,7 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
+
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -24,7 +25,7 @@ public class JobRunner extends QuartzJobBean {
     @Autowired
     private JobLauncher jobLauncher;
     @Autowired
-    private Job processPaymentJob;
+    private Job AutomaticPaymentExecutionJob;
 
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
@@ -34,7 +35,7 @@ public class JobRunner extends QuartzJobBean {
                     .addLocalDateTime("Application Start Time", (LocalDateTime) jobDataMap.get("Application Start Time"))
                     .addLocalDateTime("Process Payment Job StartTime", LocalDateTime.now())
                     .toJobParameters();
-            jobLauncher.run(processPaymentJob, jobParameters);
+            jobLauncher.run(AutomaticPaymentExecutionJob, jobParameters);
         } catch (Exception e) {
             throw new JobExecutionException(e);
         }

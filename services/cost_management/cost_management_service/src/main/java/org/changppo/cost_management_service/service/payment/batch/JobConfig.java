@@ -10,6 +10,8 @@ import org.changppo.cost_management_service.entity.payment.PaymentCardInfo;
 import org.changppo.cost_management_service.repository.card.CardRepository;
 import org.changppo.cost_management_service.response.exception.paymentgateway.PaymentGatewayBusinessException;
 import org.changppo.cost_management_service.service.paymentgateway.PaymentGatewayClient;
+import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobScope;
@@ -41,18 +43,18 @@ public class JobConfig {
     private final List<PaymentGatewayClient> paymentGatewayClients;
 
     @Bean
-    public Job processPaymentJob(Step processPaymentStep) {
-        return new JobBuilder("processPaymentJob", jobRepository)
+    public Job AutomaticPaymentExecutionJob(Step executeAutomaticPaymentStep) {
+        return new JobBuilder("AutomaticPaymentExecutionJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
-                .start(processPaymentStep)
+                .start(executeAutomaticPaymentStep)
                 .build();
     }
 
     @Bean
-    public Step processPaymentStep(RepositoryItemReader<Member> memberItemReader,
+    public Step executeAutomaticPaymentStep(RepositoryItemReader<Member> memberItemReader,
                                    ItemProcessor<Member, Payment> paymentProcessor,
                                    ItemWriter<Payment> paymentWriter) {
-        return new StepBuilder("paymentStep", jobRepository)
+        return new StepBuilder("executeAutomaticPaymentStep", jobRepository)
                 .<Member, Payment>chunk(10, transactionManager)
                 .reader(memberItemReader)
                 .processor(paymentProcessor)
@@ -61,27 +63,33 @@ public class JobConfig {
     }
 
     @Bean
-    public Job paymentJob(Step paymentStep) {
-        return new JobBuilder("paymentProcessingJob", jobRepository)
-                .start(paymentStep)
+    public Job paymentExecutionJob(Step executePaymentStep) {
+        return new JobBuilder("paymentExecutionJob", jobRepository)
+                .start(executePaymentStep)
                 .build();
     }
 
     @Bean
     @JobScope
-    public Step paymentStep(@Value("#{jobParameters[memberId]}") Long memberId,
+    public Step executePaymentStep(@Value("#{jobParameters[memberId]}") Long memberId,
                             @Value("#{jobParameters[amount]}") Long amount) {
-        return new StepBuilder("paymentStep", jobRepository)
+        return new StepBuilder("executePaymentStep", jobRepository)
                 .tasklet((contribution, chunkContext) -> {
-                    List<Card> cards = cardRepository.findAllCardByMemberId(memberId);
-                    PaymentCardInfo paymentCardInfo = cards.stream()
-                            .map(card -> ProcessPayment(card, memberId, amount.intValue()))
-                            .filter(Objects::nonNull)
-                            .findFirst()
-                            .orElseThrow(() -> new RuntimeException("All payment attempts failed for memberId: " + memberId));
-                    // TODO. 테스트용 로직 제거
-                    // PaymentCardInfo paymentCardInfo = new PaymentCardInfo("card.getType()", "card.getIssuerCorporation()", "card.getBin()");
-                    contribution.getStepExecution().getJobExecution().getExecutionContext().put("paymentCardInfo", paymentCardInfo);
+                    try {
+                        List<Card> cards = cardRepository.findAllCardByMemberId(memberId);
+                        PaymentCardInfo paymentCardInfo = cards.stream()
+                                .map(card -> ProcessPayment(card, memberId, amount.intValue()))
+                                .filter(Objects::nonNull)
+                                .findFirst()
+                                .orElseThrow(() -> new RuntimeException("All payment attempts failed for memberId: " + memberId));
+                        // TODO. 테스트용 로직 제거
+                        // PaymentCardInfo paymentCardInfo = new PaymentCardInfo("card.getType()", "card.getIssuerCorporation()", "card.getBin()");
+                        contribution.getStepExecution().getJobExecution().getExecutionContext().put("paymentCardInfo", paymentCardInfo);
+                    }
+                    catch (Exception e) {
+                        contribution.getStepExecution().setStatus(BatchStatus.FAILED);
+                        contribution.setExitStatus(ExitStatus.FAILED);
+                    }
                     return RepeatStatus.FINISHED;
                 }, transactionManager)
                 .build();

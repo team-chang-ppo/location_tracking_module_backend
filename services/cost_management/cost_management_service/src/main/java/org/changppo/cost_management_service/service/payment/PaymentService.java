@@ -31,7 +31,7 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final JobLauncher jobLauncher;
     private final JobRepository jobRepository;
-    private final Job paymentJob;
+    private final Job paymentExecutionJob;
     private final ApplicationEventPublisher publisher;
 
     @Transactional
@@ -56,11 +56,11 @@ public class PaymentService {
     }
 
     private JobExecution createJobExecution(JobParameters jobParameters) {
-        return Optional.ofNullable(jobRepository.getLastJobExecution(paymentJob.getName(), jobParameters))
+        return Optional.ofNullable(jobRepository.getLastJobExecution(paymentExecutionJob.getName(), jobParameters))
                 .map(jobExecution -> {
                     if (jobExecution.getStatus() == BatchStatus.FAILED) {
                         try {
-                            return jobLauncher.run(paymentJob, jobParameters);
+                            return jobLauncher.run(paymentExecutionJob, jobParameters);
                         } catch (Exception e) {
                             throw new PaymentExecutionFailureException(e);
                         }

@@ -21,7 +21,7 @@ spring:
     jdbc:
       initialize-schema: always
 
-#logging:
-#  level:
-#    org.hibernate.orm.jdbc.bind: trace
+logging:
+  level:
+    org.hibernate.orm.jdbc.bind: trace
 #    org.springframework.transaction.interceptor: trace
