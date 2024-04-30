@@ -30,6 +30,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	// Security
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+	// Batch
+	implementation 'org.springframework.boot:spring-boot-starter-batch'
+	// Quartz
+	implementation 'org.springframework.boot:spring-boot-starter-quartz'
 	// H2
 	testRuntimeOnly 'com.h2database:h2'
 	// PostgreSQL

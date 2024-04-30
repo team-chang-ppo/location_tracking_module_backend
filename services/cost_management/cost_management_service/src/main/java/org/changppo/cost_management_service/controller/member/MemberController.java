@@ -1,7 +1,5 @@
 package org.changppo.cost_management_service.controller.member;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.changppo.cost_management_service.dto.member.MemberDto;
 import org.changppo.cost_management_service.response.Response;
@@ -34,17 +32,33 @@ public class MemberController {
                 .body(Response.success(memberDto));
     }
 
-    @DeleteMapping("/me")
-    public ResponseEntity<Response> deleteMe(HttpServletRequest request, HttpServletResponse response) {
-        memberService.delete(PrincipalHandler.extractId(), request, response);
+    @DeleteMapping("/request/me")
+    public ResponseEntity<Response> requestDeleteMe() {
+        memberService.requestDelete(PrincipalHandler.extractId());
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(Response.success());
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Response> delete(@PathVariable(name = "id") Long id, HttpServletRequest request, HttpServletResponse response) {
-        memberService.delete(id, request, response);
+    @DeleteMapping("/request/{id}")
+    public ResponseEntity<Response> requestDelete(@PathVariable(name = "id") Long id) {
+        memberService.requestDelete(id);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(Response.success());
+    }
+
+    @DeleteMapping("/cancel/me")
+    public ResponseEntity<Response> cancelDeleteMe() {
+        memberService.cancelDelete(PrincipalHandler.extractId());
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(Response.success());
+    }
+
+    @DeleteMapping("/cancel/{id}")
+    public ResponseEntity<Response> cancelDelete(@PathVariable(name = "id") Long id) {
+        memberService.cancelDelete(id);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(Response.success());

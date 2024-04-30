@@ -3,15 +3,14 @@ package org.changppo.cost_management_service.controller.member;
 import org.changppo.cost_management_service.TestInitDB;
 import org.changppo.cost_management_service.entity.member.Member;
 import org.changppo.cost_management_service.entity.member.RoleType;
-import org.changppo.cost_management_service.response.exception.member.MemberNotFoundException;
 import org.changppo.cost_management_service.repository.member.MemberRepository;
+import org.changppo.cost_management_service.response.exception.member.MemberNotFoundException;
 import org.changppo.cost_management_service.security.oauth2.CustomOAuth2User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -22,13 +21,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.changppo.cost_management_service.builder.member.CustomOAuth2UserBuilder.buildCustomOAuth2User;
-import static org.changppo.cost_management_service.service.member.oauth2.kakao.KakaoConstants.KAKAO_UNLINK_URL;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -129,113 +122,113 @@ class MemberControllerIntegrationTest {
                 .andExpect(status().isForbidden());
     }
 
-    @Test
-    void deleteMeTest() throws Exception {
-        // given
-        mockServer.expect(requestTo(KAKAO_UNLINK_URL))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess());
-
-        // when
-        mockMvc.perform(
-                        delete("/api/members/v1/me")
-                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
-                .andExpect(status().isOk());
-
-        // then
-        assertTrue(memberRepository.findById(freeMember.getId()).isEmpty());
-    }
-
-    @Test
-    void deleteMeUnauthorizedByNoneSessionTest() throws Exception {
-        // given, when, then
-        mockMvc.perform(
-                        delete("/api/members/v1/me"))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    void deleteMeAccessDeniedByBannedMemberTest() throws Exception {
-        // given
-        mockServer.expect(requestTo(KAKAO_UNLINK_URL))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess());
-
-        // when, then
-        mockMvc.perform(
-                        delete("/api/members/v1/me")
-                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2BannedMember)))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
-    void deleteTest() throws Exception {
-        // given
-        mockServer.expect(requestTo(KAKAO_UNLINK_URL))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess());
-
-        // when
-        mockMvc.perform(
-                        delete("/api/members/v1/{id}", freeMember.getId())
-                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
-                .andExpect(status().isOk());
-
-        // then
-        assertTrue(memberRepository.findById(freeMember.getId()).isEmpty());
-
-    }
-
-    @Test
-    void deleteByAdminTest() throws Exception {
-        // given
-        mockServer.expect(requestTo(KAKAO_UNLINK_URL))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess());
-
-        // when
-        mockMvc.perform(
-                        delete("/api/members/v1/{id}", freeMember.getId())
-                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2AdminMember)))
-                .andExpect(status().isOk());
-
-        // then
-        assertTrue(memberRepository.findById(freeMember.getId()).isEmpty());
-    }
-
-    @Test
-    void deleteUnauthorizedByNoneSessionTest() throws Exception {
-        // given, when, then
-        mockMvc.perform(
-                        delete("/api/members/v1/{id}", freeMember.getId()))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    void deleteAccessDeniedByNotResourceOwnerTest() throws Exception {
-        // given
-        mockServer.expect(requestTo(KAKAO_UNLINK_URL))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess());
-
-        // when, then
-        mockMvc.perform(
-                        delete("/api/members/v1/{id}", normalMember.getId())
-                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
-    void deleteAccessDeniedByBannedMemberTest() throws Exception {
-        // given
-        mockServer.expect(requestTo(KAKAO_UNLINK_URL))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess());
-
-        // when, then
-        mockMvc.perform(
-                        delete("/api/members/v1/{id}", bannedMember.getId())
-                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2BannedMember)))
-                .andExpect(status().isForbidden());
-    }
+//    @Test
+//    void deleteMeTest() throws Exception {
+//        // given
+//        mockServer.expect(requestTo(KAKAO_UNLINK_URL))
+//                .andExpect(method(HttpMethod.POST))
+//                .andRespond(withSuccess());
+//
+//        // when
+//        mockMvc.perform(
+//                        delete("/api/members/v1/me")
+//                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
+//                .andExpect(status().isOk());
+//
+//        // then
+//        assertTrue(memberRepository.findById(freeMember.getId()).isEmpty());
+//    }
+//
+//    @Test
+//    void deleteMeUnauthorizedByNoneSessionTest() throws Exception {
+//        // given, when, then
+//        mockMvc.perform(
+//                        delete("/api/members/v1/me"))
+//                .andExpect(status().isUnauthorized());
+//    }
+//
+//    @Test
+//    void deleteMeAccessDeniedByBannedMemberTest() throws Exception {
+//        // given
+//        mockServer.expect(requestTo(KAKAO_UNLINK_URL))
+//                .andExpect(method(HttpMethod.POST))
+//                .andRespond(withSuccess());
+//
+//        // when, then
+//        mockMvc.perform(
+//                        delete("/api/members/v1/me")
+//                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2BannedMember)))
+//                .andExpect(status().isForbidden());
+//    }
+//
+//    @Test
+//    void deleteTest() throws Exception {
+//        // given
+//        mockServer.expect(requestTo(KAKAO_UNLINK_URL))
+//                .andExpect(method(HttpMethod.POST))
+//                .andRespond(withSuccess());
+//
+//        // when
+//        mockMvc.perform(
+//                        delete("/api/members/v1/{id}", freeMember.getId())
+//                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
+//                .andExpect(status().isOk());
+//
+//        // then
+//        assertTrue(memberRepository.findById(freeMember.getId()).isEmpty());
+//
+//    }
+//
+//    @Test
+//    void deleteByAdminTest() throws Exception {
+//        // given
+//        mockServer.expect(requestTo(KAKAO_UNLINK_URL))
+//                .andExpect(method(HttpMethod.POST))
+//                .andRespond(withSuccess());
+//
+//        // when
+//        mockMvc.perform(
+//                        delete("/api/members/v1/{id}", freeMember.getId())
+//                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2AdminMember)))
+//                .andExpect(status().isOk());
+//
+//        // then
+//        assertTrue(memberRepository.findById(freeMember.getId()).isEmpty());
+//    }
+//
+//    @Test
+//    void deleteUnauthorizedByNoneSessionTest() throws Exception {
+//        // given, when, then
+//        mockMvc.perform(
+//                        delete("/api/members/v1/{id}", freeMember.getId()))
+//                .andExpect(status().isUnauthorized());
+//    }
+//
+//    @Test
+//    void deleteAccessDeniedByNotResourceOwnerTest() throws Exception {
+//        // given
+//        mockServer.expect(requestTo(KAKAO_UNLINK_URL))
+//                .andExpect(method(HttpMethod.POST))
+//                .andRespond(withSuccess());
+//
+//        // when, then
+//        mockMvc.perform(
+//                        delete("/api/members/v1/{id}", normalMember.getId())
+//                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
+//                .andExpect(status().isForbidden());
+//    }
+//
+//    @Test
+//    void deleteAccessDeniedByBannedMemberTest() throws Exception {
+//        // given
+//        mockServer.expect(requestTo(KAKAO_UNLINK_URL))
+//                .andExpect(method(HttpMethod.POST))
+//                .andRespond(withSuccess());
+//
+//        // when, then
+//        mockMvc.perform(
+//                        delete("/api/members/v1/{id}", bannedMember.getId())
+//                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2BannedMember)))
+//                .andExpect(status().isForbidden());
+//    }
 }

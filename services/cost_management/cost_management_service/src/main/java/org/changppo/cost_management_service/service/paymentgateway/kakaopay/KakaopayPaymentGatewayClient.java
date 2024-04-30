@@ -9,11 +9,10 @@ import org.changppo.cost_management_service.entity.card.PaymentGatewayType;
 import org.changppo.cost_management_service.response.exception.paymentgateway.*;
 import org.changppo.cost_management_service.service.paymentgateway.PaymentGatewayClient;
 import org.changppo.cost_management_service.service.paymentgateway.PaymentGatewayProperties;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,7 +60,6 @@ public class KakaopayPaymentGatewayClient extends PaymentGatewayClient {
         parameters.put("item_name", req.getItemName());
         parameters.put("quantity", req.getQuantity());
         parameters.put("total_amount", req.getTotalAmount());
-        parameters.put("vat_amount", req.getVatAmount());
         parameters.put("tax_free_amount", req.getTaxFreeAmount());
         parameters.put("approval_url", req.getApprovalUrl());
         parameters.put("cancel_url", req.getCancelUrl());
@@ -97,16 +95,6 @@ public class KakaopayPaymentGatewayClient extends PaymentGatewayClient {
         parameters.put("pg_token", req.getPgToken());
         HttpHeaders headers = getHeaders();
         return new HttpEntity<>(parameters, headers);
-    }
-
-    private void validateApproveResponse(KakaopayApproveResponse response) {
-        if ("CARD".equalsIgnoreCase(response.getPayment_method_type())) {
-            if (response.getCard_info() == null) {
-                throw new IllegalStateException("Card info cannot be null for CARD payment method.");
-            }
-        } else if (!"MONEY".equalsIgnoreCase(response.getPayment_method_type())) {
-            throw new IllegalStateException("Unsupported payment method type: " + response.getPayment_method_type());
-        }
     }
 
     public void fail(KakaopayCancelRequest req) {
@@ -190,10 +178,52 @@ public class KakaopayPaymentGatewayClient extends PaymentGatewayClient {
         httpSession.removeAttribute(partnerOrderId);
     }
 
+    @Override
+    public void payment(KakaopayPaymentRequest req) {
+        try {
+            HttpEntity<Map<String, Object>> request = createPaymentRequest(req);
+            KakaopayApproveResponse kakaopayApproveResponse = restTemplate.postForObject(
+                    KAKAOPAY_PAYMENT_URL,
+                    request,
+                    KakaopayApproveResponse.class
+            );
+            handleResponse(kakaopayApproveResponse);
+            validateApproveResponse(kakaopayApproveResponse);
+        } catch (Exception e) {
+            throw new KakaopayPaymentGatewayPaymentFailureException(e);
+        }
+    }
+
+    private HttpEntity<Map<String, Object>> createPaymentRequest(KakaopayPaymentRequest req) {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("cid", paymentGatewayProperties.getKakaopay().getCcid());
+        parameters.put("sid", req.getSid());
+        parameters.put("partner_order_id", req.getPartnerOrderId());
+        parameters.put("partner_user_id", req.getPartnerUserId());
+        parameters.put("item_name", req.getItemName());
+        parameters.put("quantity", req.getQuantity());
+        parameters.put("total_amount", req.getTotalAmount());
+        parameters.put("tax_free_amount", req.getTaxFreeAmount());
+        HttpHeaders headers = getHeaders();
+        return new HttpEntity<>(parameters, headers);
+    }
 
     public static <T> void handleResponse(T response) {
         if (response == null) {
             throw new RuntimeException("Failed to process Kakaopay Response: Response is null");
+        }
+    }
+
+    private void validateApproveResponse(KakaopayApproveResponse response) {
+        if (response.getAmount() == null) {
+            throw new IllegalStateException("Amount cannot be null.");
+        }
+        if ("CARD".equalsIgnoreCase(response.getPayment_method_type())) {
+            if (response.getCard_info() == null) {
+                throw new IllegalStateException("Card info cannot be null");
+            }
+        } else if (!"MONEY".equalsIgnoreCase(response.getPayment_method_type())) {
+            throw new IllegalStateException("Unsupported payment method type: " + response.getPayment_method_type());
         }
     }
 

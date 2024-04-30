@@ -1,5 +1,4 @@
 spring:
-
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://${local-db.host}:${local-db.port}/${local-db.name}
@@ -13,5 +12,16 @@ spring:
         highlight_sql: true         # SQL 색깔
         hbm2ddl.auto: create
         default_batch_fetch_size: 100
-    open-in-view: true
+    open-in-view: false
     show-sql: true
+
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: always
+
+logging:
+  level:
+    org.hibernate.orm.jdbc.bind: trace
+#    org.springframework.transaction.interceptor: trace

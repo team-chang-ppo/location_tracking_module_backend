@@ -7,10 +7,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.changppo.cost_management_service.entity.common.EntityDate;
 import org.changppo.cost_management_service.entity.member.Member;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql = "UPDATE card SET deleted_at = CURRENT_TIMESTAMP WHERE card_id = ?")
+@SQLRestriction("deleted_at is NULL")
 public class Card extends EntityDate{
 
     @Id
@@ -41,6 +46,9 @@ public class Card extends EntityDate{
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+    @Column
+    private LocalDateTime deletedAt;
+
     @Builder
     public Card(String key, String type, String acquirerCorporation, String issuerCorporation, String bin, PaymentGateway paymentGateway, Member member) {
         this.key = key;
@@ -50,5 +58,6 @@ public class Card extends EntityDate{
         this.bin = bin;
         this.paymentGateway = paymentGateway;
         this.member = member;
+        this.deletedAt = null;
     }
 }

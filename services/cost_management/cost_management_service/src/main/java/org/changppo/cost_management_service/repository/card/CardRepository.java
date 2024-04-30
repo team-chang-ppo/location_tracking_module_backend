@@ -26,4 +26,7 @@ public interface CardRepository extends JpaRepository<Card, Long> {
     void deleteAllByMemberId(Long memberId);
 
     Optional<Card> findByKey(String key);
+
+    @Query("select c from Card c where c.member.id = :memberId order by c.id asc")
+    List<Card> findAllCardByMemberId(@Param("memberId") Long memberId);
 }

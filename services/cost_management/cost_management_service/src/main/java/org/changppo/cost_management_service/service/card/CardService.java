@@ -35,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -128,7 +129,7 @@ public class CardService {
     }
 
     private void banForCardDeletionApiKeys(Member member) {
-        apiKeyRepository.banForCardDeletionByMemberId(member.getId());
+        apiKeyRepository.banForCardDeletionByMemberId(member.getId(), LocalDateTime.now());
     }
 
     private void inactivePaymentGatewayCard(Card card) {

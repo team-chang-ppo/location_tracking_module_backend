@@ -14,7 +14,6 @@ public class KakaopayReadyRequest {
     private String itemName;
     private int quantity;
     private int totalAmount;
-    private int vatAmount;
     private int taxFreeAmount;
     private String approvalUrl;
     private String cancelUrl;

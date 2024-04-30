@@ -11,6 +11,13 @@ spring:
       - security/application-oauth2.yml
       - security/application-token.yml
       - security/application-paymentgateway.yml
+
+  quartz:
+    scheduler-name: QuartzScheduler
+    jdbc:
+      initialize-schema: never
+    job-store-type: jdbc
+
   servlet:
     multipart:
       max-file-size: 5MB

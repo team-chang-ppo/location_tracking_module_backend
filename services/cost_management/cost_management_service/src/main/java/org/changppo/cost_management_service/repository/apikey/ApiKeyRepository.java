@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,10 +35,26 @@ public interface ApiKeyRepository extends JpaRepository<ApiKey, Long> {
     List<ApiKey> findAllByMemberId(Long memberId);
 
     @Modifying
-    @Query("UPDATE ApiKey a SET a.cardDeletionBannedAt = CURRENT_TIMESTAMP WHERE a.member.id = :memberId AND a.grade.gradeType != 'GRADE_FREE'")
-    void banForCardDeletionByMemberId(@Param("memberId")Long memberId);
+    @Query("UPDATE ApiKey a SET a.cardDeletionBannedAt = :time WHERE a.member.id = :memberId AND a.grade.gradeType != 'GRADE_FREE'")
+    void banForCardDeletionByMemberId(@Param("memberId")Long memberId, @Param("time") LocalDateTime time);
 
     @Modifying
     @Query("UPDATE ApiKey a SET a.cardDeletionBannedAt = NULL WHERE a.member.id = :memberId AND a.grade.gradeType != 'GRADE_FREE'")
     void unbanForCardDeletionByMemberId(@Param("memberId")Long memberId);
+
+    @Modifying
+    @Query("UPDATE ApiKey a SET a.paymentFailureBannedAt = :time WHERE a.member.id = :memberId")
+    void banApiKeysForPaymentFailure(@Param("memberId") Long memberId, @Param("time") LocalDateTime time);
+
+    @Modifying
+    @Query("UPDATE ApiKey a SET a.paymentFailureBannedAt = NULL WHERE a.member.id = :memberId")
+    void unbanApiKeysForPaymentFailure(@Param("memberId") Long memberId);
+
+    @Modifying
+    @Query("UPDATE ApiKey a SET a.deletionRequestedAt = :time WHERE a.member.id = :memberId")
+    void requestApiKeyDeletion(@Param("memberId") Long memberId, @Param("time") LocalDateTime time);
+
+    @Modifying
+    @Query("UPDATE ApiKey a SET a.deletionRequestedAt = NULL WHERE a.member.id = :memberId")
+    void cancelApiKeyDeletionRequest(@Param("memberId") Long memberId);
 }

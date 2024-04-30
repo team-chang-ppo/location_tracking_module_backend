@@ -44,6 +44,9 @@ public class ApiKey extends EntityDate {
     @Column
     private LocalDateTime cardDeletionBannedAt; // TODO. 카드 삭제로 인한 유료키 정지.
 
+    @Column
+    private LocalDateTime deletionRequestedAt; // TODO. 회원 탈퇴 요청.
+
     @Builder
     public ApiKey(String value, Grade grade, Member member) {
         this.value = value;
@@ -66,6 +69,10 @@ public class ApiKey extends EntityDate {
         return this.cardDeletionBannedAt != null;
     }
 
+    public boolean isDeletionRequested() {
+        return this.deletionRequestedAt != null;
+    }
+
     public void updateValue(String value){
         this.value = value;
     }
@@ -84,5 +91,13 @@ public class ApiKey extends EntityDate {
 
     public void unbanForCardDeletion() {
         this.cardDeletionBannedAt = null;
+    }
+
+    public void requestDeletion(LocalDateTime time) {
+        this.deletionRequestedAt =time;
+    }
+
+    public void cancelDeletionRequest() {
+        this.deletionRequestedAt = null;
     }
 }

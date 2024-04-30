@@ -39,7 +39,6 @@ public class KakaopayCardService {
                 0,
                 0,
                 0,
-                0,
                 "http://localhost:8080" + APPROVE_CALLBACK_PATH + partnerOrderId,
                 "http://localhost:8080" + CANCEL_CALLBACK_PATH + partnerOrderId,
                 "http://localhost:8080" + FAIL_CALLBACK_PATH + partnerOrderId

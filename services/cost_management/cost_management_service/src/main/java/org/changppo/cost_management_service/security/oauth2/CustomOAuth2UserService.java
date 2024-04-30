@@ -40,14 +40,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         OAuth2Response oAuth2Response = new KakaoResponse(oAuth2User.getAttributes());
         String name = oAuth2Response.getProvider() + "_" + oAuth2Response.getProviderId();
 
-        Member member = memberRepository.findByNameIgnoringDeleted(name)
+        Member member = memberRepository.findByNameWithRoles(name)
                 .map(existingMember -> {
-                    if (existingMember.isDeleted()) {
-                        Role freeRole = roleRepository.findByRoleType(RoleType.ROLE_FREE).orElseThrow(RoleNotFoundException::new);
-                        existingMember.reactivate(oAuth2Response.getName(), oAuth2Response.getProfileImage(), Set.of(freeRole));
-                    } else {
-                        existingMember.updateInfo(oAuth2Response.getName(), oAuth2Response.getProfileImage());
-                    }
+                    existingMember.updateInfo(oAuth2Response.getName(), oAuth2Response.getProfileImage());
                     return existingMember;
                 })
                 .orElseGet(() -> {
@@ -63,7 +58,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 
         return new CustomOAuth2User(member.getId(), name,  member.getMemberRoles().stream()
-                                            .map(memberRole -> new SimpleGrantedAuthority(memberRole.getRole().getRoleType().name()))
-                                            .collect(Collectors.toSet()));
+                                                            .map(memberRole -> new SimpleGrantedAuthority(memberRole.getRole().getRoleType().name()))
+                                                            .collect(Collectors.toSet()));
     }
 }
