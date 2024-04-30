@@ -14,13 +14,14 @@ import org.changppo.tracking.domain.redis.CoordinateRedisEntity;
 import org.changppo.tracking.domain.redis.TrackingRedisEntity;
 import org.changppo.tracking.exception.*;
 import org.changppo.tracking.jwt.TokenProvider;
-import org.changppo.tracking.repository.CoordinatesRepository;
 import org.changppo.tracking.repository.RedisRepository;
 import org.changppo.tracking.repository.TrackingRepository;
+import org.changppo.tracking.util.RetryUtil;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -29,9 +30,10 @@ public class TrackingService {
 
     private final TokenProvider tokenProvider;
     private final TrackingRepository trackingRepository;
-    private final CoordinatesRepository coordinatesRepository;
     private final TrackingCacheService trackingCacheService;
     private final RedisRepository redisRepository;
+    private final AsyncService asyncService;
+    private final ScheduledExecutorService scheduler;
 
     public GenerateTokenResponse generateToken(String apiKeyId, GenerateTokenRequest request) {
         if(request.getIdentifier().equals("DEFAULT")){ // DEFAULT 가 입력되면 처음 생성이라 생각하고, 랜덤 UUID 값을 생성
@@ -66,24 +68,29 @@ public class TrackingService {
 
     public void finish(TrackingContext context) {
         TrackingRedisEntity trackingCache = checkTracking(context);
-
-        // 끝남 처리
         Tracking tracking = trackingRepository.findById(trackingCache.trackingId()).orElseThrow(TrackingNotFoundException::new);
         tracking.updateEndedAt();
 
         trackingCacheService.updateTrackingCache(tracking);
         Tracking savedTracking = trackingRepository.save(tracking);
 
-        // 벌크성 저장
-        List<Object> objectList = redisRepository.findAll(savedTracking.getId());
+        retryProcessCoordinatesAsync(savedTracking.getId(), 0);
+    }
 
-        List<Coordinates> coordinatesList = objectList.stream()
-                .filter(obj -> obj instanceof CoordinateRedisEntity)
-                .map(obj -> (CoordinateRedisEntity) obj)
-                .map(CoordinateRedisEntity::toCoordinates)
-                .toList();
-
-        coordinatesRepository.saveAll(coordinatesList);
+    private void retryProcessCoordinatesAsync(String trackingId, int attempt) {
+        asyncService.processCoordinatesAsync(trackingId)
+                .thenAccept(result -> {
+                    log.info("Redis -> MongoDB 저장 성공");
+                })
+                .exceptionally(e -> {
+                    if (attempt < RetryUtil.MAX_ATTEMPTS) {
+                        long delay = RetryUtil.calculateDelay(attempt);
+                        scheduler.schedule(() -> retryProcessCoordinatesAsync(trackingId, attempt + 1), delay, TimeUnit.MILLISECONDS);
+                    } else {
+                        log.error("최대 재시도 횟수를 초과했습니다. (Redis -> MongoDB 벌크성 저장 실패)");
+                    }
+                    return null;
+                });
     }
 
     public TrackingResponse getTracking(TrackingContext context) {
