@@ -23,6 +23,8 @@ dependencies {
     // Lombok
     implementation 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    // Jackson
+    implementation 'com.fasterxml.jackson.core:jackson-annotations'
 }
 
 tasks.named('test') {

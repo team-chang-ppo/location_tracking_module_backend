@@ -1,7 +1,7 @@
 package org.changppo.account.controller.member;
 
 import org.changppo.account.TestInitDB;
-import org.changppo.account.member.Member;
+import org.changppo.account.entity.member.Member;
 import org.changppo.account.type.RoleType;
 import org.changppo.account.repository.member.MemberRepository;
 import org.changppo.account.response.exception.member.MemberNotFoundException;

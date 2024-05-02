@@ -1,11 +1,12 @@
 package org.changppo.account.security.evaluator;
 
 import lombok.RequiredArgsConstructor;
-import org.changppo.account.apikey.ApiKey;
+import org.changppo.account.entity.apikey.ApiKey;
 import org.changppo.account.repository.apikey.ApiKeyRepository;
 import org.changppo.account.response.exception.apikey.ApiKeyNotFoundException;
 import org.changppo.account.type.RoleType;
 import org.springframework.stereotype.Component;
+
 import java.util.List;
 
 @Component

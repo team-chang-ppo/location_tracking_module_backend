@@ -1,7 +1,7 @@
 package org.changppo.account.security.evaluator;
 
 import lombok.RequiredArgsConstructor;
-import org.changppo.account.member.Member;
+import org.changppo.account.entity.member.Member;
 import org.changppo.account.type.RoleType;
 import org.changppo.account.repository.member.MemberRepository;
 import org.changppo.account.response.exception.member.MemberNotFoundException;

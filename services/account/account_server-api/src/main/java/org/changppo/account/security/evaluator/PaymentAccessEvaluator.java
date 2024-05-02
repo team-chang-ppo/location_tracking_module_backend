@@ -2,7 +2,7 @@ package org.changppo.account.security.evaluator;
 
 import lombok.RequiredArgsConstructor;
 import org.changppo.account.type.RoleType;
-import org.changppo.account.payment.Payment;
+import org.changppo.account.entity.payment.Payment;
 import org.changppo.account.repository.payment.PaymentRepository;
 import org.changppo.account.response.exception.payment.PaymentNotFoundException;
 import org.changppo.account.security.PrincipalHandler;

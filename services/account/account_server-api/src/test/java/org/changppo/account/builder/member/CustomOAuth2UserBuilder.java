@@ -1,6 +1,6 @@
 package org.changppo.account.builder.member;
 
-import org.changppo.account.member.Member;
+import org.changppo.account.entity.member.Member;
 import org.changppo.account.type.RoleType;
 import org.changppo.account.security.oauth2.CustomOAuth2User;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

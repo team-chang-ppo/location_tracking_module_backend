@@ -1,7 +1,7 @@
 package org.changppo.account.security.evaluator;
 
 import lombok.RequiredArgsConstructor;
-import org.changppo.account.card.Card;
+import org.changppo.account.entity.card.Card;
 import org.changppo.account.type.RoleType;
 import org.changppo.account.repository.card.CardRepository;
 import org.changppo.account.response.exception.card.CardNotFoundException;

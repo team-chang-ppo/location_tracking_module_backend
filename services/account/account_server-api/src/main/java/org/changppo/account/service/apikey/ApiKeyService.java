@@ -2,13 +2,11 @@ package org.changppo.account.service.apikey;
 
 import lombok.RequiredArgsConstructor;
 import org.changppo.account.dto.apikey.ApiKeyCreateRequest;
-import org.changppo.account.dto.apikey.ApiKeyDto;
 import org.changppo.account.dto.apikey.ApiKeyListDto;
 import org.changppo.account.dto.apikey.ApiKeyReadAllRequest;
-import org.changppo.account.apikey.ApiKey;
-import org.changppo.account.apikey.Grade;
-import org.changppo.account.type.GradeType;
-import org.changppo.account.member.Member;
+import org.changppo.account.entity.apikey.ApiKey;
+import org.changppo.account.entity.apikey.Grade;
+import org.changppo.account.entity.member.Member;
 import org.changppo.account.repository.apikey.ApiKeyRepository;
 import org.changppo.account.repository.apikey.GradeRepository;
 import org.changppo.account.repository.member.MemberRepository;
@@ -17,13 +15,14 @@ import org.changppo.account.response.exception.apikey.GradeNotFoundException;
 import org.changppo.account.response.exception.member.MemberNotFoundException;
 import org.changppo.account.service.apikey.token.JwtHandler;
 import org.changppo.account.service.apikey.token.TokenClaims;
+import org.changppo.account.service.dto.apikey.ApiKeyDto;
+import org.changppo.account.type.GradeType;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.repository.query.Param;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -37,7 +36,7 @@ public class ApiKeyService {
     private final JwtHandler jwtHandler;
 
     @Transactional
-    @PreAuthorize("@memberPaymentFailureStatusEvaluator.check(#req.memberId)")
+    @PreAuthorize("@memberPaymentFailureStatusEvaluator.check(#req.memberId) and @memberDeletionRequestedStatusEvaluator.check(#req.memberId)")
     public ApiKeyDto createFreeKey(@Param("req") ApiKeyCreateRequest req) {
         Member member = memberRepository.findById(req.getMemberId()).orElseThrow(MemberNotFoundException::new);
         Grade grade = gradeRepository.findByGradeType(GradeType.GRADE_FREE).orElseThrow(GradeNotFoundException::new);
@@ -53,7 +52,7 @@ public class ApiKeyService {
     }
 
     @Transactional
-    @PreAuthorize("@memberPaymentFailureStatusEvaluator.check(#req.memberId)")
+    @PreAuthorize("@memberPaymentFailureStatusEvaluator.check(#req.memberId) and @memberDeletionRequestedStatusEvaluator.check(#req.memberId)")
     public ApiKeyDto createClassicKey(@Param("req") ApiKeyCreateRequest req) {
         Member member = memberRepository.findById(req.getMemberId()).orElseThrow(MemberNotFoundException::new);
         Grade grade = gradeRepository.findByGradeType(GradeType.GRADE_CLASSIC).orElseThrow(GradeNotFoundException::new);

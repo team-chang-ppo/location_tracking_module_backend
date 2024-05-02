@@ -1,8 +1,8 @@
 package org.changppo.account.security.oauth2;
 
 import lombok.RequiredArgsConstructor;
-import org.changppo.account.member.Member;
-import org.changppo.account.member.Role;
+import org.changppo.account.entity.member.Member;
+import org.changppo.account.entity.member.Role;
 import org.changppo.account.type.RoleType;
 import org.changppo.account.repository.member.MemberRepository;
 import org.changppo.account.repository.member.RoleRepository;
@@ -28,6 +28,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final MemberRepository memberRepository;
     private final RoleRepository roleRepository;
     private static final List<String> SUPPORTED_REGISTRATION_IDS = List.of(KAKAO_REGISTRATION_ID);
+
     @Override
     @Transactional
     public OAuth2User loadUser(OAuth2UserRequest userRequest) {
@@ -55,7 +56,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                                 .roles(Set.of(freeRole))
                                 .build());
                 });
-
 
         return new CustomOAuth2User(member.getId(), name,  member.getMemberRoles().stream()
                                                             .map(memberRole -> new SimpleGrantedAuthority(memberRole.getRole().getRoleType().name()))

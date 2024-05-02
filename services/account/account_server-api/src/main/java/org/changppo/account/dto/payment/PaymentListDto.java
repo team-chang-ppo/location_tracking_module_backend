@@ -2,6 +2,7 @@ package org.changppo.account.dto.payment;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.changppo.account.service.dto.payment.PaymentDto;
 
 import java.util.List;
 

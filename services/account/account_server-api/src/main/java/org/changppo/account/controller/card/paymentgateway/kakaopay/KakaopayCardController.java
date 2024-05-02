@@ -3,7 +3,7 @@ package org.changppo.account.controller.card.paymentgateway.kakaopay;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.changppo.account.aop.AssignMemberId;
-import org.changppo.account.dto.card.CardDto;
+import org.changppo.account.service.dto.card.CardDto;
 import org.changppo.account.dto.card.kakaopay.*;
 import org.changppo.account.response.Response;
 import org.changppo.account.service.card.paymentgateway.kakaopay.KakaopayCardService;

@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.changppo.account.aop.AssignMemberId;
 import org.changppo.account.dto.apikey.ApiKeyCreateRequest;
-import org.changppo.account.dto.apikey.ApiKeyDto;
+import org.changppo.account.service.dto.apikey.ApiKeyDto;
 import org.changppo.account.dto.apikey.ApiKeyReadAllRequest;
 import org.changppo.account.response.Response;
 import org.changppo.account.security.PrincipalHandler;

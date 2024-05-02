@@ -2,7 +2,7 @@ package org.changppo.account.service.card.paymentgateway.kakaopay;
 
 import lombok.RequiredArgsConstructor;
 import org.changppo.account.dto.card.CardCreateRequest;
-import org.changppo.account.dto.card.CardDto;
+import org.changppo.account.service.dto.card.CardDto;
 import org.changppo.account.dto.card.kakaopay.*;
 import org.changppo.account.paymentgateway.kakaopay.dto.payment.*;
 import org.changppo.account.response.exception.paymentgateway.KakaopayPaymentGatewayApproveFailureException;

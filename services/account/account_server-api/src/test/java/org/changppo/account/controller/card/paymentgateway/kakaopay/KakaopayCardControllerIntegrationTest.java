@@ -2,13 +2,13 @@ package org.changppo.account.controller.card.paymentgateway.kakaopay;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.changppo.account.TestInitDB;
-import org.changppo.account.apikey.ApiKey;
-import org.changppo.account.card.Card;
 import org.changppo.account.dto.card.kakaopay.KakaopayCardRegisterApproveRequest;
 import org.changppo.account.dto.card.kakaopay.KakaopayCardRegisterCancelRequest;
 import org.changppo.account.dto.card.kakaopay.KakaopayCardRegisterFailRequest;
 import org.changppo.account.dto.card.kakaopay.KakaopayCardRegisterReadyRequest;
-import org.changppo.account.member.Member;
+import org.changppo.account.entity.apikey.ApiKey;
+import org.changppo.account.entity.card.Card;
+import org.changppo.account.entity.member.Member;
 import org.changppo.account.paymentgateway.kakaopay.dto.payment.KakaopayApproveResponse;
 import org.changppo.account.paymentgateway.kakaopay.dto.payment.KakaopayReadyResponse;
 import org.changppo.account.repository.apikey.ApiKeyRepository;

@@ -8,6 +8,7 @@ include 'services:monitoring:monitoring_domain'
 findProject(':services:monitoring:monitoring_domain')?.name = 'monitoring_domain'
 
 include(':services:account:account_server-api')
+include(':services:account:account_server-batch')
 include('services:account:account_core:account_domain')
 include('services:account:account_core:account_infra')
 include('services:account:account_utils')
