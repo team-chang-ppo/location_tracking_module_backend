@@ -52,14 +52,34 @@ public class JobConfig {
     }
 
     @Bean
-    public Step executeAutomaticPaymentStep(RepositoryItemReader<Member> memberItemReader,
+    public Step executeAutomaticPaymentStep(RepositoryItemReader<Member> memberItemReaderForAutomaticPayment,
                                             ItemProcessor<Member, Payment> paymentProcessor,
-                                            ItemWriter<Payment> paymentWriter) {
+                                            ItemWriter<Payment> paymentItemWriterForAutomaticPayment) {
         return new StepBuilder("executeAutomaticPaymentStep", jobRepository)
                 .<Member, Payment>chunk(10, transactionManager)
-                .reader(memberItemReader)
+                .reader(memberItemReaderForAutomaticPayment)
                 .processor(paymentProcessor)
-                .writer(paymentWriter)
+                .writer(paymentItemWriterForAutomaticPayment)
+                .build();
+    }
+
+    @Bean
+    public Job DeletionExecutionJob(Step executeDeletionStep) {
+        return new JobBuilder("DeletionExecutionJob", jobRepository)
+                .incrementer(new RunIdIncrementer())
+                .start(executeDeletionStep)
+                .build();
+    }
+
+    @Bean
+    public Step executeDeletionStep(RepositoryItemReader<Member> memberItemReaderForDeletion,
+                                            ItemProcessor<Member, Payment> paymentProcessor,
+                                            ItemWriter<Payment> paymentItemWriterForDeletion) {
+        return new StepBuilder("executeDeletionStep", jobRepository)
+                .<Member, Payment>chunk(10, transactionManager)
+                .reader(memberItemReaderForDeletion)
+                .processor(paymentProcessor)
+                .writer(paymentItemWriterForDeletion)
                 .build();
     }
 

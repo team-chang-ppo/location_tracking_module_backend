@@ -12,7 +12,7 @@ public class PaymentEventPublisher {
 
     private final ApplicationEventPublisher publisher;
 
-    public void publishEvent(Payment payment) {  //TODO. 알림 서비스
+    public void publishEvent(Payment payment) {  //TODO. 푸시, 이메일 알림 서비스
         if (payment.getStatus() == PaymentStatus.FAILED) {
             publishPaymentFailedEvent(payment);
         } else if (payment.getStatus() == PaymentStatus.COMPLETED_PAID) {

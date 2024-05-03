@@ -1,9 +1,11 @@
 package org.changppo.account.controller.member;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.changppo.account.service.dto.member.MemberDto;
 import org.changppo.account.response.Response;
 import org.changppo.account.security.PrincipalHandler;
+import org.changppo.account.service.dto.member.MemberDto;
 import org.changppo.account.service.member.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,35 +34,27 @@ public class MemberController {
                 .body(Response.success(memberDto));
     }
 
-    @DeleteMapping("/request/me")
-    public ResponseEntity<Response> requestDeleteMe() {
-        memberService.requestDelete(PrincipalHandler.extractId());
+    @PutMapping("/request/me")
+    public ResponseEntity<Response> requestDeleteMe(HttpServletRequest request, HttpServletResponse response) {
+        MemberDto memberDto = memberService.requestDelete(PrincipalHandler.extractId(), request, response);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(Response.success());
+                .body(Response.success(memberDto));
     }
 
-    @DeleteMapping("/request/{id}")
-    public ResponseEntity<Response> requestDelete(@PathVariable(name = "id") Long id) {
-        memberService.requestDelete(id);
+    @PutMapping("/request/{id}")
+    public ResponseEntity<Response> requestDelete(@PathVariable(name = "id") Long id, HttpServletRequest request, HttpServletResponse response) {
+        MemberDto memberDto = memberService.requestDelete(id, request, response);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(Response.success());
+                .body(Response.success(memberDto));
     }
 
-    @DeleteMapping("/cancel/me")
-    public ResponseEntity<Response> cancelDeleteMe() {
-        memberService.cancelDelete(PrincipalHandler.extractId());
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(Response.success());
-    }
-
-    @DeleteMapping("/cancel/{id}")
+    @PutMapping("/cancel/{id}")  // 사용자에게 제공 X
     public ResponseEntity<Response> cancelDelete(@PathVariable(name = "id") Long id) {
-        memberService.cancelDelete(id);
+        MemberDto memberDto = memberService.cancelDelete(id);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(Response.success());
+                .body(Response.success(memberDto));
     }
 }

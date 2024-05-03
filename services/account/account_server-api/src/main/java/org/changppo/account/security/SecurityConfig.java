@@ -79,6 +79,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/members/**").hasRole("FREE")
+                        .requestMatchers(HttpMethod.PUT, "/api/members/v1/request/**").hasRole("FREE")
+                        .requestMatchers(HttpMethod.PUT, "/api/members/v1/cancel/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/members/**").hasRole("FREE")
                         .requestMatchers(HttpMethod.POST, "/api/apikeys/v1/createFreeKey").hasRole("FREE")
                         .requestMatchers(HttpMethod.POST, "/api/apikeys/v1/createClassicKey").hasRole("NORMAL")

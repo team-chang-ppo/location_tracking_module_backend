@@ -3,6 +3,7 @@ package org.changppo.account.security.oauth2;
 import lombok.RequiredArgsConstructor;
 import org.changppo.account.entity.member.Member;
 import org.changppo.account.entity.member.Role;
+import org.changppo.account.response.exception.oauth2.MemberDeletionRequestedException;
 import org.changppo.account.type.RoleType;
 import org.changppo.account.repository.member.MemberRepository;
 import org.changppo.account.repository.member.RoleRepository;
@@ -43,6 +44,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         Member member = memberRepository.findByNameWithRoles(name)
                 .map(existingMember -> {
+                    if (existingMember.isDeletionRequested()) {
+                        throw new MemberDeletionRequestedException("Member deletion requested");
+                    }
                     existingMember.updateInfo(oAuth2Response.getName(), oAuth2Response.getProfileImage());
                     return existingMember;
                 })

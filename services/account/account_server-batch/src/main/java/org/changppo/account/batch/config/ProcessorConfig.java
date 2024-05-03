@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.changppo.account.entity.member.Member;
 import org.changppo.account.entity.payment.Payment;
 import org.changppo.account.entity.payment.PaymentCardInfo;
-import org.changppo.account.payment.FakePaymentInfoClient;
+import org.changppo.account.payment.FakeBillingInfoClient;
 import org.changppo.account.repository.payment.PaymentRepository;
 import org.changppo.account.type.PaymentStatus;
 import org.changppo.account.type.RoleType;
@@ -17,7 +17,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 
 @Configuration
@@ -28,7 +30,7 @@ public class ProcessorConfig {
     private final JobLauncher jobLauncher;
     private final JobRepository jobRepository;
     private final Job paymentExecutionJob;
-    private final FakePaymentInfoClient fakePaymentInfoClient;
+    private final FakeBillingInfoClient fakeBillingInfoClient;
     private final PaymentRepository paymentRepository;
 
     @Bean
@@ -37,8 +39,8 @@ public class ProcessorConfig {
             LocalDateTime periodStart = paymentRepository.findFirstByMemberIdOrderByEndedAtDesc(member.getId())
                     .map(Payment::getEndedAt)
                     .orElse(member.getCreatedAt());
-            LocalDateTime periodEnd = LocalDateTime.now().with(TemporalAdjusters.firstDayOfMonth()).withHour(0).withMinute(0).withSecond(0).withNano(0);
-            BigDecimal paymentAmount =  fakePaymentInfoClient.getPaymentAmountForPeriod(member.getId(), periodStart, periodEnd).getData().orElseThrow(()-> new RuntimeException("Payment amount is not found"));
+            LocalDateTime periodEnd = LocalDateTime.of(LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()), LocalTime.MIDNIGHT);
+            BigDecimal paymentAmount =  fakeBillingInfoClient.getBillingAmountForPeriod(member.getId(), periodStart, periodEnd).getData().orElseThrow(()-> new RuntimeException("Payment amount is not found"));
             if (paymentAmount.compareTo(BigDecimal.valueOf(100.0)) <= 0){
                 return createCompletedPayment(member, paymentAmount, null, periodStart, periodEnd);
             } else {

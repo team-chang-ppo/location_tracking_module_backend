@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE payment SET deleted_at = CURRENT_TIMESTAMP WHERE payment_id = ?")
 @SQLRestriction("deleted_at is NULL")
-public class Payment extends EntityDate {  // TODO. 동시성 문제 고려
+public class Payment extends EntityDate {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -63,5 +63,9 @@ public class Payment extends EntityDate {  // TODO. 동시성 문제 고려
     public void changeStatus(PaymentStatus status, PaymentCardInfo cardInfo) {
         this.status = status;
         this.cardInfo = cardInfo;
+    }
+
+    public void delete(LocalDateTime time) {
+        this.deletedAt = time;
     }
 }
