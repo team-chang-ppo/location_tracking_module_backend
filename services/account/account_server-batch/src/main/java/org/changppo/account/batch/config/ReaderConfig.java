@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Collections;
 
 @Configuration
@@ -35,7 +34,7 @@ public class ReaderConfig {
         return new RepositoryItemReaderBuilder<Member>()
                 .repository(memberRepository)
                 .methodName("findMembersForDeletion")
-                .arguments(Collections.singletonList(LocalDateTime.of(LocalDateTime.now().toLocalDate(), LocalTime.MIDNIGHT)))
+                .arguments(Collections.singletonList(LocalDateTime.now())) // TODO. LocalDateTime.of(LocalDateTime.now().toLocalDate(), LocalTime.MIDNIGHT))로 수정
                 .pageSize(10)
                 .sorts(Collections.singletonMap("id", Sort.Direction.ASC))
                 .name("deletionRepositoryItemReader")

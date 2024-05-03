@@ -8,14 +8,12 @@ import org.changppo.account.entity.payment.PaymentCardInfo;
 import org.changppo.account.payment.FakeBillingInfoClient;
 import org.changppo.account.repository.payment.PaymentRepository;
 import org.changppo.account.type.PaymentStatus;
-import org.changppo.account.type.RoleType;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -34,7 +32,7 @@ public class ProcessorConfig {
     private final PaymentRepository paymentRepository;
 
     @Bean
-    public ItemProcessor<Member, Payment> paymentProcessor() {
+    public ItemProcessor<Member, Payment> paymentProcessorForAutomaticPayment() {
         return member -> {
             LocalDateTime periodStart = paymentRepository.findFirstByMemberIdOrderByEndedAtDesc(member.getId())
                     .map(Payment::getEndedAt)
@@ -44,17 +42,25 @@ public class ProcessorConfig {
             if (paymentAmount.compareTo(BigDecimal.valueOf(100.0)) <= 0){
                 return createCompletedPayment(member, paymentAmount, null, periodStart, periodEnd);
             } else {
-                return createPaymentDecision(member, paymentAmount, periodStart, periodEnd);
+                return executePayment(member, paymentAmount, periodStart, periodEnd);
             }
         };
     }
 
-    private Payment createPaymentDecision(Member member, BigDecimal paymentAmount, LocalDateTime periodStart, LocalDateTime periodEnd) {
-        if (member.getMemberRoles().stream().anyMatch(role -> role.getRole().getRoleType() == RoleType.ROLE_FREE)) {
-            return createFailedPayment(member, paymentAmount, periodStart, periodEnd);
-        } else {
-            return executePayment(member, paymentAmount, periodStart, periodEnd);
-        }
+    @Bean
+    public ItemProcessor<Member, Payment> paymentProcessorForDeletion() {
+        return member -> {
+            LocalDateTime periodStart = paymentRepository.findFirstByMemberIdOrderByEndedAtDesc(member.getId())
+                    .map(Payment::getEndedAt)
+                    .orElse(member.getCreatedAt());
+            LocalDateTime periodEnd = member.getDeletionRequestedAt();
+            BigDecimal paymentAmount =  fakeBillingInfoClient.getBillingAmountForPeriod(member.getId(), periodStart, periodEnd).getData().orElseThrow(()-> new RuntimeException("Payment amount is not found"));
+            if (paymentAmount.compareTo(BigDecimal.valueOf(100.0)) <= 0){
+                return createCompletedPayment(member, paymentAmount, null, periodStart, periodEnd);
+            } else {
+                return executePayment(member, paymentAmount, periodStart, periodEnd);
+            }
+        };
     }
 
     public Payment executePayment(Member member, BigDecimal paymentAmount, LocalDateTime periodStart, LocalDateTime periodEnd) {

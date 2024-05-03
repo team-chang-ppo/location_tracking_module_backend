@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import java.util.Optional;
 
 @RestController
@@ -44,7 +45,7 @@ public class BatchController {
     private JobParameters createJobParameters(PaymentExecutionJobRequest req) {
         return new JobParametersBuilder()
                 .addLong("memberId", req.getMemberId())
-                .addString("amount", req.getAmount().toString())
+                .addString("amount", req.getAmount().stripTrailingZeros().toPlainString()) // 불필요한 0을 제거
                 .addLocalDateTime("date", req.getDate())
                 .toJobParameters();
     }

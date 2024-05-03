@@ -53,12 +53,12 @@ public class JobConfig {
 
     @Bean
     public Step executeAutomaticPaymentStep(RepositoryItemReader<Member> memberItemReaderForAutomaticPayment,
-                                            ItemProcessor<Member, Payment> paymentProcessor,
+                                            ItemProcessor<Member, Payment> paymentProcessorForAutomaticPayment,
                                             ItemWriter<Payment> paymentItemWriterForAutomaticPayment) {
         return new StepBuilder("executeAutomaticPaymentStep", jobRepository)
                 .<Member, Payment>chunk(10, transactionManager)
                 .reader(memberItemReaderForAutomaticPayment)
-                .processor(paymentProcessor)
+                .processor(paymentProcessorForAutomaticPayment)
                 .writer(paymentItemWriterForAutomaticPayment)
                 .build();
     }
@@ -73,12 +73,12 @@ public class JobConfig {
 
     @Bean
     public Step executeDeletionStep(RepositoryItemReader<Member> memberItemReaderForDeletion,
-                                            ItemProcessor<Member, Payment> paymentProcessor,
+                                            ItemProcessor<Member, Payment> paymentProcessorForDeletion,
                                             ItemWriter<Payment> paymentItemWriterForDeletion) {
         return new StepBuilder("executeDeletionStep", jobRepository)
                 .<Member, Payment>chunk(10, transactionManager)
                 .reader(memberItemReaderForDeletion)
-                .processor(paymentProcessor)
+                .processor(paymentProcessorForDeletion)
                 .writer(paymentItemWriterForDeletion)
                 .build();
     }

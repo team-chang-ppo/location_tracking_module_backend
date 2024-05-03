@@ -36,11 +36,12 @@ public class InitData {
     private final MemberRepository memberRepository;
     private final GradeRepository gradeRepository;
     private final PaymentGatewayRepository paymentGatewayRepository;
+
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
     public void initData() {
         initRole();
-        initMember(); //Batch를 위한 데이터
+        // initMember();
         initGrade();
         initPaymentGateway();
     }
@@ -73,6 +74,7 @@ public class InitData {
                 .profileImage("bannedMemberProfileImage")
                 .roles(Collections.singleton(normalRole))
                 .build();
+
         bannedMember.banForPaymentFailure(LocalDateTime.now());
         memberRepository.saveAll(List.of(freeMember, normalMember, bannedMember));
     }

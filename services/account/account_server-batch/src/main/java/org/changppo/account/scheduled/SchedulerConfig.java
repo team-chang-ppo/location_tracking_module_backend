@@ -28,8 +28,8 @@ public class SchedulerConfig {
 
         schedulerService.addJob(
                 DeletionExecutionJobRunner.class,
-                "AutomaticPaymentExecutionJob",
-                "Job to process payments periodically",
+                "DeletionExecutionJobRunner",
+                "Job to delete data periodically",
                 Map.of("Application Start Time", LocalDateTime.now()),
                 "0 0/1 * 1/1 * ? *"  //TODO. 매일 시작하도록 수정
         );

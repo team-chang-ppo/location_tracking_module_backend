@@ -30,7 +30,7 @@ public class PaymentExecutionJobClient {  //TODO. Spring Cloud Feign Clientë¡œ ë
             validatePaymentExecutionJobResponse(paymentExecutionJobResponse);
             return ClientResponse.success(paymentExecutionJobResponse);
         } catch (Exception e) {
-            log.error("Failed to process payment execution for User ID: {}", req.getMemberId(), e);
+            log.info("Failed to process payment execution for User ID: {}", req.getMemberId(), e);
             return ClientResponse.failure();
         }
     }

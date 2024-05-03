@@ -8,6 +8,7 @@ import org.changppo.account.oauth2.OAuth2Client;
 import org.changppo.account.paymentgateway.PaymentGatewayClient;
 import org.changppo.account.repository.apikey.ApiKeyRepository;
 import org.changppo.account.repository.card.CardRepository;
+import org.changppo.account.repository.member.MemberRepository;
 import org.changppo.account.repository.payment.PaymentRepository;
 import org.changppo.account.service.event.payment.PaymentEventPublisher;
 import org.changppo.account.type.PaymentGatewayType;
@@ -15,7 +16,6 @@ import org.changppo.account.type.PaymentStatus;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -25,6 +25,7 @@ public class WriterConfig {
 
     private final PaymentRepository paymentRepository;
     private final PaymentEventPublisher paymentEventPublisher;
+    private final MemberRepository memberRepository;
     private final ApiKeyRepository apiKeyRepository;
     private final CardRepository cardRepository;
     private final List<PaymentGatewayClient> paymentGatewayClients;
@@ -44,11 +45,11 @@ public class WriterConfig {
     @Bean
     public ItemWriter<Payment> paymentItemWriterForDeletion() {
         return payments -> payments.forEach(payment -> {
+            paymentRepository.save(payment);
+            paymentEventPublisher.publishEvent(payment);
             if (payment.getStatus() == PaymentStatus.FAILED) {
                 handlePaymentFailure(payment.getMember());
                 handleMemberDeletionFailure(payment.getMember());
-                paymentRepository.save(payment);
-                paymentEventPublisher.publishEvent(payment);
             }
             else {
                 handleMemberDeletion(payment.getMember());
@@ -72,6 +73,7 @@ public class WriterConfig {
         deleteMemberPayment(member.getId());
         inactivePaymentGatewayCards(member.getId());
         unlinkOAuth2Member(member.getName());
+        deleteMember(member);
     }
 
     private void deleteMemberApiKeys(Long id) {
@@ -100,15 +102,20 @@ public class WriterConfig {
 
     private void unlinkOAuth2Member(String memberName) {
         String[] parts = memberName.split("_");
-        if (parts.length < 2) {
+        if (parts.length < 3) {
             throw new RuntimeException("Unsupported OAuth2");
         }
-        String provider = parts[0];
-        String memberId = parts[1];
+        String provider0 = parts[0];
+        String provider1 = parts[1];
+        String memberId = parts[2];
         oauth2Clients.stream()
-                .filter(service -> service.supports(provider))
+                .filter(service -> service.supports(provider0+"_"+provider1))
                 .findFirst()
                 .orElseThrow(()-> new RuntimeException("Unsupported OAuth2"))
                 .unlink(memberId);
+    }
+
+    public void deleteMember(Member member) {
+        memberRepository.delete(member);
     }
 }
