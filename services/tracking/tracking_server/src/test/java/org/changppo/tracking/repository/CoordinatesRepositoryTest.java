@@ -1,7 +1,7 @@
 package org.changppo.tracking.repository;
 
 
-import org.changppo.tracking.domain.Coordinates;
+import org.changppo.tracking.domain.mongodb.Coordinates;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +10,7 @@ import org.springframework.data.geo.Point;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,13 +26,13 @@ public class CoordinatesRepositoryTest {
     @Test
     void getCoordinatesTest() {
         // given
-        Coordinates coordinates1 = new Coordinates(new Point(1,1), LocalDateTime.now(), "test");
-        Coordinates coordinates2 = new Coordinates(new Point(2,2), LocalDateTime.now().plusMinutes(1), "test");
+        Coordinates coordinates1 = new Coordinates(1,2, LocalDateTime.now(), "test");
+        Coordinates coordinates2 = new Coordinates(1,2, LocalDateTime.now(), "test");
         coordinatesRepository.save(coordinates1);
         coordinatesRepository.save(coordinates2);
 
         // when
-        Set<Coordinates> result = coordinatesRepository.findByTrackingIdOrderByCreatedAtDesc("test");
+        Optional<Coordinates> result = coordinatesRepository.findTopByTrackingIdOrderByCreatedAtDesc("test");
 
         // then
         assertThat(result).isNotEmpty();
