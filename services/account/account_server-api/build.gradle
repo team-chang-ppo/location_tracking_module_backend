@@ -1,0 +1,66 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.2.5'
+    id 'io.spring.dependency-management' version '1.1.4'
+}
+
+group = 'org.changppo'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    sourceCompatibility = '17'
+}
+
+repositories {
+    mavenCentral()
+    maven { url 'https://repo.spring.io/milestone' }
+    maven { url 'https://repo.spring.io/snapshot' }
+}
+
+dependencies {
+    // Util
+    implementation project(':services:account:account_utils')
+    // Domain
+    implementation project(':services:account:account_core:account_domain')
+    // Infra
+    implementation project(':services:account:account_core:account_infra')
+    // Mvc
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    // JPA
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    // Actuator
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    // JDBC (인증 서버에서 발급 받은 Access 토큰 저장)
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    // OAuth2 client
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    // Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    // H2
+    testRuntimeOnly 'com.h2database:h2'
+    // PostgreSQL
+    implementation 'org.postgresql:postgresql'
+    // Lombok
+    implementation 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    // RestTemplate
+    implementation 'org.springframework.retry:spring-retry'
+    // Validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    // JWT
+    implementation 'io.jsonwebtoken:jjwt:0.12.3'
+    // Test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test' // Spring Boot Test
+    testImplementation 'org.springframework.security:spring-security-test' // Spring Security Test
+    testImplementation 'org.projectlombok:lombok' // Lombok for testing
+    testAnnotationProcessor 'org.projectlombok:lombok' // Lombok for testing
+}
+
+tasks.named('bootBuildImage') {
+    builder = 'paketobuildpacks/builder-jammy-base:latest'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+    jvmArgs '-Xshare:off' // JVM 아규먼트 설정
+}
