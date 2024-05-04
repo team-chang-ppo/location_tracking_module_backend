@@ -101,15 +101,14 @@ public class WriterConfig {
     }
 
     private void unlinkOAuth2Member(String memberName) {
-        String[] parts = memberName.split("_");
+        String[] parts = memberName.split("_", 3);
         if (parts.length < 3) {
-            throw new RuntimeException("Unsupported OAuth2");
+            throw new RuntimeException("Invalid member name format for OAuth2 unlinking.");
         }
-        String provider0 = parts[0];
-        String provider1 = parts[1];
+        String providerName = parts[0] + "_" + parts[1];
         String memberId = parts[2];
         oauth2Clients.stream()
-                .filter(service -> service.supports(provider0+"_"+provider1))
+                .filter(service -> service.supports(providerName))
                 .findFirst()
                 .orElseThrow(()-> new RuntimeException("Unsupported OAuth2"))
                 .unlink(memberId);
