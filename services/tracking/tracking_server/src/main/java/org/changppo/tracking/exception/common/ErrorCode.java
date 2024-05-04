@@ -14,7 +14,7 @@ public enum ErrorCode {
     // tracking - coordinates
     TRACKING_DUPLICATE(409,"TRACKING_0001","TRACKING 중복되는 정보가 있습니다."),
     TRACKING_NOT_FOUND(404, "TRACKING_0002", "해당 TRACKING 정보가 존재하지 않습니다."),
-    TRACKING_ALREADY_EXITED(400, "TRACKING_0003", "해당 TRACKING은 이미 종료되었습니다."),
+    TRACKING_ALREADY_EXITED(410, "TRACKING_0003", "해당 TRACKING은 이미 종료되었습니다."),
     COORDINATES_NOT_FOUND(404, "TRACKING_0004", "해당 COORDINATES 정보가 존재하지 않습니다."),
     API_KEY_ID_IS_NOT_MATCHED(403, "TRACKING_0005", "해당 Tracking 정보를 볼 권한이 없습니다."),
 
