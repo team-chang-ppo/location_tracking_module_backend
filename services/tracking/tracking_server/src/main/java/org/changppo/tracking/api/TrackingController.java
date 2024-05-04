@@ -46,7 +46,7 @@ public class TrackingController {
      */
     @TrackingContextParam
     @PostMapping("/start")
-    public ResponseEntity<GenerateTokenResponse> startTracking(@RequestBody @Valid StartTrackingRequest request,
+    public ResponseEntity<Void> startTracking(@RequestBody @Valid StartTrackingRequest request,
                                                                TrackingContext context) {
         trackingService.startTracking(request, context);
 
@@ -113,5 +113,4 @@ public class TrackingController {
      * 고민 : API 를 따로 구성해야할지 or 권한 정보를 헤더나 바디로 받아서 처리해야할지
      * API 를 구성하거나, 권한 정보를 헤더로 넣으면 API GATEWAY 에서 거르기 쉬울듯?
      */
-
 }

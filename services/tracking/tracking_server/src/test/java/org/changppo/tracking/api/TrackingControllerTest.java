@@ -1,10 +1,8 @@
 package org.changppo.tracking.api;
 
-import de.flapdoodle.reverse.transitions.Start;
 import org.changppo.tracking.api.request.StartTrackingRequest;
 import org.changppo.tracking.api.response.TrackingResponse;
 import org.changppo.tracking.base.WithCustomMockUser;
-import org.changppo.tracking.domain.Scope;
 import org.junit.jupiter.api.Nested;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -23,7 +21,6 @@ import org.springframework.data.geo.Point;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -78,8 +75,8 @@ public class TrackingControllerTest {
         void successStartTracking() throws Exception {
             // given
             StartTrackingRequest request = new StartTrackingRequest(
-                    new Point(1,1),
-                    new Point(2,2),
+                    1,1,
+                    2,2,
                     3L
             );
 
@@ -129,7 +126,7 @@ public class TrackingControllerTest {
         @Test
         void successGetTracking() throws Exception {
             // given
-            TrackingResponse response = new TrackingResponse(new Point(1, 2));
+            TrackingResponse response = new TrackingResponse(1,1);
             given(trackingService.getTracking(any())).willReturn(response);
 
             //when

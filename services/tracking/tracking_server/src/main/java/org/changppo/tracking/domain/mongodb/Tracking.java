@@ -1,17 +1,14 @@
-package org.changppo.tracking.domain;
+package org.changppo.tracking.domain.mongodb;
 
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.ReadOnlyProperty;
-import org.springframework.data.geo.Point;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 
 @Getter
@@ -25,9 +22,13 @@ public class Tracking {
 
     private List<String> scope;
 
-    private Point startPoint;
+    private double startLatitude;
 
-    private Point endPoint;
+    private double startLongitude;
+
+    private double endLatitude;
+
+    private double endLongitude;
 
     private Long estimatedArrivalTime; // 분 단위
 
@@ -40,18 +41,19 @@ public class Tracking {
     private List<Coordinates> coordinatesList;
 
     @Builder
-    public Tracking(String id, String apiKeyId, List<String> scope, Point startPoint, Point endPoint, Long estimatedArrivalTime, LocalDateTime startedAt) {
+    public Tracking(String id, String apiKeyId, List<String> scope, double startLatitude, double startLongitude, double endLatitude, double endLongitude, Long estimatedArrivalTime, LocalDateTime startedAt) {
         this.id = id;
         this.apiKeyId = apiKeyId;
         this.scope = scope;
-        this.startPoint = startPoint;
-        this.endPoint = endPoint;
+        this.startLatitude = startLatitude;
+        this.startLongitude = startLongitude;
+        this.endLatitude = endLatitude;
+        this.endLongitude = endLongitude;
         this.estimatedArrivalTime = estimatedArrivalTime;
         this.startedAt = startedAt;
     }
 
-
-    public void updateEndedAt(LocalDateTime endedAt) {
-        this.endedAt = endedAt;
+    public void updateEndedAt() {
+        this.endedAt = LocalDateTime.now();
     }
 }
