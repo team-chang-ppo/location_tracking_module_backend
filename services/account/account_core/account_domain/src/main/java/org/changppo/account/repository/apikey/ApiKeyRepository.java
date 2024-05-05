@@ -22,7 +22,7 @@ public interface ApiKeyRepository extends JpaRepository<ApiKey, Long> {
     @Query("select a from ApiKey a join fetch a.grade where a.id = :id")
     Optional<ApiKey> findByIdWithGrade(@Param("id") Long id);
 
-    @Query("select new org.changppo.account.service.dto.apikey.ApiKeyDto(a.id, a.value, a.grade.gradeType, a.paymentFailureBannedAt, a.cardDeletionBannedAt, a.deletionRequestedAt, a.createdAt) " +
+    @Query("select new org.changppo.account.service.dto.apikey.ApiKeyDto(a.id, a.value, a.grade.gradeType, a.paymentFailureBannedAt, a.cardDeletionBannedAt, a.createdAt) " +
             "from ApiKey a where a.member.id = :memberId and a.id >= :firstApiKeyId " +
             "order by a.id asc")
     Slice<ApiKeyDto> findAllByMemberIdOrderByAsc(@Param("memberId") Long memberId, @Param("firstApiKeyId") Long firstApiKeyId, Pageable pageable);

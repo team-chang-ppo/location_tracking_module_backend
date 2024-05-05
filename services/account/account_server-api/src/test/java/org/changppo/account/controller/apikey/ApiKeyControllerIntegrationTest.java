@@ -143,20 +143,6 @@ public class ApiKeyControllerIntegrationTest {
     }
 
     @Test
-    void createFreeKeyAccessDeniedByRequestDeletionMemberTest() throws Exception {
-        // given
-        ApiKeyCreateRequest req = buildApiKeyCreateRequest(null);
-
-        // when, then
-        mockMvc.perform(
-                post("/api/apikeys/v1/createFreeKey")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req))
-                        .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2RequestDeletionMember)))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
     void createFreeKeyAccessDeniedByBanForPaymentFailureMemberTest() throws Exception {
         // given
         ApiKeyCreateRequest req = buildApiKeyCreateRequest(null);
@@ -254,21 +240,6 @@ public class ApiKeyControllerIntegrationTest {
                 .andExpect(status().isForbidden());
     }
 
-
-    @Test
-    void createClassicKeyAccessDeniedByRequestDeletionMemberTest() throws Exception {
-        // given
-        ApiKeyCreateRequest req = buildApiKeyCreateRequest(null);
-
-        // when, then
-        mockMvc.perform(
-                        post("/api/apikeys/v1/createClassicKey")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(req))
-                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2RequestDeletionMember)))
-                .andExpect(status().isForbidden());
-    }
-
     @Test
     void readTest() throws Exception{
         // given, when, then
@@ -317,15 +288,6 @@ public class ApiKeyControllerIntegrationTest {
     }
 
     @Test
-    void readAccessDeniedByRequestDeletionApiKeyTest() throws Exception{
-        // given, when, then
-        mockMvc.perform(
-                        get("/api/apikeys/v1/{id}", requestDeletionApiKey.getId())
-                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2RequestDeletionMember)))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
     void readAllTest() throws Exception {
         // given
         ApiKeyReadAllRequest req = buildApiKeyReadAllRequest(1L, Integer.MAX_VALUE - 1);
@@ -367,19 +329,6 @@ public class ApiKeyControllerIntegrationTest {
                                 .param("firstApiKeyId", req.getFirstApiKeyId().toString())
                                 .param("size", req.getSize().toString())
                                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
-    void readAllAccessDeniedByRequestDeletionMemberTest() throws Exception{
-        // given
-        ApiKeyReadAllRequest req = buildApiKeyReadAllRequest(1L, Integer.MAX_VALUE - 1);
-        // when, then
-        mockMvc.perform(
-                        get("/api/apikeys/v1/member/{id}", requestDeletionMember.getId())
-                                .param("firstApiKeyId", req.getFirstApiKeyId().toString())
-                                .param("size", req.getSize().toString())
-                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2RequestDeletionMember)))
                 .andExpect(status().isForbidden());
     }
 
@@ -469,15 +418,6 @@ public class ApiKeyControllerIntegrationTest {
         mockMvc.perform(
                 delete("/api/apikeys/v1/{id}", banForPaymentFailureApiKey.getId())
                         .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2BanForPaymentFailureMember)))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
-    void deleteAccessDeniedByBanForRequestDeletionApiKeyTest() throws Exception {
-        // given, when, then
-        mockMvc.perform(
-                        delete("/api/apikeys/v1/{id}", requestDeletionApiKey.getId())
-                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2RequestDeletionMember)))
                 .andExpect(status().isForbidden());
     }
 }

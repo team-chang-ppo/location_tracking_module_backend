@@ -27,29 +27,22 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final ApiKeyRepository apiKeyRepository;
 
-    @PreAuthorize("@memberAccessEvaluator.check(#id) and @memberDeletionRequestedStatusEvaluator.check(#id)")
+    @PreAuthorize("@memberAccessEvaluator.check(#id)")
     public MemberDto read(@Param("id")Long id) {
         Member member = memberRepository.findByIdWithRoles(id).orElseThrow(MemberNotFoundException::new);
-        return new MemberDto(member.getId(),member.getName(), member.getUsername(), member.getProfileImage(),
-                member.getMemberRoles().stream()
-                .map(memberRole -> memberRole.getRole().getRoleType())
-                .collect(Collectors.toSet()), member.getPaymentFailureBannedAt(),
-                member.getDeletionRequestedAt(), member.getCreatedAt());
+        return new MemberDto(member.getId(),member.getName(), member.getUsername(), member.getProfileImage(), member.getMemberRoles().stream()
+                                                                                    .map(memberRole -> memberRole.getRole().getRoleType())
+                                                                                    .collect(Collectors.toSet()), member.getPaymentFailureBannedAt(), member.getCreatedAt());
     }
 
     @Transactional
-    @PreAuthorize("@memberAccessEvaluator.check(#id) and @memberPaymentFailureStatusEvaluator.check(#id) and @memberDeletionRequestedStatusEvaluator.check(#id)")
-    public MemberDto requestDelete(@Param("id")Long id, HttpServletRequest request, HttpServletResponse response) {
+    @PreAuthorize("@memberAccessEvaluator.check(#id) and @memberPaymentFailureStatusEvaluator.check(#id)")
+    public void requestDelete(@Param("id")Long id, HttpServletRequest request, HttpServletResponse response) {
         Member member = memberRepository.findById(id).orElseThrow(MemberNotFoundException::new);
         member.requestDeletion(LocalDateTime.now());
         apiKeyRepository.requestApiKeyDeletion(id, LocalDateTime.now());
         deleteSession(request);
         deleteCookie(response);
-        return new MemberDto(member.getId(),member.getName(), member.getUsername(), member.getProfileImage(),
-                member.getMemberRoles().stream()
-                        .map(memberRole -> memberRole.getRole().getRoleType())
-                        .collect(Collectors.toSet()), member.getPaymentFailureBannedAt(),
-                member.getDeletionRequestedAt(), member.getCreatedAt());
     }
 
     public void deleteSession(HttpServletRequest request){
@@ -71,14 +64,9 @@ public class MemberService {
 
     @Transactional
     @PreAuthorize("@memberAccessEvaluator.check(#id)")
-    public MemberDto cancelDelete(@Param("id")Long id) {
+    public void cancelDelete(@Param("id")Long id) {
         Member member = memberRepository.findById(id).orElseThrow(MemberNotFoundException::new);
         member.cancelDeletionRequest();
         apiKeyRepository.cancelApiKeyDeletionRequest(id);
-        return new MemberDto(member.getId(),member.getName(), member.getUsername(), member.getProfileImage(),
-                member.getMemberRoles().stream()
-                        .map(memberRole -> memberRole.getRole().getRoleType())
-                        .collect(Collectors.toSet()), member.getPaymentFailureBannedAt(),
-                member.getDeletionRequestedAt(), member.getCreatedAt());
     }
 }

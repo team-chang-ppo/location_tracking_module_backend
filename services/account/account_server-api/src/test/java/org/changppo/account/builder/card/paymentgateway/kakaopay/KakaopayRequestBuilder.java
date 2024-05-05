@@ -1,4 +1,4 @@
-package org.changppo.account.builder.card;
+package org.changppo.account.builder.card.paymentgateway.kakaopay;
 
 import org.changppo.account.dto.card.kakaopay.KakaopayCardRegisterApproveRequest;
 import org.changppo.account.dto.card.kakaopay.KakaopayCardRegisterCancelRequest;

@@ -83,7 +83,6 @@ class MemberControllerIntegrationTest {
                 .andExpect(jsonPath("$.result.data.profileImage").value(freeMember.getProfileImage()))
                 .andExpect(jsonPath("$.result.data.roles").value(RoleType.ROLE_FREE.name()))
                 .andExpect(jsonPath("$.result.data.paymentFailureBannedAt").isEmpty())
-                .andExpect(jsonPath("$.result.data.deletionRequestedAt").isEmpty())
                 .andExpect(jsonPath("$.result.data.createdAt").exists());
     }
 
@@ -105,29 +104,12 @@ class MemberControllerIntegrationTest {
     }
 
     @Test
-    void readAccessDeniedByRequestDeletionMemberTest() throws Exception {
-        // given, when, then
-        mockMvc.perform(
-                        get("/api/members/v1/{id}", requestDeletionMember.getId())
-                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2RequestDeletionMember)))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
     void requestDeleteTest() throws Exception {
         // given. when
         mockMvc.perform(
                         put("/api/members/v1/request/{id}", freeMember.getId())
                     .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.result.data.id").value(freeMember.getId()))
-                    .andExpect(jsonPath("$.result.data.name").value(freeMember.getName()))
-                    .andExpect(jsonPath("$.result.data.username").value(freeMember.getUsername()))
-                    .andExpect(jsonPath("$.result.data.profileImage").value(freeMember.getProfileImage()))
-                    .andExpect(jsonPath("$.result.data.roles").value(RoleType.ROLE_FREE.name()))
-                    .andExpect(jsonPath("$.result.data.paymentFailureBannedAt").isEmpty())
-                    .andExpect(jsonPath("$.result.data.deletionRequestedAt").isNotEmpty())
-                    .andExpect(jsonPath("$.result.data.createdAt").exists());
+                    .andExpect(status().isOk());
 
         // then
         Member updatedMember = memberRepository.findById(freeMember.getId()).orElseThrow(MemberNotFoundException::new);
@@ -140,15 +122,7 @@ class MemberControllerIntegrationTest {
         mockMvc.perform(
                         put("/api/members/v1/request/{id}", freeMember.getId())
                                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2AdminMember)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.data.id").value(freeMember.getId()))
-                .andExpect(jsonPath("$.result.data.name").value(freeMember.getName()))
-                .andExpect(jsonPath("$.result.data.username").value(freeMember.getUsername()))
-                .andExpect(jsonPath("$.result.data.profileImage").value(freeMember.getProfileImage()))
-                .andExpect(jsonPath("$.result.data.roles").value(RoleType.ROLE_FREE.name()))
-                .andExpect(jsonPath("$.result.data.paymentFailureBannedAt").isEmpty())
-                .andExpect(jsonPath("$.result.data.deletionRequestedAt").isNotEmpty())
-                .andExpect(jsonPath("$.result.data.createdAt").exists());
+                .andExpect(status().isOk());
 
         // then
         Member updatedMember = memberRepository.findById(freeMember.getId()).orElseThrow(MemberNotFoundException::new);
@@ -182,29 +156,12 @@ class MemberControllerIntegrationTest {
     }
 
     @Test
-    void requestDeleteAccessDeniedByRequestDeletionMemberTest() throws Exception {
-        // given, when, then
-        mockMvc.perform(
-                        put("/api/members/v1/request/{id}", requestDeletionMember.getId())
-                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2RequestDeletionMember)))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
     void cancelDeleteByAdminTest() throws Exception {
         // given, when, then
         mockMvc.perform(
                         put("/api/members/v1/cancel/{id}", requestDeletionMember.getId())
                                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2AdminMember)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.data.id").value(requestDeletionMember.getId()))
-                .andExpect(jsonPath("$.result.data.name").value(requestDeletionMember.getName()))
-                .andExpect(jsonPath("$.result.data.username").value(requestDeletionMember.getUsername()))
-                .andExpect(jsonPath("$.result.data.profileImage").value(requestDeletionMember.getProfileImage()))
-                .andExpect(jsonPath("$.result.data.roles").value(RoleType.ROLE_NORMAL.name()))
-                .andExpect(jsonPath("$.result.data.paymentFailureBannedAt").isEmpty())
-                .andExpect(jsonPath("$.result.data.deletionRequestedAt").isEmpty())
-                .andExpect(jsonPath("$.result.data.createdAt").exists());
+                .andExpect(status().isOk());
         // then
         Member updatedMember = memberRepository.findById(requestDeletionMember.getId()).orElseThrow(MemberNotFoundException::new);
         assertFalse(updatedMember.isDeletionRequested());

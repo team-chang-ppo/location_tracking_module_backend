@@ -3,7 +3,6 @@ package org.changppo.account.controller.apikey;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.changppo.account.dto.apikey.ApiKeyCreateRequest;
 import org.changppo.account.dto.apikey.ApiKeyReadAllRequest;
-import org.changppo.account.security.PrincipalHandler;
 import org.changppo.account.service.apikey.ApiKeyService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,8 +29,6 @@ class ApiKeyControllerTest {
     private ApiKeyController apiKeyController;
     @Mock
     private ApiKeyService apiKeyService;
-    @Mock
-    private PrincipalHandler principalHandler;
     private MockMvc mockMvc;
     ObjectMapper objectMapper = new ObjectMapper();
 

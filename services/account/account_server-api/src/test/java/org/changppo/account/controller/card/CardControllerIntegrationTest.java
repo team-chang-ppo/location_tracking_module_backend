@@ -2,7 +2,7 @@ package org.changppo.account.controller.card;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.changppo.account.TestInitDB;
-import org.changppo.account.builder.card.KakaopayResponseBuilder;
+import org.changppo.account.builder.card.paymentgateway.kakaopay.KakaopayResponseBuilder;
 import org.changppo.account.entity.apikey.ApiKey;
 import org.changppo.account.entity.card.Card;
 import org.changppo.account.entity.member.Member;
@@ -67,10 +67,11 @@ public class CardControllerIntegrationTest {
     RestTemplate restTemplate;
     MockRestServiceServer mockServer;
     ObjectMapper objectMapper = new ObjectMapper();
-    Member freeMember, normalMember, bannedMember , adminMember;
-    CustomOAuth2User customOAuth2FreeMember, customOAuth2NormalMember, customOAuth2BannedMember, customOAuth2AdminMember;
-    ApiKey freeApiKey, classicApiKey, classicApiKeyByBannedMember, bannedApiKey;
-    Card card;
+    Member freeMember, normalMember, banForPaymentFailureMember, requestDeletionMember, adminMember;
+    CustomOAuth2User customOAuth2FreeMember, customOAuth2NormalMember, customOAuth2BanForPaymentFailureMember, customOAuth2RequestDeletionMember, customOAuth2AdminMember;
+    ApiKey freeApiKey, classicApiKey, banForPaymentFailureApiKey, banForCardDeletionApiKey, requestDeletionApiKey;
+    Card kakaopayCard;
+
     @BeforeEach
     void beforeEach() {
         mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
@@ -86,36 +87,40 @@ public class CardControllerIntegrationTest {
     private void setupMembers() {
         freeMember = memberRepository.findByName(testInitDB.getFreeMemberName()).orElseThrow(MemberNotFoundException::new);
         normalMember = memberRepository.findByName(testInitDB.getNormalMemberName()).orElseThrow(MemberNotFoundException::new);
-        bannedMember = memberRepository.findByName(testInitDB.getBanForPaymentFailureMemberName()).orElseThrow(MemberNotFoundException::new);
+        banForPaymentFailureMember = memberRepository.findByName(testInitDB.getBanForPaymentFailureMemberName()).orElseThrow(MemberNotFoundException::new);
+        requestDeletionMember = memberRepository.findByName(testInitDB.getRequestDeletionMemberName()).orElseThrow(MemberNotFoundException::new);
         adminMember = memberRepository.findByName(testInitDB.getAdminMemberName()).orElseThrow(MemberNotFoundException::new);
         customOAuth2FreeMember = buildCustomOAuth2User(freeMember);
         customOAuth2NormalMember = buildCustomOAuth2User(normalMember);
-        customOAuth2BannedMember = buildCustomOAuth2User(bannedMember);
+        customOAuth2BanForPaymentFailureMember = buildCustomOAuth2User(banForPaymentFailureMember);
+        customOAuth2RequestDeletionMember = buildCustomOAuth2User(requestDeletionMember);
         customOAuth2AdminMember = buildCustomOAuth2User(adminMember);
     }
 
     private void setupApiKeys() {
         freeApiKey = apiKeyRepository.findByValue(testInitDB.getFreeApiKeyValue()).orElseThrow(ApiKeyNotFoundException::new);
         classicApiKey = apiKeyRepository.findByValue(testInitDB.getClassicApiKeyValue()).orElseThrow(ApiKeyNotFoundException::new);
-        bannedApiKey = apiKeyRepository.findByValue(testInitDB.getBanForPaymentFailureApiKeyValue()).orElseThrow(ApiKeyNotFoundException::new);
+        banForPaymentFailureApiKey = apiKeyRepository.findByValue(testInitDB.getBanForPaymentFailureApiKeyValue()).orElseThrow(ApiKeyNotFoundException::new);
+        banForCardDeletionApiKey = apiKeyRepository.findByValue(testInitDB.getBanForCardDeletionApiKeyValue()).orElseThrow(ApiKeyNotFoundException::new);
+        requestDeletionApiKey = apiKeyRepository.findByValue(testInitDB.getRequestDeletionApiKeyValue()).orElseThrow(ApiKeyNotFoundException::new);
     }
 
     private void setupCards() {
-        card = cardRepository.findByKey(testInitDB.getTestCardKey()).orElseThrow(CardNotFoundException::new);
+        kakaopayCard = cardRepository.findByKey(testInitDB.getKakaopayCardKey()).orElseThrow(CardNotFoundException::new);
     }
 
     @Test
     void readTest() throws Exception{
         // given, when, then
         mockMvc.perform(
-                        get("/api/cards/v1/{id}", card.getId())
+                        get("/api/cards/v1/{id}", kakaopayCard.getId())
                                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2NormalMember)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.data.id").value(card.getId()))
-                .andExpect(jsonPath("$.result.data.type").value(card.getType()))
-                .andExpect(jsonPath("$.result.data.issuerCorporation").value(card.getIssuerCorporation()))
-                .andExpect(jsonPath("$.result.data.bin").value(card.getBin()))
-                .andExpect(jsonPath("$.result.data.paymentGateway").value(card.getPaymentGateway().getPaymentGatewayType().name()))
+                .andExpect(jsonPath("$.result.data.id").value(kakaopayCard.getId()))
+                .andExpect(jsonPath("$.result.data.type").value(kakaopayCard.getType()))
+                .andExpect(jsonPath("$.result.data.issuerCorporation").value(kakaopayCard.getIssuerCorporation()))
+                .andExpect(jsonPath("$.result.data.bin").value(kakaopayCard.getBin()))
+                .andExpect(jsonPath("$.result.data.paymentGateway").value(kakaopayCard.getPaymentGateway().getPaymentGatewayType().name()))
                 .andExpect(jsonPath("$.result.data.createdAt").exists());
     }
 
@@ -123,14 +128,14 @@ public class CardControllerIntegrationTest {
     void readByAdminTest() throws Exception{
         // given, when, then
         mockMvc.perform(
-                        get("/api/cards/v1/{id}", card.getId())
+                        get("/api/cards/v1/{id}", kakaopayCard.getId())
                                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2AdminMember)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.data.id").value(card.getId()))
-                .andExpect(jsonPath("$.result.data.type").value(card.getType()))
-                .andExpect(jsonPath("$.result.data.issuerCorporation").value(card.getIssuerCorporation()))
-                .andExpect(jsonPath("$.result.data.bin").value(card.getBin()))
-                .andExpect(jsonPath("$.result.data.paymentGateway").value(card.getPaymentGateway().getPaymentGatewayType().name()))
+                .andExpect(jsonPath("$.result.data.id").value(kakaopayCard.getId()))
+                .andExpect(jsonPath("$.result.data.type").value(kakaopayCard.getType()))
+                .andExpect(jsonPath("$.result.data.issuerCorporation").value(kakaopayCard.getIssuerCorporation()))
+                .andExpect(jsonPath("$.result.data.bin").value(kakaopayCard.getBin()))
+                .andExpect(jsonPath("$.result.data.paymentGateway").value(kakaopayCard.getPaymentGateway().getPaymentGatewayType().name()))
                 .andExpect(jsonPath("$.result.data.createdAt").exists());
     }
 
@@ -138,7 +143,7 @@ public class CardControllerIntegrationTest {
     void readUnauthorizedByNoneSessionTestTest() throws Exception{
         // given, when, then
         mockMvc.perform(
-                        get("/api/cards/v1/{id}", card.getId()))
+                        get("/api/cards/v1/{id}", kakaopayCard.getId()))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -146,7 +151,7 @@ public class CardControllerIntegrationTest {
     void readAccessDeniedByNotResourceOwnerTest() throws Exception{
         // given, when, then
         mockMvc.perform(
-                        get("/api/cards/v1/{id}", card.getId())
+                        get("/api/cards/v1/{id}", kakaopayCard.getId())
                                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
                 .andExpect(status().isForbidden());
     }
@@ -225,12 +230,12 @@ public class CardControllerIntegrationTest {
 
         // when
         mockMvc.perform(
-                        delete("/api/cards/v1/{id}", card.getId())
+                        delete("/api/cards/v1/{id}", kakaopayCard.getId())
                                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2NormalMember)))
                 .andExpect(status().isOk());
 
         // then
-        assertTrue(cardRepository.findById(card.getId()).isEmpty());
+        assertTrue(cardRepository.findById(kakaopayCard.getId()).isEmpty());
         Member member = memberRepository.findById(normalMember.getId()).orElseThrow(MemberNotFoundException::new);
         assertTrue(member.getMemberRoles().stream().allMatch(role -> role.getRole().getRoleType() == RoleType.ROLE_FREE));
     }
@@ -245,12 +250,12 @@ public class CardControllerIntegrationTest {
 
         // when
         mockMvc.perform(
-                        delete("/api/cards/v1/{id}", card.getId())
+                        delete("/api/cards/v1/{id}", kakaopayCard.getId())
                                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2AdminMember)))
                 .andExpect(status().isOk());
 
         // then
-        assertTrue(cardRepository.findById(card.getId()).isEmpty());
+        assertTrue(cardRepository.findById(kakaopayCard.getId()).isEmpty());
         Member member = memberRepository.findById(normalMember.getId()).orElseThrow(MemberNotFoundException::new);
         assertTrue(member.getMemberRoles().stream().allMatch(role -> role.getRole().getRoleType() == RoleType.ROLE_FREE));
     }
@@ -265,7 +270,7 @@ public class CardControllerIntegrationTest {
 
         // when, then
         mockMvc.perform(
-                        delete("/api/cards/v1/{id}", card.getId()))
+                        delete("/api/cards/v1/{id}", kakaopayCard.getId()))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -279,8 +284,8 @@ public class CardControllerIntegrationTest {
 
         // when, then
         mockMvc.perform(
-                        delete("/api/cards/v1/{id}", card.getId())
-                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2BannedMember)))
+                        delete("/api/cards/v1/{id}", kakaopayCard.getId())
+                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2BanForPaymentFailureMember)))
                 .andExpect(status().isForbidden());
     }
 
@@ -294,7 +299,7 @@ public class CardControllerIntegrationTest {
 
         // when, then
         mockMvc.perform(
-                        delete("/api/cards/v1/{id}", card.getId())
+                        delete("/api/cards/v1/{id}", kakaopayCard.getId())
                                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
                 .andExpect(status().isForbidden());
     }

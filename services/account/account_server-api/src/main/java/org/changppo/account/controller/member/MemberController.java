@@ -36,25 +36,25 @@ public class MemberController {
 
     @PutMapping("/request/me")
     public ResponseEntity<Response> requestDeleteMe(HttpServletRequest request, HttpServletResponse response) {
-        MemberDto memberDto = memberService.requestDelete(PrincipalHandler.extractId(), request, response);
+        memberService.requestDelete(PrincipalHandler.extractId(), request, response);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(Response.success(memberDto));
+                .body(Response.success());
     }
 
     @PutMapping("/request/{id}")
     public ResponseEntity<Response> requestDelete(@PathVariable(name = "id") Long id, HttpServletRequest request, HttpServletResponse response) {
-        MemberDto memberDto = memberService.requestDelete(id, request, response);
+        memberService.requestDelete(id, request, response);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(Response.success(memberDto));
+                .body(Response.success());
     }
 
     @PutMapping("/cancel/{id}")  // 사용자에게 제공 X
     public ResponseEntity<Response> cancelDelete(@PathVariable(name = "id") Long id) {
-        MemberDto memberDto = memberService.cancelDelete(id);
+        memberService.cancelDelete(id);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(Response.success(memberDto));
+                .body(Response.success());
     }
 }

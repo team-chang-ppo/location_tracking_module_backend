@@ -66,7 +66,7 @@ public class TestInitDB {
     @Getter
     private final String requestDeletionApiKeyValue = "request-delete-api-key";
     @Getter
-    private final String testCardKey = "test-card-key";
+    private final String kakaopayCardKey = "kakaopay-card-key";
 
     @Transactional
     public void initMember() {
@@ -193,8 +193,8 @@ public class TestInitDB {
         Member normalMember = memberRepository.findByName(normalMemberName).orElseThrow(MemberNotFoundException::new);
         PaymentGateway kakaopayPaymentGateway = paymentGatewayRepository.findByPaymentGatewayType(PaymentGatewayType.PG_KAKAOPAY).orElseThrow(PaymentGatewayNotFoundException::new);
 
-        Card card = Card.builder()
-                .key(testCardKey)
+        Card kakaopayCard = Card.builder()
+                .key(kakaopayCardKey)
                 .member(normalMember)
                 .paymentGateway(kakaopayPaymentGateway)
                 .type("신용")
@@ -203,6 +203,6 @@ public class TestInitDB {
                 .bin("123456")
                 .build();
 
-        cardRepository.save(card);
+        cardRepository.save(kakaopayCard);
     }
 }
