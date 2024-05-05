@@ -10,21 +10,27 @@ import org.changppo.account.entity.card.Card;
 import org.changppo.account.entity.card.PaymentGateway;
 import org.changppo.account.entity.member.Member;
 import org.changppo.account.entity.member.Role;
+import org.changppo.account.entity.payment.Payment;
+import org.changppo.account.entity.payment.PaymentCardInfo;
 import org.changppo.account.repository.apikey.ApiKeyRepository;
 import org.changppo.account.repository.apikey.GradeRepository;
 import org.changppo.account.repository.card.CardRepository;
 import org.changppo.account.repository.card.PaymentGatewayRepository;
 import org.changppo.account.repository.member.MemberRepository;
 import org.changppo.account.repository.member.RoleRepository;
+import org.changppo.account.repository.payment.PaymentRepository;
 import org.changppo.account.response.exception.apikey.GradeNotFoundException;
+import org.changppo.account.response.exception.card.CardNotFoundException;
 import org.changppo.account.response.exception.card.PaymentGatewayNotFoundException;
 import org.changppo.account.response.exception.member.MemberNotFoundException;
 import org.changppo.account.response.exception.member.RoleNotFoundException;
 import org.changppo.account.type.GradeType;
 import org.changppo.account.type.PaymentGatewayType;
+import org.changppo.account.type.PaymentStatus;
 import org.changppo.account.type.RoleType;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,6 +50,7 @@ public class TestInitDB {
     private final ApiKeyRepository apiKeyRepository;
     private final PaymentGatewayRepository paymentGatewayRepository;
     private final CardRepository cardRepository;
+    private final PaymentRepository paymentRepository;
 
     @Getter
     private final String adminMemberName = "kakao_0000";
@@ -67,6 +74,10 @@ public class TestInitDB {
     private final String requestDeletionApiKeyValue = "request-delete-api-key";
     @Getter
     private final String kakaopayCardKey = "kakaopay-card-key";
+    @Getter
+    private final String successfulPaymentKey = "successful-payment-key";
+    @Getter
+    private final String failedPaymentKey = "failed-payment-key";
 
     @Transactional
     public void initMember() {
@@ -85,6 +96,11 @@ public class TestInitDB {
     public void initCard() {
         initPaymentGateway();
         initTestCard();
+    }
+
+    @Transactional
+    public void initPayment() {
+        initTestPayment();
     }
 
     private void initRole() {
@@ -204,5 +220,32 @@ public class TestInitDB {
                 .build();
 
         cardRepository.save(kakaopayCard);
+    }
+
+    public void initTestPayment() {
+        Member banForPaymentFailureMember = memberRepository.findByName(banForPaymentFailureMemberName).orElseThrow(MemberNotFoundException::new);
+        Card kakaopayCard = cardRepository.findByKey(kakaopayCardKey).orElseThrow(CardNotFoundException::new);
+
+        Payment successfulPayment = Payment.builder()
+                .key(successfulPaymentKey)
+                .amount(new BigDecimal("100.00"))
+                .status(PaymentStatus.COMPLETED_PAID)
+                .startedAt(LocalDateTime.now())
+                .endedAt(LocalDateTime.now().plusHours(1))
+                .member(kakaopayCard.getMember())
+                .cardInfo(new PaymentCardInfo(kakaopayCard.getType(), kakaopayCard.getIssuerCorporation(), kakaopayCard.getBin()))
+                .build();
+
+        Payment failedPayment = Payment.builder()
+                .key(failedPaymentKey)
+                .amount(new BigDecimal("50.00"))
+                .status(PaymentStatus.FAILED)
+                .startedAt(LocalDateTime.now())
+                .endedAt(LocalDateTime.now().plusHours(1))
+                .member(banForPaymentFailureMember)
+                .cardInfo(null)
+                .build();
+
+        paymentRepository.saveAll(List.of(successfulPayment, failedPayment));
     }
 }
