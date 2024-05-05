@@ -14,7 +14,6 @@ import org.changppo.tracking.domain.redis.CoordinateRedisEntity;
 import org.changppo.tracking.domain.redis.TrackingRedisEntity;
 import org.changppo.tracking.exception.*;
 import org.changppo.tracking.jwt.TokenProvider;
-import org.changppo.tracking.repository.CoordinatesRepository;
 import org.changppo.tracking.repository.RedisRepository;
 import org.changppo.tracking.repository.TrackingRepository;
 import org.changppo.tracking.util.RetryUtil;
@@ -43,7 +42,7 @@ public class TrackingService {
 
         TrackingContext context = new TrackingContext(request.getIdentifier(), apiKeyId, request.getScope());
         // TODO. Account DB로 APIKEY의 상태값 확인이 필요
-        String token = tokenProvider.createToken(context, request.getTokenExpiresIn());
+        String token = tokenProvider.createToken(context);
 
         return new GenerateTokenResponse(token);
     }

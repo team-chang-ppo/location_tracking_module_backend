@@ -22,8 +22,4 @@ public class GenerateTokenRequest {
     @Size(min = 1, message = "원하는 권한은 최소 1개 이상이어야 합니다.")
     private List<String> scope;
 
-    @NotNull(message = "토큰 만료 시간은 필수 값입니다.")
-    @Min(value = 180, message = "토큰 만료 시간은 180초 이상이어야 합니다.")
-    private Long tokenExpiresIn;
-
 }

@@ -31,7 +31,7 @@ public class TokenProvider implements AuthenticationProvider {
 
     private final JwtProperties jwtProperties;
 
-    public String createToken(TrackingContext context, Long tokenExpiresIn) {
+    public String createToken(TrackingContext context) {
         Claims claims = this.createClaims(context);
         Date now = new Date(System.currentTimeMillis());
 
@@ -39,7 +39,7 @@ public class TokenProvider implements AuthenticationProvider {
                 .setIssuer(jwtProperties.getIssuer())
                 .setClaims(claims)
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + tokenExpiresIn*MILLI_SECOND))
+                .setExpiration(new Date(now.getTime() + jwtProperties.getExpireIn() * MILLI_SECOND))
                 .signWith(Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8)), SignatureAlgorithm.HS256)
                 .compact();
     }
