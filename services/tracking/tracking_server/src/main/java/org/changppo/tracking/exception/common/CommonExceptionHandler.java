@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -41,6 +42,14 @@ public class CommonExceptionHandler {
 
         return ResponseEntity.badRequest()
                 .body(ErrorResponse.of(ErrorCode.INVALID_INPUT_VALUE, errorMessage));
+    }
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ResponseEntity<ErrorResponse> handleMissingRequestHeaderException(MissingRequestHeaderException e) {
+        log.debug("MissingRequestHeaderException", e);
+
+        return ResponseEntity.badRequest()
+                .body(ErrorResponse.of(ErrorCode.HEADER_NOT_FOUND, null));
     }
 
     @ExceptionHandler(Exception.class)

@@ -97,7 +97,7 @@ public class TrackingService {
         if (latestCoordinatesObj instanceof CoordinateRedisEntity latestCoordinates) {
             return new TrackingResponse(latestCoordinates);
         } else {
-            throw new IllegalArgumentException("좌표 데이터가 올바른 형식이 아닙니다.");
+            throw new IllegalArgumentException("좌표가 존재하지 않거나, 좌표 데이터가 올바른 형식이 아닙니다.");
         }
     }
 
