@@ -96,11 +96,20 @@ class MemberControllerIntegrationTest {
     }
 
     @Test
-    void readAccessDeniedByNotResourceOwnerTestTest() throws Exception {
+    void readAccessDeniedByNotResourceOwnerTest() throws Exception {
         // given, when, then
         mockMvc.perform(
                         get("/api/members/v1/{id}", freeMember.getId())
                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2NormalMember)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void readAccessDeniedByRequestDeletionMemberTest() throws Exception {
+        // given, when, then
+        mockMvc.perform(
+                        get("/api/members/v1/{id}", requestDeletionMember.getId())
+                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2RequestDeletionMember)))
                 .andExpect(status().isForbidden());
     }
 
