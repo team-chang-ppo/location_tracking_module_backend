@@ -75,21 +75,21 @@ public class ApiKeyService {
         return jwtHandler.createToken(new TokenClaims(apiKey.getId(), apiKey.getMember().getId(), apiKey.getGrade().getGradeType().name()));
     }
 
-    @PreAuthorize("@apiKeyAccessEvaluator.check(#id)")
+    @PreAuthorize("@apiKeyAccessEvaluator.check(#id) and @apiKeyDeletionRequestedStatusEvaluator.check(#id)")
     public ApiKeyDto read(@Param("id")Long id) {
         ApiKey apiKey = apiKeyRepository.findById(id).orElseThrow(ApiKeyNotFoundException::new);
         return new ApiKeyDto(apiKey.getId(), apiKey.getValue(), apiKey.getGrade().getGradeType(),
                 apiKey.getPaymentFailureBannedAt(), apiKey.getCardDeletionBannedAt(), apiKey.getDeletionRequestedAt(), apiKey.getCreatedAt());
     }
 
-    @PreAuthorize("@memberAccessEvaluator.check(#memberId)")
+    @PreAuthorize("@memberAccessEvaluator.check(#memberId) and @memberDeletionRequestedStatusEvaluator.check(#memberId)")
     public ApiKeyListDto readAll(@Param("memberId")Long memberId, ApiKeyReadAllRequest req){
         Slice<ApiKeyDto> slice = apiKeyRepository.findAllByMemberIdOrderByAsc(memberId, req.getFirstApiKeyId(), Pageable.ofSize(req.getSize()));
         return new ApiKeyListDto(slice.getNumberOfElements(), slice.hasNext(), slice.getContent());
     }
 
     @Transactional
-    @PreAuthorize("@apiKeyAccessEvaluator.check(#id)")
+    @PreAuthorize("@apiKeyAccessEvaluator.check(#id) and @apiKeyPaymentFailureStatusEvaluator.check(#id) and @apiKeyDeletionRequestedStatusEvaluator.check(#id)")
     public void delete(@Param("id")Long id) {
         ApiKey apiKey = apiKeyRepository.findById(id).orElseThrow(ApiKeyNotFoundException::new);
         apiKeyRepository.delete(apiKey);

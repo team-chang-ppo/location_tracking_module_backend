@@ -53,9 +53,10 @@ public class ApiKeyControllerIntegrationTest {
     @Autowired
     MemberRepository memberRepository;
     ObjectMapper objectMapper = new ObjectMapper();
-    Member freeMember, normalMember, bannedMember , adminMember;
-    CustomOAuth2User customOAuth2FreeMember, customOAuth2NormalMember, customOAuth2BannedMember, customOAuth2AdminMember;
-    ApiKey freeApiKey, classicApiKey, classicApiKeyByBannedMember, bannedApiKey;
+    Member freeMember, normalMember, banForPaymentFailureMember, requestDeletionMember, adminMember;
+    CustomOAuth2User customOAuth2FreeMember, customOAuth2NormalMember, customOAuth2BanForPaymentFailureMember, customOAuth2RequestDeletionMember, customOAuth2AdminMember;
+    ApiKey freeApiKey, classicApiKey, banForPaymentFailureApiKey, banForCardDeletionApiKey, requestDeletionApiKey;
+
     @BeforeEach
     void beforeEach() {
         mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
@@ -68,18 +69,22 @@ public class ApiKeyControllerIntegrationTest {
     private void setupMembers() {
         freeMember = memberRepository.findByName(testInitDB.getFreeMemberName()).orElseThrow(MemberNotFoundException::new);
         normalMember = memberRepository.findByName(testInitDB.getNormalMemberName()).orElseThrow(MemberNotFoundException::new);
-        bannedMember = memberRepository.findByName(testInitDB.getBanForPaymentFailureMemberName()).orElseThrow(MemberNotFoundException::new);
+        banForPaymentFailureMember = memberRepository.findByName(testInitDB.getBanForPaymentFailureMemberName()).orElseThrow(MemberNotFoundException::new);
+        requestDeletionMember = memberRepository.findByName(testInitDB.getRequestDeletionMemberName()).orElseThrow(MemberNotFoundException::new);
         adminMember = memberRepository.findByName(testInitDB.getAdminMemberName()).orElseThrow(MemberNotFoundException::new);
         customOAuth2FreeMember = buildCustomOAuth2User(freeMember);
         customOAuth2NormalMember = buildCustomOAuth2User(normalMember);
-        customOAuth2BannedMember = buildCustomOAuth2User(bannedMember);
+        customOAuth2BanForPaymentFailureMember = buildCustomOAuth2User(banForPaymentFailureMember);
+        customOAuth2RequestDeletionMember = buildCustomOAuth2User(requestDeletionMember);
         customOAuth2AdminMember = buildCustomOAuth2User(adminMember);
     }
 
     private void setupApiKeys() {
         freeApiKey = apiKeyRepository.findByValue(testInitDB.getFreeApiKeyValue()).orElseThrow(ApiKeyNotFoundException::new);
         classicApiKey = apiKeyRepository.findByValue(testInitDB.getClassicApiKeyValue()).orElseThrow(ApiKeyNotFoundException::new);
-        bannedApiKey = apiKeyRepository.findByValue(testInitDB.getBanForPaymentFailureApiKeyValue()).orElseThrow(ApiKeyNotFoundException::new);
+        banForPaymentFailureApiKey = apiKeyRepository.findByValue(testInitDB.getBanForPaymentFailureApiKeyValue()).orElseThrow(ApiKeyNotFoundException::new);
+        banForCardDeletionApiKey = apiKeyRepository.findByValue(testInitDB.getBanForCardDeletionApiKeyValue()).orElseThrow(ApiKeyNotFoundException::new);
+        requestDeletionApiKey = apiKeyRepository.findByValue(testInitDB.getRequestDeletionApiKeyValue()).orElseThrow(ApiKeyNotFoundException::new);
     }
 
     @Test
@@ -138,7 +143,7 @@ public class ApiKeyControllerIntegrationTest {
     }
 
     @Test
-    void createFreeKeyAccessDeniedByBannedMemberTest() throws Exception {
+    void createFreeKeyAccessDeniedByRequestDeletionMemberTest() throws Exception {
         // given
         ApiKeyCreateRequest req = buildApiKeyCreateRequest(null);
 
@@ -147,7 +152,21 @@ public class ApiKeyControllerIntegrationTest {
                 post("/api/apikeys/v1/createFreeKey")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req))
-                        .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2BannedMember)))
+                        .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2RequestDeletionMember)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void createFreeKeyAccessDeniedByBanForPaymentFailureMemberTest() throws Exception {
+        // given
+        ApiKeyCreateRequest req = buildApiKeyCreateRequest(null);
+
+        // when, then
+        mockMvc.perform(
+                        post("/api/apikeys/v1/createFreeKey")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(req))
+                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2BanForPaymentFailureMember)))
                 .andExpect(status().isForbidden());
     }
 
@@ -208,7 +227,7 @@ public class ApiKeyControllerIntegrationTest {
 
 
     @Test
-    void createClassicKeyAccessDeniedByBannedMemberTest() throws Exception {
+    void createClassicKeyAccessDeniedByBanForPaymentFailureMemberTest() throws Exception {
         // given
         ApiKeyCreateRequest req = buildApiKeyCreateRequest(null);
 
@@ -217,7 +236,7 @@ public class ApiKeyControllerIntegrationTest {
                 post("/api/apikeys/v1/createClassicKey")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req))
-                        .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2BannedMember)))
+                        .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2BanForPaymentFailureMember)))
                 .andExpect(status().isForbidden());
     }
 
@@ -232,6 +251,21 @@ public class ApiKeyControllerIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(req))
                                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
+                .andExpect(status().isForbidden());
+    }
+
+
+    @Test
+    void createClassicKeyAccessDeniedByRequestDeletionMemberTest() throws Exception {
+        // given
+        ApiKeyCreateRequest req = buildApiKeyCreateRequest(null);
+
+        // when, then
+        mockMvc.perform(
+                        post("/api/apikeys/v1/createClassicKey")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(req))
+                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2RequestDeletionMember)))
                 .andExpect(status().isForbidden());
     }
 
@@ -283,73 +317,12 @@ public class ApiKeyControllerIntegrationTest {
     }
 
     @Test
-    void readAllMeTest() throws Exception {
-        // given
-        ApiKeyReadAllRequest req = buildApiKeyReadAllRequest(1L, Integer.MAX_VALUE - 1);
-        long freeMemberApiKeyCount = apiKeyRepository.countByMemberId(freeMember.getId());
-
-        // when, then
+    void readAccessDeniedByRequestDeletionApiKeyTest() throws Exception{
+        // given, when, then
         mockMvc.perform(
-                        get("/api/apikeys/v1/member/me")
-                                .param("firstApiKeyId", req.getFirstApiKeyId().toString())
-                                .param("size", req.getSize().toString())
-                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.data.numberOfElements").value(freeMemberApiKeyCount))
-                .andExpect(jsonPath("$.result.data.hasNext").value(false))
-                .andExpect(jsonPath("$.result.data.apiKeyList.length()").value(freeMemberApiKeyCount));
-    }
-
-    @Test
-    void readAllMeUnauthorizedByNoneSessionTest() throws Exception{
-        // given
-        ApiKeyReadAllRequest req = buildApiKeyReadAllRequest(1L, Integer.MAX_VALUE - 1);
-
-        // when, then
-        mockMvc.perform(
-                        get("/api/apikeys/v1/member/me")
-                                .param("firstApiKeyId", req.getFirstApiKeyId().toString())
-                                .param("size", req.getSize().toString()))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    void readAllMeBadRequestByNullFirstApiKeyIdTest() throws Exception {
-        // given
-        ApiKeyReadAllRequest req = buildApiKeyReadAllRequest(null, 10);
-
-        // when, then
-        mockMvc.perform(
-                        get("/api/apikeys/v1/member/me")
-                                .param("size", req.getSize().toString())
-                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void readAllMeBadRequestByNullSizeTest() throws Exception {
-        // given
-        ApiKeyReadAllRequest req = buildApiKeyReadAllRequest(1L, null);
-
-        // when, then
-        mockMvc.perform(
-                        get("/api/apikeys/v1/member/me")
-                                .param("firstApiKeyId", req.getFirstApiKeyId().toString())
-                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void readAllMeBadRequestByMaxValueSizeTest() throws Exception {
-        // given
-        ApiKeyReadAllRequest req = buildApiKeyReadAllRequest(1L, Integer.MAX_VALUE);
-
-        // when, then
-        mockMvc.perform(
-                        get("/api/apikeys/v1/member/me")
-                                .param("size", req.getSize().toString())
-                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
-                .andExpect(status().isBadRequest());
+                        get("/api/apikeys/v1/{id}", requestDeletionApiKey.getId())
+                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2RequestDeletionMember)))
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -394,6 +367,19 @@ public class ApiKeyControllerIntegrationTest {
                                 .param("firstApiKeyId", req.getFirstApiKeyId().toString())
                                 .param("size", req.getSize().toString())
                                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void readAllAccessDeniedByRequestDeletionMemberTest() throws Exception{
+        // given
+        ApiKeyReadAllRequest req = buildApiKeyReadAllRequest(1L, Integer.MAX_VALUE - 1);
+        // when, then
+        mockMvc.perform(
+                        get("/api/apikeys/v1/member/{id}", requestDeletionMember.getId())
+                                .param("firstApiKeyId", req.getFirstApiKeyId().toString())
+                                .param("size", req.getSize().toString())
+                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2RequestDeletionMember)))
                 .andExpect(status().isForbidden());
     }
 
@@ -477,21 +463,21 @@ public class ApiKeyControllerIntegrationTest {
                 .andExpect(status().isForbidden());
     }
 
-//    @Test
-//    void deleteAccessDeniedByBannedMemberTest() throws Exception {
-//        // given, when, then
-//        mockMvc.perform(
-//                delete("/api/apikeys/v1/{id}", classicApiKeyByBannedMember.getId())
-//                        .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2BannedMember)))
-//                .andExpect(status().isForbidden());
-//    }
-//
-//    @Test
-//    void deleteAccessDeniedByBannedApiKeyTest() throws Exception {
-//        // given, when, then
-//        mockMvc.perform(
-//                delete("/api/apikeys/v1/{id}", bannedApiKey.getId())
-//                        .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2NormalMember)))
-//                .andExpect(status().isForbidden());
-//    }
+    @Test
+    void deleteAccessDeniedByBanForPaymentFailureApiKeyTest() throws Exception {
+        // given, when, then
+        mockMvc.perform(
+                delete("/api/apikeys/v1/{id}", banForPaymentFailureApiKey.getId())
+                        .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2BanForPaymentFailureMember)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void deleteAccessDeniedByBanForRequestDeletionApiKeyTest() throws Exception {
+        // given, when, then
+        mockMvc.perform(
+                        delete("/api/apikeys/v1/{id}", requestDeletionApiKey.getId())
+                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2RequestDeletionMember)))
+                .andExpect(status().isForbidden());
+    }
 }
