@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
 import java.util.Optional;
 
 @Repository
@@ -18,4 +19,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             "from Payment p where p.member.id = :memberId and p.id <= :lastPaymentId " +
             "order by p.id desc")
     Slice<PaymentDto> findAllByMemberIdOrderByDesc(@Param("memberId") Long memberId, @Param("lastPaymentId")Long lastPaymentId, Pageable pageable);
+    Optional<Payment> findByKey(String key);
+    long countByMemberId(Long memberId);
 }

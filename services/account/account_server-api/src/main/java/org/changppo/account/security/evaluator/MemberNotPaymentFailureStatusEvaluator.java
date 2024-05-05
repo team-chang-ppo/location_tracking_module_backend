@@ -12,7 +12,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class MemberPaymentFailureStatusEvaluator extends Evaluator {
+public class MemberNotPaymentFailureStatusEvaluator extends Evaluator {
 
     private final MemberRepository memberRepository;
     private static final List<RoleType> roleTypes = List.of(RoleType.ROLE_ADMIN);

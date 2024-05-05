@@ -26,6 +26,9 @@ public class Payment extends EntityDate {
     @Column(name = "payment_id")
     private Long id;
 
+    @Column(name = "`key`", unique = true)
+    private String key;
+
     @Column(nullable = false)
     private BigDecimal amount;
 
@@ -50,7 +53,8 @@ public class Payment extends EntityDate {
     private LocalDateTime deletedAt;
 
     @Builder
-    public Payment(BigDecimal amount, PaymentStatus status, LocalDateTime startedAt, LocalDateTime endedAt, Member member, PaymentCardInfo cardInfo) {
+    public Payment(String key, BigDecimal amount, PaymentStatus status, LocalDateTime startedAt, LocalDateTime endedAt, Member member, PaymentCardInfo cardInfo) {
+        this.key = key;
         this.amount = amount;
         this.status = status;
         this.startedAt = startedAt;
@@ -60,8 +64,9 @@ public class Payment extends EntityDate {
         this.deletedAt = null;
     }
 
-    public void changeStatus(PaymentStatus status, PaymentCardInfo cardInfo) {
+    public void changeStatus(PaymentStatus status, String key, PaymentCardInfo cardInfo) {
         this.status = status;
+        this.key = key;
         this.cardInfo = cardInfo;
     }
 

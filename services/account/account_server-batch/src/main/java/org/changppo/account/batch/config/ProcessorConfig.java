@@ -6,6 +6,7 @@ import org.changppo.account.entity.member.Member;
 import org.changppo.account.entity.payment.Payment;
 import org.changppo.account.entity.payment.PaymentCardInfo;
 import org.changppo.account.payment.FakeBillingInfoClient;
+import org.changppo.account.paymentgateway.dto.PaymentResponse;
 import org.changppo.account.repository.payment.PaymentRepository;
 import org.changppo.account.type.PaymentStatus;
 import org.springframework.batch.core.*;
@@ -78,14 +79,15 @@ public class ProcessorConfig {
             }
         }
         if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
-            PaymentCardInfo cardInfo = (PaymentCardInfo) jobExecution.getExecutionContext().get("paymentCardInfo");
-            return createCompletedPayment(member, paymentAmount, cardInfo, periodStart, periodEnd);
+            PaymentResponse paymentResponse = (PaymentResponse) jobExecution.getExecutionContext().get("paymentResponse");
+            return createCompletedPayment(member, paymentAmount, paymentResponse, periodStart, periodEnd);
         }
         return createFailedPayment(member, paymentAmount, periodStart, periodEnd);
     }
 
     private Payment createFailedPayment(Member member, BigDecimal amount, LocalDateTime periodStart, LocalDateTime periodEnd) {
         return Payment.builder()
+                .key(null)
                 .amount(amount)
                 .status(PaymentStatus.FAILED)
                 .startedAt(periodStart)
@@ -95,14 +97,15 @@ public class ProcessorConfig {
                 .build();
     }
 
-    private Payment createCompletedPayment(Member member, BigDecimal amount, PaymentCardInfo paymentCardInfo, LocalDateTime periodStart, LocalDateTime periodEnd) {
+    private Payment createCompletedPayment(Member member, BigDecimal amount, PaymentResponse paymentResponse, LocalDateTime periodStart, LocalDateTime periodEnd) {
         return Payment.builder()
+                .key(paymentResponse.getKey())
                 .amount(amount)
                 .status(PaymentStatus.COMPLETED_PAID)
                 .startedAt(periodStart)
                 .endedAt(periodEnd)
                 .member(member)
-                .cardInfo(paymentCardInfo)
+                .cardInfo(new PaymentCardInfo(paymentResponse.getCardType(), paymentResponse.getCardIssuerCorporation(), paymentResponse.getCardBin()))
                 .build();
     }
 }

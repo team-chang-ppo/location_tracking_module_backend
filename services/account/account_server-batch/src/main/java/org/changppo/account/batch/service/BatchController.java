@@ -2,9 +2,8 @@ package org.changppo.account.batch.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.changppo.account.entity.payment.PaymentCardInfo;
 import org.changppo.account.payment.dto.PaymentExecutionJobRequest;
-import org.changppo.account.payment.dto.PaymentExecutionJobResponse;
+import org.changppo.account.paymentgateway.dto.PaymentResponse;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
@@ -28,18 +27,18 @@ public class BatchController {
     private final Job paymentExecutionJob;
 
     @PostMapping("/executePayment")
-    public ResponseEntity<PaymentExecutionJobResponse> executePayment(@RequestBody PaymentExecutionJobRequest req) {
+    public ResponseEntity<PaymentResponse> executePayment(@RequestBody PaymentExecutionJobRequest req) {
         try {
             JobParameters jobParameters = createJobParameters(req);
             JobExecution jobExecution = createJobExecution(jobParameters);
             if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
-                PaymentCardInfo paymentCardInfo =  (PaymentCardInfo) jobExecution.getExecutionContext().get("paymentCardInfo");
-                return ResponseEntity.status(HttpStatus.OK).body(new PaymentExecutionJobResponse(paymentCardInfo.getType(), paymentCardInfo.getIssuerCorporation(), paymentCardInfo.getBin()));
+                PaymentResponse paymentResponse =  (PaymentResponse) jobExecution.getExecutionContext().get("paymentResponse");
+                return ResponseEntity.status(HttpStatus.OK).body(paymentResponse);
             }
         } catch (Exception e) {
             log.error("Failed to process payment execution for User ID: {}", req.getMemberId(), e);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(new PaymentExecutionJobResponse(null, null, null));
+        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     private JobParameters createJobParameters(PaymentExecutionJobRequest req) {

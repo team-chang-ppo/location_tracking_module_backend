@@ -11,7 +11,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class ApiKeyCardDeletionStatusEvaluator extends Evaluator {
+public class ApiKeyNotCardDeletionStatusEvaluator extends Evaluator {
 
     private final ApiKeyRepository apiKeyRepository;
 

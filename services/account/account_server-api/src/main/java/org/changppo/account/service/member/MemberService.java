@@ -36,7 +36,7 @@ public class MemberService {
     }
 
     @Transactional
-    @PreAuthorize("@memberAccessEvaluator.check(#id) and @memberPaymentFailureStatusEvaluator.check(#id)")
+    @PreAuthorize("@memberAccessEvaluator.check(#id) and @memberNotPaymentFailureStatusEvaluator.check(#id)")
     public void requestDelete(@Param("id")Long id, HttpServletRequest request, HttpServletResponse response) {
         Member member = memberRepository.findById(id).orElseThrow(MemberNotFoundException::new);
         member.requestDeletion(LocalDateTime.now());

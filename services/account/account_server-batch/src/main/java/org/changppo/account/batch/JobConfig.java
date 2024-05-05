@@ -5,11 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.changppo.account.entity.card.Card;
 import org.changppo.account.entity.member.Member;
 import org.changppo.account.entity.payment.Payment;
-import org.changppo.account.entity.payment.PaymentCardInfo;
 import org.changppo.account.paymentgateway.PaymentGatewayClient;
+import org.changppo.account.paymentgateway.dto.PaymentRequest;
+import org.changppo.account.paymentgateway.dto.PaymentResponse;
 import org.changppo.account.paymentgateway.kakaopay.dto.payment.KakaopayPaymentRequest;
 import org.changppo.account.repository.card.CardRepository;
-import org.changppo.account.response.ClientResponse;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
@@ -98,14 +98,14 @@ public class JobConfig {
                 .tasklet((contribution, chunkContext) -> {
                     try {
                         List<Card> cards = cardRepository.findAllCardByMemberId(memberId);
-                        PaymentCardInfo paymentCardInfo = cards.stream()
-                                .map(card -> ProcessPayment(card, memberId, new BigDecimal(amount)))
+                        PaymentResponse paymentResponse = cards.stream()
+                                .map(card -> processPayment(card, memberId, new BigDecimal(amount)))
                                 .filter(Objects::nonNull)
                                 .findFirst()
                                 .orElseThrow(() -> new RuntimeException("All payment attempts failed for memberId: " + memberId));
                         // TODO. 테스트용 로직 제거
                         // PaymentCardInfo paymentCardInfo = new PaymentCardInfo("card.getType()", "card.getIssuerCorporation()", "card.getBin()");
-                        contribution.getStepExecution().getJobExecution().getExecutionContext().put("paymentCardInfo", paymentCardInfo);
+                        contribution.getStepExecution().getJobExecution().getExecutionContext().put("paymentResponse", paymentResponse);
                     }
                     catch (Exception e) {
                         contribution.getStepExecution().setStatus(BatchStatus.FAILED);
@@ -116,22 +116,27 @@ public class JobConfig {
                 .build();
     }
 
-    private PaymentCardInfo ProcessPayment(Card card, Long memberId, BigDecimal amount) {
-        KakaopayPaymentRequest request = new KakaopayPaymentRequest(
-                card.getKey(),
-                UUID.randomUUID().toString(),
-                memberId,
-                "위치 추적 모듈 정기 결제",
-                1,
-                amount.intValue(),
-                0
-        );
-        return paymentGatewayClients.stream()
+    private PaymentResponse processPayment(Card card, Long memberId, BigDecimal amount) {
+        PaymentRequest request = createPaymentRequest(card, memberId, amount);
+        return (PaymentResponse) paymentGatewayClients.stream()
                 .filter(client -> client.supports(card.getPaymentGateway().getPaymentGatewayType()))
                 .findFirst()
-                .map(client -> client.payment(request))
-                .flatMap(ClientResponse::getData)
-                .map(Data -> new PaymentCardInfo(card.getType(), card.getIssuerCorporation(), card.getBin()))
+                .flatMap(client -> client.payment(request).getData())
                 .orElse(null);
+    }
+
+    private PaymentRequest createPaymentRequest(Card card, Long memberId, BigDecimal amount) {
+        return switch (card.getPaymentGateway().getPaymentGatewayType()) {
+            case PG_KAKAOPAY -> new KakaopayPaymentRequest(
+                    card.getKey(),
+                    UUID.randomUUID().toString(),
+                    memberId,
+                    "위치 추적 모듈 정기 결제",
+                    1,
+                    amount.intValue(),
+                    0
+            );
+            default -> throw new IllegalArgumentException("Unsupported payment gateway type: " + card.getPaymentGateway().getPaymentGatewayType());
+        };
     }
 }
