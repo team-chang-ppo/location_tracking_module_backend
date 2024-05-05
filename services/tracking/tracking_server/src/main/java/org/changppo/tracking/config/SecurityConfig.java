@@ -45,7 +45,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/tracking/*/generate-token").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/tracking/*/start").hasAuthority("WRITE_TRACKING_COORDINATE")
                         .requestMatchers(HttpMethod.POST, "/api/tracking/*/tracking").hasAuthority("WRITE_TRACKING_COORDINATE")
-                        .requestMatchers(HttpMethod.DELETE, "api/tracking/*/finish").hasAuthority("WRITE_TRACKING_COORDINATE")
+                        .requestMatchers(HttpMethod.GET, "api/tracking/*/end").hasAuthority("WRITE_TRACKING_COORDINATE")
                         .requestMatchers(HttpMethod.GET, "/api/tracking/*/tracking").hasAuthority("READ_TRACKING_COORDINATE")
                         .anyRequest().authenticated())
 

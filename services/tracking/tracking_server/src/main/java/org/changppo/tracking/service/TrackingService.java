@@ -14,6 +14,7 @@ import org.changppo.tracking.domain.redis.CoordinateRedisEntity;
 import org.changppo.tracking.domain.redis.TrackingRedisEntity;
 import org.changppo.tracking.exception.*;
 import org.changppo.tracking.jwt.TokenProvider;
+import org.changppo.tracking.repository.CoordinatesRepository;
 import org.changppo.tracking.repository.RedisRepository;
 import org.changppo.tracking.repository.TrackingRepository;
 import org.changppo.tracking.util.RetryUtil;
@@ -41,6 +42,7 @@ public class TrackingService {
         }
 
         TrackingContext context = new TrackingContext(request.getIdentifier(), apiKeyId, request.getScope());
+        // TODO. Account DB로 APIKEY의 상태값 확인이 필요
         String token = tokenProvider.createToken(context, request.getTokenExpiresIn());
 
         return new GenerateTokenResponse(token);
@@ -66,28 +68,24 @@ public class TrackingService {
         redisRepository.rightPush(trackingCache.trackingId(), coordinateRedisEntity);
     }
 
-    public void finish(TrackingContext context) {
+    public void endTracking(TrackingContext context) {
         TrackingRedisEntity trackingCache = checkTracking(context);
-        Tracking tracking = trackingRepository.findById(trackingCache.trackingId()).orElseThrow(TrackingNotFoundException::new);
-        tracking.updateEndedAt();
 
-        trackingCacheService.updateTrackingCache(tracking);
-        Tracking savedTracking = trackingRepository.save(tracking);
-
-        retryProcessCoordinatesAsync(savedTracking.getId(), 0);
+        retryEndTrackingAsync(trackingCache.trackingId(), 0);
     }
 
-    private void retryProcessCoordinatesAsync(String trackingId, int attempt) {
+    private void retryEndTrackingAsync(String trackingId, int attempt) {
         asyncService.processCoordinatesAsync(trackingId)
                 .thenAccept(result -> {
-                    log.info("Redis -> MongoDB 저장 성공");
+                    log.debug("Redis -> MongoDB 저장 성공");
                 })
                 .exceptionally(e -> {
                     if (attempt < RetryUtil.MAX_ATTEMPTS) {
                         long delay = RetryUtil.calculateDelay(attempt);
-                        scheduler.schedule(() -> retryProcessCoordinatesAsync(trackingId, attempt + 1), delay, TimeUnit.MILLISECONDS);
+                        scheduler.schedule(() -> retryEndTrackingAsync(trackingId, attempt + 1), delay, TimeUnit.MILLISECONDS);
+                        log.info("재시도 {}", attempt);
                     } else {
-                        log.error("최대 재시도 횟수를 초과했습니다. (Redis -> MongoDB 벌크성 저장 실패)");
+                        log.info("최대 재시도 횟수를 초과했습니다. (Redis -> MongoDB 벌크성 저장 실패)");
                     }
                     return null;
                 });

@@ -79,9 +79,9 @@ public class TrackingController {
      * @return TODO 반환처리
      */
     @TrackingContextParam
-    @DeleteMapping("/finish")
-    public ResponseEntity<Void> finish(TrackingContext context) {
-        trackingService.finish(context);
+    @GetMapping("/end")
+    public ResponseEntity<Void> end(TrackingContext context) {
+        trackingService.endTracking(context);
 
         return ResponseEntity.ok().build();
     }
