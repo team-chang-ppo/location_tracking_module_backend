@@ -59,15 +59,20 @@ public class TokenProvider implements AuthenticationProvider {
                     .parseClaimsJws(token)
                     .getBody();
 
-            return new TrackingContext(
-                    claims.getSubject(),
-                    claims.get(API_KEY_ID, String.class),
-                    claims.get(SCOPE, List.class));
+            return createTrackingContextFromClaims(claims);
         } catch (ExpiredJwtException e) {
-            throw new JwtTokenExpiredException(e);
+            // TODO. API-KEY 의 상태를 확인하는 로직이 추가되어야 함.
+            throw new JwtTokenExpiredException(e.getClaims());
         } catch (Exception e) {
             throw new JwtTokenInvalidException(e);
         }
+    }
+
+    public TrackingContext createTrackingContextFromClaims(Claims claims) {
+        return new TrackingContext(
+                claims.getSubject(),
+                claims.get(API_KEY_ID, String.class),
+                claims.get(SCOPE, List.class));
     }
 
 
