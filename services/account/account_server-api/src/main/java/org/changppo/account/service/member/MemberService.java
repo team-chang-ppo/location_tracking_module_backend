@@ -6,13 +6,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.changppo.account.entity.member.Member;
-import org.changppo.account.oauth2.OAuth2Client;
-import org.changppo.account.payment.FakeBillingInfoClient;
-import org.changppo.account.paymentgateway.PaymentGatewayClient;
 import org.changppo.account.repository.apikey.ApiKeyRepository;
-import org.changppo.account.repository.card.CardRepository;
 import org.changppo.account.repository.member.MemberRepository;
-import org.changppo.account.repository.payment.PaymentRepository;
 import org.changppo.account.response.exception.member.MemberNotFoundException;
 import org.changppo.account.service.dto.member.MemberDto;
 import org.springframework.data.repository.query.Param;
@@ -22,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -32,11 +26,6 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final ApiKeyRepository apiKeyRepository;
-    private final CardRepository cardRepository;
-    private final PaymentRepository paymentRepository;
-    private final FakeBillingInfoClient fakeBillingInfoClient;
-    private final List<OAuth2Client> oauth2Clients;
-    private final List<PaymentGatewayClient> paymentGatewayClients;
 
     @PreAuthorize("@memberAccessEvaluator.check(#id)")
     public MemberDto read(@Param("id")Long id) {
@@ -81,7 +70,7 @@ public class MemberService {
     }
 
     @Transactional
-    @PreAuthorize("@memberAccessEvaluator.check(#id) and !@memberDeletionRequestedStatusEvaluator.check(#id)")
+    @PreAuthorize("@memberAccessEvaluator.check(#id)")
     public MemberDto cancelDelete(@Param("id")Long id) {
         Member member = memberRepository.findById(id).orElseThrow(MemberNotFoundException::new);
         member.cancelDeletionRequest();

@@ -48,7 +48,7 @@ public class ApiKeyService {
         apiKey = apiKeyRepository.save(apiKey);
         apiKey.updateValue(generateTokenValue(apiKey));
         return new ApiKeyDto(apiKey.getId(), apiKey.getValue(), apiKey.getGrade().getGradeType(),
-                apiKey.getPaymentFailureBannedAt(), apiKey.getCardDeletionBannedAt(), apiKey.getCreatedAt());
+                apiKey.getPaymentFailureBannedAt(), apiKey.getCardDeletionBannedAt(), apiKey.getDeletionRequestedAt(), apiKey.getCreatedAt());
     }
 
     @Transactional
@@ -64,7 +64,7 @@ public class ApiKeyService {
         apiKey = apiKeyRepository.save(apiKey);
         apiKey.updateValue(generateTokenValue(apiKey));
         return new ApiKeyDto(apiKey.getId(), apiKey.getValue(), apiKey.getGrade().getGradeType(),
-                apiKey.getPaymentFailureBannedAt(), apiKey.getCardDeletionBannedAt(), apiKey.getCreatedAt());
+                apiKey.getPaymentFailureBannedAt(), apiKey.getCardDeletionBannedAt(), apiKey.getDeletionRequestedAt(), apiKey.getCreatedAt());
     }
 
     private String generateTemporaryValue() {
@@ -79,7 +79,7 @@ public class ApiKeyService {
     public ApiKeyDto read(@Param("id")Long id) {
         ApiKey apiKey = apiKeyRepository.findById(id).orElseThrow(ApiKeyNotFoundException::new);
         return new ApiKeyDto(apiKey.getId(), apiKey.getValue(), apiKey.getGrade().getGradeType(),
-                apiKey.getPaymentFailureBannedAt(), apiKey.getCardDeletionBannedAt(), apiKey.getCreatedAt());
+                apiKey.getPaymentFailureBannedAt(), apiKey.getCardDeletionBannedAt(), apiKey.getDeletionRequestedAt(), apiKey.getCreatedAt());
     }
 
     @PreAuthorize("@memberAccessEvaluator.check(#memberId)")

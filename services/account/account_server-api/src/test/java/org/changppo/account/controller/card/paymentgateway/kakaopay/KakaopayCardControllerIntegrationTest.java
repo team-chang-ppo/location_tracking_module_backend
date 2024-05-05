@@ -104,7 +104,7 @@ public class KakaopayCardControllerIntegrationTest {
     private void setupMembers() {
         freeMember = memberRepository.findByName(testInitDB.getFreeMemberName()).orElseThrow(MemberNotFoundException::new);
         normalMember = memberRepository.findByName(testInitDB.getNormalMemberName()).orElseThrow(MemberNotFoundException::new);
-        bannedMember = memberRepository.findByName(testInitDB.getBannedMemberName()).orElseThrow(MemberNotFoundException::new);
+        bannedMember = memberRepository.findByName(testInitDB.getBanForPaymentFailureMemberName()).orElseThrow(MemberNotFoundException::new);
         adminMember = memberRepository.findByName(testInitDB.getAdminMemberName()).orElseThrow(MemberNotFoundException::new);
         customOAuth2FreeMember = buildCustomOAuth2User(freeMember);
         customOAuth2NormalMember = buildCustomOAuth2User(normalMember);
@@ -115,8 +115,7 @@ public class KakaopayCardControllerIntegrationTest {
     private void setupApiKeys() {
         freeApiKey = apiKeyRepository.findByValue(testInitDB.getFreeApiKeyValue()).orElseThrow(ApiKeyNotFoundException::new);
         classicApiKey = apiKeyRepository.findByValue(testInitDB.getClassicApiKeyValue()).orElseThrow(ApiKeyNotFoundException::new);
-        classicApiKeyByBannedMember = apiKeyRepository.findByValue(testInitDB.getClassicApiKeyByBannedMemberValue()).orElseThrow(ApiKeyNotFoundException::new);
-        bannedApiKey = apiKeyRepository.findByValue(testInitDB.getBannedApiKeyValue()).orElseThrow(ApiKeyNotFoundException::new);
+        bannedApiKey = apiKeyRepository.findByValue(testInitDB.getBanForPaymentFailureApiKeyValue()).orElseThrow(ApiKeyNotFoundException::new);
     }
 
     private void setupCards() {

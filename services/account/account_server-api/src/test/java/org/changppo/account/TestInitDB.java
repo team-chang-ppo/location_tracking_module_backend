@@ -52,15 +52,19 @@ public class TestInitDB {
     @Getter
     private final String normalMemberName = "kakao_2345";
     @Getter
-    private final String bannedMemberName = "kakao_3456";
+    private final String banForPaymentFailureMemberName = "kakao_3456";
+    @Getter
+    private final String requestDeletionMemberName = "kakao_4567";
     @Getter
     private final String freeApiKeyValue = "free-api-key";
     @Getter
     private final String classicApiKeyValue = "classic-api-key";
     @Getter
-    private final String classicApiKeyByBannedMemberValue = "classic-api-key-by-banned-member";
+    private final String banForPaymentFailureApiKeyValue = "ban-payment-fail-api-key";
     @Getter
-    private final String bannedApiKeyValue = "banned-api-key";
+    private final String banForCardDeletionApiKeyValue = "ban-card-delete-api-key";
+    @Getter
+    private final String requestDeletionApiKeyValue = "request-delete-api-key";
     @Getter
     private final String testCardKey = "test-card-key";
 
@@ -117,15 +121,21 @@ public class TestInitDB {
                 .profileImage("normalMemberProfileImage")
                 .roles(Collections.singleton(normalRole))
                 .build();
-        Member bannedMember = Member.builder()
-                .name(bannedMemberName)
-                .username("banned")
-                .profileImage("bannedMemberProfileImage")
+        Member banForPaymentFailureMember = Member.builder()
+                .name(banForPaymentFailureMemberName)
+                .username("banForPaymentFailureMember")
+                .profileImage("banForPaymentFailureMemberProfileImage")
                 .roles(Collections.singleton(normalRole))
                 .build();
-        bannedMember.banForPaymentFailure(LocalDateTime.now());
-
-        memberRepository.saveAll(List.of(freeMember, normalMember, bannedMember));
+        banForPaymentFailureMember.banForPaymentFailure(LocalDateTime.now());
+        Member requestDeletionMember = Member.builder()
+                .name(requestDeletionMemberName)
+                .username("requestDeletionMember")
+                .profileImage("requestDeletionMemberProfileImage")
+                .roles(Collections.singleton(normalRole))
+                .build();
+        requestDeletionMember.requestDeletion(LocalDateTime.now());
+        memberRepository.saveAll(List.of(freeMember, normalMember, banForPaymentFailureMember, requestDeletionMember));
     }
 
     private void initGrade() {
@@ -137,7 +147,8 @@ public class TestInitDB {
     private void initTestApiKey() {
         Member freeMember = memberRepository.findByName(freeMemberName).orElseThrow(MemberNotFoundException::new);
         Member normalMember = memberRepository.findByName(normalMemberName).orElseThrow(MemberNotFoundException::new);
-        Member bannedMember = memberRepository.findByName(bannedMemberName).orElseThrow(MemberNotFoundException::new);
+        Member banForPaymentFailureMember = memberRepository.findByName(banForPaymentFailureMemberName).orElseThrow(MemberNotFoundException::new);
+        Member requestDeletionMember = memberRepository.findByName(requestDeletionMemberName).orElseThrow(MemberNotFoundException::new);
         Grade freeGrade = gradeRepository.findByGradeType(GradeType.GRADE_FREE).orElseThrow(GradeNotFoundException::new);
         Grade classicGrade = gradeRepository.findByGradeType(GradeType.GRADE_CLASSIC).orElseThrow(GradeNotFoundException::new);
 
@@ -151,18 +162,25 @@ public class TestInitDB {
                 .grade(classicGrade)
                 .member(normalMember)
                 .build();
-        ApiKey classicApiKeyByBannedMember = ApiKey.builder()
-                .value(classicApiKeyByBannedMemberValue)
+        ApiKey banForPaymentFailureApiKey = ApiKey.builder()
+                .value(banForPaymentFailureApiKeyValue)
                 .grade(classicGrade)
-                .member(bannedMember)
+                .member(banForPaymentFailureMember)
                 .build();
-        ApiKey bannedApiKey = ApiKey.builder()
-                .value(bannedApiKeyValue)
-                .grade(freeGrade)
-                .member(normalMember)
+        banForPaymentFailureApiKey.banForPaymentFailure(LocalDateTime.now());
+        ApiKey banForCardDeletionApiKey = ApiKey.builder()
+                .value(banForCardDeletionApiKeyValue)
+                .grade(classicGrade)
+                .member(banForPaymentFailureMember)
                 .build();
-        bannedApiKey.banForPaymentFailure(LocalDateTime.now());
-        apiKeyRepository.saveAll(List.of(freeApiKey, classicApiKey, classicApiKeyByBannedMember, bannedApiKey));
+        banForCardDeletionApiKey.banForCardDeletion(LocalDateTime.now());
+        ApiKey requestDeletionApiKey = ApiKey.builder()
+                .value(requestDeletionApiKeyValue)
+                .grade(classicGrade)
+                .member(requestDeletionMember)
+                .build();
+        requestDeletionApiKey.requestDeletion(LocalDateTime.now());
+        apiKeyRepository.saveAll(List.of(freeApiKey, classicApiKey, banForPaymentFailureApiKey, banForCardDeletionApiKey, requestDeletionApiKey));
     }
 
     private void initPaymentGateway() {

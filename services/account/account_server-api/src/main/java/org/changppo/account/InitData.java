@@ -68,15 +68,15 @@ public class InitData {
                 .profileImage("normalMemberProfileImage")
                 .roles(Collections.singleton(normalRole))
                 .build();
-        Member bannedMember = Member.builder()
-                .name("bannedMemberName")
-                .username("banned")
-                .profileImage("bannedMemberProfileImage")
+        Member banForPaymentFailureMember = Member.builder()
+                .name("banForPaymentFailureMemberName")
+                .username("banForPaymentFailureMember")
+                .profileImage("banForPaymentFailureMemberProfileImage")
                 .roles(Collections.singleton(normalRole))
                 .build();
 
-        bannedMember.banForPaymentFailure(LocalDateTime.now());
-        memberRepository.saveAll(List.of(freeMember, normalMember, bannedMember));
+        banForPaymentFailureMember.banForPaymentFailure(LocalDateTime.now());
+        memberRepository.saveAll(List.of(freeMember, normalMember, banForPaymentFailureMember));
     }
 
     private void initGrade() {
