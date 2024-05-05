@@ -43,6 +43,11 @@ public class KakaopayApproveResponse implements PaymentResponse {
         return card_info.getBin();
     }
 
+    @Override
+    public int getTotalAmount() {
+        return amount.getTotal();
+    }
+
     @Data
     @AllArgsConstructor
     public static class Amount {

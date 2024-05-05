@@ -5,20 +5,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.changppo.account.entity.card.Card;
 import org.changppo.account.entity.member.Member;
 import org.changppo.account.entity.payment.Payment;
+import org.changppo.account.payment.dto.PaymentExecutionJobResponse;
 import org.changppo.account.paymentgateway.PaymentGatewayClient;
 import org.changppo.account.paymentgateway.dto.PaymentRequest;
-import org.changppo.account.paymentgateway.dto.PaymentResponse;
 import org.changppo.account.paymentgateway.kakaopay.dto.payment.KakaopayPaymentRequest;
 import org.changppo.account.repository.card.CardRepository;
-import org.springframework.batch.core.BatchStatus;
-import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.Step;
+import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.data.RepositoryItemReader;
@@ -98,14 +96,12 @@ public class JobConfig {
                 .tasklet((contribution, chunkContext) -> {
                     try {
                         List<Card> cards = cardRepository.findAllCardByMemberId(memberId);
-                        PaymentResponse paymentResponse = cards.stream()
+                        PaymentExecutionJobResponse paymentExecutionJobResponse = cards.stream()
                                 .map(card -> processPayment(card, memberId, new BigDecimal(amount)))
                                 .filter(Objects::nonNull)
                                 .findFirst()
-                                .orElseThrow(() -> new RuntimeException("All payment attempts failed for memberId: " + memberId));
-                        // TODO. 테스트용 로직 제거
-                        // PaymentCardInfo paymentCardInfo = new PaymentCardInfo("card.getType()", "card.getIssuerCorporation()", "card.getBin()");
-                        contribution.getStepExecution().getJobExecution().getExecutionContext().put("paymentResponse", paymentResponse);
+                                .orElseThrow(() -> new RuntimeException("All payment attempts failed for memberId: " + memberId));  //TODO. 메서드로 분리
+                        storePaymentExecutionDetails(contribution, paymentExecutionJobResponse);
                     }
                     catch (Exception e) {
                         contribution.getStepExecution().setStatus(BatchStatus.FAILED);
@@ -116,12 +112,18 @@ public class JobConfig {
                 .build();
     }
 
-    private PaymentResponse processPayment(Card card, Long memberId, BigDecimal amount) {
+    private PaymentExecutionJobResponse processPayment(Card card, Long memberId, BigDecimal amount) {
         PaymentRequest request = createPaymentRequest(card, memberId, amount);
-        return (PaymentResponse) paymentGatewayClients.stream()
+        return paymentGatewayClients.stream()
                 .filter(client -> client.supports(card.getPaymentGateway().getPaymentGatewayType()))
                 .findFirst()
                 .flatMap(client -> client.payment(request).getData())
+                .map(response -> new PaymentExecutionJobResponse(
+                        response.getKey(),
+                        card.getType(),
+                        card.getIssuerCorporation(),
+                        card.getBin()
+                ))
                 .orElse(null);
     }
 
@@ -139,4 +141,13 @@ public class JobConfig {
             default -> throw new IllegalArgumentException("Unsupported payment gateway type: " + card.getPaymentGateway().getPaymentGatewayType());
         };
     }
+
+    private void storePaymentExecutionDetails(StepContribution contribution, PaymentExecutionJobResponse response) {
+        ExecutionContext executionContext = contribution.getStepExecution().getJobExecution().getExecutionContext();
+        executionContext.put("key", response.getKey());
+        executionContext.put("cardType", response.getCardType());
+        executionContext.put("cardIssuerCorporation", response.getCardIssuerCorporation());
+        executionContext.put("cardBin", response.getCardBin());
+    }
+
 }

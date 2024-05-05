@@ -8,7 +8,7 @@ import org.changppo.account.entity.payment.Payment;
 import org.changppo.account.entity.payment.PaymentCardInfo;
 import org.changppo.account.payment.PaymentExecutionJobClient;
 import org.changppo.account.payment.dto.PaymentExecutionJobRequest;
-import org.changppo.account.paymentgateway.dto.PaymentResponse;
+import org.changppo.account.payment.dto.PaymentExecutionJobResponse;
 import org.changppo.account.repository.apikey.ApiKeyRepository;
 import org.changppo.account.repository.payment.PaymentRepository;
 import org.changppo.account.response.exception.payment.PaymentExecutionFailureException;
@@ -37,8 +37,8 @@ public class PaymentService {
     @PreAuthorize("@paymentAccessEvaluator.check(#id) and @paymentFailedStatusEvaluator.check(#id)")
     public PaymentDto repayment(@Param("id") Long id) {
         Payment payment = paymentRepository.findById(id).orElseThrow(PaymentNotFoundException::new);
-        PaymentResponse paymentResponse = paymentExecutionJobClient.PaymentExecutionJob(createPaymentExecutionJobRequest(payment)).getData().orElseThrow(PaymentExecutionFailureException::new);
-        updatePaymentStatus(payment, paymentResponse);
+        PaymentExecutionJobResponse paymentExecutionJobResponse = paymentExecutionJobClient.PaymentExecutionJob(createPaymentExecutionJobRequest(payment)).getData().orElseThrow(PaymentExecutionFailureException::new);
+        updatePaymentStatus(payment, paymentExecutionJobResponse);
         handlePaymentComplete(payment.getMember());
         paymentEventPublisher.publishEvent(payment);
         return new PaymentDto(payment.getId(), payment.getAmount(), payment.getStatus(), payment.getStartedAt(), payment.getEndedAt(), payment.getCardInfo(), payment.getCreatedAt());
@@ -52,8 +52,8 @@ public class PaymentService {
         );
     }
 
-    private void updatePaymentStatus(Payment payment, PaymentResponse paymentResponse) {
-        payment.changeStatus(PaymentStatus.COMPLETED_PAID, paymentResponse.getKey(), new PaymentCardInfo(paymentResponse.getCardType(), paymentResponse.getCardIssuerCorporation(), paymentResponse.getCardBin()));
+    private void updatePaymentStatus(Payment payment, PaymentExecutionJobResponse paymentExecutionJobResponse) {
+        payment.changeStatus(PaymentStatus.COMPLETED_PAID, paymentExecutionJobResponse.getKey(), new PaymentCardInfo(paymentExecutionJobResponse.getCardType(), paymentExecutionJobResponse.getCardIssuerCorporation(), paymentExecutionJobResponse.getCardBin()));
     }
 
     public void handlePaymentComplete(Member member) {

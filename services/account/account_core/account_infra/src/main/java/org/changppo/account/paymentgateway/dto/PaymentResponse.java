@@ -5,4 +5,5 @@ public interface PaymentResponse {
     String getCardType();
     String getCardIssuerCorporation();
     String getCardBin();
+    int getTotalAmount();
 }

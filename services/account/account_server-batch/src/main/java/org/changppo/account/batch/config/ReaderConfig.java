@@ -25,7 +25,7 @@ public class ReaderConfig {
                 .methodName("findMembersForAutomaticPayment")
                 .pageSize(10)
                 .sorts(Collections.singletonMap("id", Sort.Direction.ASC))
-                .name("repositoryItemReader")
+                .name("memberItemReaderForAutomaticPayment")
                 .build();
     }
 
@@ -37,7 +37,7 @@ public class ReaderConfig {
                 .arguments(Collections.singletonList(LocalDateTime.now())) // TODO. LocalDateTime.of(LocalDateTime.now().toLocalDate(), LocalTime.MIDNIGHT))로 수정
                 .pageSize(10)
                 .sorts(Collections.singletonMap("id", Sort.Direction.ASC))
-                .name("deletionRepositoryItemReader")
+                .name("memberItemReaderForDeletion")
                 .build();
     }
 }

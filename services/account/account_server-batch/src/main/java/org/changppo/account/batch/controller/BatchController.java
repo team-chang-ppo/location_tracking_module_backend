@@ -1,9 +1,9 @@
-package org.changppo.account.batch.service;
+package org.changppo.account.batch.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.changppo.account.payment.dto.PaymentExecutionJobRequest;
-import org.changppo.account.paymentgateway.dto.PaymentResponse;
+import org.changppo.account.payment.dto.PaymentExecutionJobResponse;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
@@ -27,13 +27,13 @@ public class BatchController {
     private final Job paymentExecutionJob;
 
     @PostMapping("/executePayment")
-    public ResponseEntity<PaymentResponse> executePayment(@RequestBody PaymentExecutionJobRequest req) {
+    public ResponseEntity<PaymentExecutionJobResponse> executePayment(@RequestBody PaymentExecutionJobRequest req) {
         try {
             JobParameters jobParameters = createJobParameters(req);
             JobExecution jobExecution = createJobExecution(jobParameters);
             if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
-                PaymentResponse paymentResponse =  (PaymentResponse) jobExecution.getExecutionContext().get("paymentResponse");
-                return ResponseEntity.status(HttpStatus.OK).body(paymentResponse);
+                PaymentExecutionJobResponse paymentExecutionJobResponse = extractPaymentDetails(jobExecution);
+                return ResponseEntity.status(HttpStatus.OK).body(paymentExecutionJobResponse);
             }
         } catch (Exception e) {
             log.error("Failed to process payment execution for User ID: {}", req.getMemberId(), e);
@@ -62,6 +62,19 @@ public class BatchController {
                     return jobExecution;
                 })
                 .orElseThrow(() -> new RuntimeException("Failed to get Last JobExecution"));
+    }
+
+    private PaymentExecutionJobResponse extractPaymentDetails(JobExecution jobExecution) {
+        String key = safeExtractString(jobExecution, "key");
+        String cardType = safeExtractString(jobExecution, "cardType");
+        String cardIssuerCorporation = safeExtractString(jobExecution, "cardIssuerCorporation");
+        String cardBin = safeExtractString(jobExecution, "cardBin");
+        return new PaymentExecutionJobResponse(key, cardType, cardIssuerCorporation, cardBin);
+    }
+
+    private String safeExtractString(JobExecution jobExecution, String key) {
+        Object value = jobExecution.getExecutionContext().get(key);
+        return value != null ? value.toString() : "Unknown";
     }
 }
 

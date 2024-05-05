@@ -34,11 +34,11 @@ public class WriterConfig {
     @Bean
     public ItemWriter<Payment> paymentItemWriterForAutomaticPayment() {
         return payments -> payments.forEach(payment -> {
+            paymentEventPublisher.publishEvent(payment);
+            paymentRepository.save(payment);
             if (payment.getStatus() == PaymentStatus.FAILED) {
                 handlePaymentFailure(payment.getMember());
             }
-            paymentEventPublisher.publishEvent(payment);
-            paymentRepository.save(payment);
         });
     }
 
@@ -87,7 +87,7 @@ public class WriterConfig {
             paymentGatewayClients.stream()
                     .filter(client -> client.supports(paymentGatewayType))
                     .findFirst()
-                    .orElseThrow(()-> new RuntimeException("Unsupported Payment Gateway"))
+                    .orElseThrow(()-> new RuntimeException("Unsupported Payment Gateway: " + paymentGatewayType))
                     .inactive(card.getKey());
         });
     }
@@ -110,7 +110,7 @@ public class WriterConfig {
         oauth2Clients.stream()
                 .filter(service -> service.supports(providerName))
                 .findFirst()
-                .orElseThrow(()-> new RuntimeException("Unsupported OAuth2"))
+                .orElseThrow(() -> new RuntimeException("Unsupported OAuth2 provider: " + providerName))
                 .unlink(memberId);
     }
 
