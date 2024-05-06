@@ -9,7 +9,7 @@ import org.changppo.account.entity.member.Member;
 import org.changppo.account.entity.payment.Payment;
 import org.changppo.account.payment.PaymentExecutionJobClient;
 import org.changppo.account.payment.dto.PaymentExecutionJobRequest;
-import org.changppo.account.paymentgateway.dto.PaymentResponse;
+import org.changppo.account.payment.dto.PaymentExecutionJobResponse;
 import org.changppo.account.repository.apikey.ApiKeyRepository;
 import org.changppo.account.repository.card.CardRepository;
 import org.changppo.account.repository.member.MemberRepository;
@@ -39,8 +39,8 @@ import org.springframework.web.context.WebApplicationContext;
 import java.io.IOException;
 
 import static org.changppo.account.builder.member.CustomOAuth2UserBuilder.buildCustomOAuth2User;
+import static org.changppo.account.builder.payment.PaymentExecutionJobResponseBuilder.buildPaymentExecutionJobResponse;
 import static org.changppo.account.builder.payment.PaymentRequestBuilder.buildPaymentReadAllRequest;
-import static org.changppo.account.builder.payment.PaymentResponseBuilder.buildPaymentResponse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -129,8 +129,8 @@ public class PaymentControllerIntegrationTest {
     @Test
     void repaymentTest() throws Exception{
         // given
-        PaymentResponse paymentResponse = buildPaymentResponse();
-        when(paymentExecutionJobClient.PaymentExecutionJob(any(PaymentExecutionJobRequest.class))).thenReturn(ClientResponse.success(paymentResponse));
+        PaymentExecutionJobResponse paymentExecutionJobResponse = buildPaymentExecutionJobResponse();
+        when(paymentExecutionJobClient.PaymentExecutionJob(any(PaymentExecutionJobRequest.class))).thenReturn(ClientResponse.success(paymentExecutionJobResponse));
         // when
         mockMvc.perform(post("/api/payments/v1/repayment/{id}", failedPayment.getId())
                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2BanForPaymentFailureMember)))
@@ -138,17 +138,17 @@ public class PaymentControllerIntegrationTest {
         //then
         Payment updatedPayment = paymentRepository.findById(failedPayment.getId()).orElseThrow(PaymentNotFoundException::new);
         assertEquals(updatedPayment.getStatus(), PaymentStatus.COMPLETED_PAID);
-        assertEquals(updatedPayment.getKey(), paymentResponse.getKey());
-        assertEquals(updatedPayment.getCardInfo().getType(), paymentResponse.getCardType());
-        assertEquals(updatedPayment.getCardInfo().getIssuerCorporation(), paymentResponse.getCardIssuerCorporation());
-        assertEquals(updatedPayment.getCardInfo().getBin(), paymentResponse.getCardBin());
+        assertEquals(updatedPayment.getKey(), paymentExecutionJobResponse.getKey());
+        assertEquals(updatedPayment.getCardInfo().getType(), paymentExecutionJobResponse.getCardType());
+        assertEquals(updatedPayment.getCardInfo().getIssuerCorporation(), paymentExecutionJobResponse.getCardIssuerCorporation());
+        assertEquals(updatedPayment.getCardInfo().getBin(), paymentExecutionJobResponse.getCardBin());
     }
 
     @Test
     void repaymentByAdminTest() throws Exception{
         // given
-        PaymentResponse paymentResponse = buildPaymentResponse();
-        when(paymentExecutionJobClient.PaymentExecutionJob(any(PaymentExecutionJobRequest.class))).thenReturn(ClientResponse.success(paymentResponse));
+        PaymentExecutionJobResponse paymentExecutionJobResponse = buildPaymentExecutionJobResponse();
+        when(paymentExecutionJobClient.PaymentExecutionJob(any(PaymentExecutionJobRequest.class))).thenReturn(ClientResponse.success(paymentExecutionJobResponse));
         // when
         mockMvc.perform(post("/api/payments/v1/repayment/{id}", failedPayment.getId())
                         .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2AdminMember)))
@@ -156,17 +156,17 @@ public class PaymentControllerIntegrationTest {
         //then
         Payment updatedPayment = paymentRepository.findById(failedPayment.getId()).orElseThrow(PaymentNotFoundException::new);
         assertEquals(updatedPayment.getStatus(), PaymentStatus.COMPLETED_PAID);
-        assertEquals(updatedPayment.getKey(), paymentResponse.getKey());
-        assertEquals(updatedPayment.getCardInfo().getType(), paymentResponse.getCardType());
-        assertEquals(updatedPayment.getCardInfo().getIssuerCorporation(), paymentResponse.getCardIssuerCorporation());
-        assertEquals(updatedPayment.getCardInfo().getBin(), paymentResponse.getCardBin());
+        assertEquals(updatedPayment.getKey(), paymentExecutionJobResponse.getKey());
+        assertEquals(updatedPayment.getCardInfo().getType(), paymentExecutionJobResponse.getCardType());
+        assertEquals(updatedPayment.getCardInfo().getIssuerCorporation(), paymentExecutionJobResponse.getCardIssuerCorporation());
+        assertEquals(updatedPayment.getCardInfo().getBin(), paymentExecutionJobResponse.getCardBin());
     }
 
     @Test
     void repaymentUnauthorizedByNoneSessionTest() throws Exception {
         // given
-        PaymentResponse paymentResponse = buildPaymentResponse();
-        when(paymentExecutionJobClient.PaymentExecutionJob(any(PaymentExecutionJobRequest.class))).thenReturn(ClientResponse.success(paymentResponse));
+        PaymentExecutionJobResponse paymentExecutionJobResponse = buildPaymentExecutionJobResponse();
+        when(paymentExecutionJobClient.PaymentExecutionJob(any(PaymentExecutionJobRequest.class))).thenReturn(ClientResponse.success(paymentExecutionJobResponse));
         // when, then
         mockMvc.perform(post("/api/payments/v1/repayment/{id}", failedPayment.getId()))
                 .andExpect(status().isUnauthorized());
@@ -175,8 +175,8 @@ public class PaymentControllerIntegrationTest {
     @Test
     void repaymentAccessDeniedByNotPaymentFailureTest() throws Exception {
         // given
-        PaymentResponse paymentResponse = buildPaymentResponse();
-        when(paymentExecutionJobClient.PaymentExecutionJob(any(PaymentExecutionJobRequest.class))).thenReturn(ClientResponse.success(paymentResponse));
+        PaymentExecutionJobResponse paymentExecutionJobResponse = buildPaymentExecutionJobResponse();
+        when(paymentExecutionJobClient.PaymentExecutionJob(any(PaymentExecutionJobRequest.class))).thenReturn(ClientResponse.success(paymentExecutionJobResponse));
         // when
         mockMvc.perform(post("/api/payments/v1/repayment/{id}", successfulPayment.getId())
                         .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2NormalMember)))
@@ -186,8 +186,8 @@ public class PaymentControllerIntegrationTest {
     @Test
     void repaymentAccessDeniedByNotResourceOwnerTest() throws Exception{
         // given
-        PaymentResponse paymentResponse = buildPaymentResponse();
-        when(paymentExecutionJobClient.PaymentExecutionJob(any(PaymentExecutionJobRequest.class))).thenReturn(ClientResponse.success(paymentResponse));
+        PaymentExecutionJobResponse paymentExecutionJobResponse = buildPaymentExecutionJobResponse();
+        when(paymentExecutionJobClient.PaymentExecutionJob(any(PaymentExecutionJobRequest.class))).thenReturn(ClientResponse.success(paymentExecutionJobResponse));
         // when
         mockMvc.perform(post("/api/payments/v1/repayment/{id}", failedPayment.getId())
                         .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2NormalMember)))
