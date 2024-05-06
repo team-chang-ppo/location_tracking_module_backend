@@ -2,16 +2,15 @@ package org.changppo.monioring.server.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.changppo.monioring.server.apikey.*;
-import org.changppo.monioring.server.metering.ApiMeteringGatewayFilterFactory;
 import org.changppo.monioring.server.metering.ApiMeteringEventPublisher;
+import org.changppo.monioring.server.metering.ApiMeteringGatewayFilterFactory;
 import org.changppo.monioring.server.metering.KafkaApiMeteringEventPublisher;
 import org.changppo.monioring.server.ratelimit.*;
+import org.changppo.monioring.server.traceid.TraceIdGrantFilter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -44,13 +43,17 @@ public class GatewayConfig {
         return new KafkaApiMeteringEventPublisher(kafkaProducerTemplate, objectMapper);
     }
 
-    @Order(Ordered.HIGHEST_PRECEDENCE)
     @Bean
     public ApiKeyResolverFilter apiKeyContextResolverFilter(
             ApiKeyResolver apiKeyResolver,
             ApiKeyIdManager apiKeyIdManager
     ) {
         return new ApiKeyResolverFilter(apiKeyResolver, apiKeyIdManager);
+    }
+
+    @Bean
+    public TraceIdGrantFilter traceIdGrantFilter() {
+        return new TraceIdGrantFilter();
     }
 
     @Bean
