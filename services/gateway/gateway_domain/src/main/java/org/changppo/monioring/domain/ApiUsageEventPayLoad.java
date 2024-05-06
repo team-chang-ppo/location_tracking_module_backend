@@ -34,15 +34,13 @@ public final class ApiUsageEventPayLoad {
         private String clientAgent;
         @JsonProperty(namespace = "api_key")
         private String apiKey;
-        @JsonProperty(namespace = "route_id")
-        private String routeId;
         @JsonProperty(namespace = "trace_id")
         private String traceId;
 
         public ApiUsageEventPayLoad(){
         }
 
-        public ApiUsageEventPayLoad(String eventId, Instant requestTime, Instant responseTime, String requestProtocol, String requestMethod, String requestUri, Integer responseStatus, String errorCode, String clientIp, String clientAgent, String apiKey, String routeId, String traceId) {
+        public ApiUsageEventPayLoad(String eventId, Instant requestTime, Instant responseTime, String requestProtocol, String requestMethod, String requestUri, Integer responseStatus, String errorCode, String clientIp, String clientAgent, String apiKey, String traceId) {
                 this.eventId = eventId;
                 this.requestTime = requestTime;
                 this.responseTime = responseTime;
@@ -54,7 +52,6 @@ public final class ApiUsageEventPayLoad {
                 this.clientIp = clientIp;
                 this.clientAgent = clientAgent;
                 this.apiKey = apiKey;
-                this.routeId = routeId;
                 this.traceId = traceId;
         }
 
@@ -144,14 +141,6 @@ public final class ApiUsageEventPayLoad {
 
         public void setApiKey(String apiKey) {
                 this.apiKey = apiKey;
-        }
-
-        public String getRouteId() {
-                return routeId;
-        }
-
-        public void setRouteId(String routeId) {
-                this.routeId = routeId;
         }
 
         public String getTraceId() {
