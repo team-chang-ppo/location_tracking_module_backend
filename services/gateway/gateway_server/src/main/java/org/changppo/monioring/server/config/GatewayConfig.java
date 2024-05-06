@@ -3,7 +3,7 @@ package org.changppo.monioring.server.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.changppo.monioring.server.apikey.*;
 import org.changppo.monioring.server.metering.ApiMeteringEventPublisher;
-import org.changppo.monioring.server.metering.ApiMeteringGatewayFilterFactory;
+import org.changppo.monioring.server.metering.ApiMeteringGatewayFilter;
 import org.changppo.monioring.server.metering.KafkaApiMeteringEventPublisher;
 import org.changppo.monioring.server.ratelimit.*;
 import org.changppo.monioring.server.traceid.TraceIdGrantFilter;
@@ -57,10 +57,10 @@ public class GatewayConfig {
     }
 
     @Bean
-    public ApiMeteringGatewayFilterFactory apiMeteringGatewayFilterFactory(
+    public ApiMeteringGatewayFilter apiMeteringGatewayFilterFactory(
             ApiMeteringEventPublisher apiMeteringEventPublisher
     ) {
-        return new ApiMeteringGatewayFilterFactory(apiMeteringEventPublisher);
+        return new ApiMeteringGatewayFilter(apiMeteringEventPublisher);
     }
 
     @Bean("apiKeyRateLimiter")

@@ -6,33 +6,33 @@ PUT api_usage_trace
       "eventId": {
         "type": "keyword"
       },
-      "request_time": {
+      "requestTime": {
         "type": "date",
         "format": "strict_date_optional_time||epoch_millis"
       },
-      "response_time": {
+      "responseTime": {
         "type": "date",
         "format": "strict_date_optional_time||epoch_millis"
       },
-      "request_protocol": {
+      "requestProtocol": {
         "type": "keyword"
       },
-      "request_method": {
+      "requestMethod": {
         "type": "keyword"
       },
-      "request_uri": {
+      "requestUri": {
         "type": "keyword"
       },
-      "response_status": {
+      "responseStatus": {
         "type": "keyword"
       },
-      "error_code": {
+      "errorCode": {
         "type": "keyword"
       },
-      "client_ip": {
+      "clientIp": {
         "type": "ip"
       },
-      "client_agent": {
+      "clientAgent": {
         "type": "text",
         "fields": {
           "keyword": {
@@ -40,49 +40,35 @@ PUT api_usage_trace
           }
         }
       },
-      "api_key": {
+      "apiKey": {
         "type": "keyword"
       },
-      "trace_id" : {
+      "traceId" : {
         "type": "keyword"
       },
-      "geoip": {
+      "requestLocation": {
         "properties": {
-          "location": {
-            "type": "geo_point"
+          "geo": {
+            "properties": {
+              "country_name": {
+                "type": "keyword"
+              },
+              "location": {
+                "type": "geo_point"
+              },
+              "country_iso_code": {
+                "type": "keyword"
+              },
+              "timezone": {
+                "type": "keyword"
+              },
+              "continent_code": {
+                "type": "keyword"
+              }
+            }
           },
-          "latitude": {
-            "type": "float"
-          },
-          "longitude": {
-            "type": "float"
-          },
-          "country_code2": {
-            "type": "keyword"
-          },
-          "country_code3": {
-            "type": "keyword"
-          },
-          "country_name": {
-            "type": "keyword"
-          },
-          "continent_code": {
-            "type": "keyword"
-          },
-          "region_name": {
-            "type": "keyword"
-          },
-          "city_name": {
-            "type": "keyword"
-          },
-          "timezone": {
-            "type": "keyword"
-          },
-          "real_region_name": {
-            "type": "keyword"
-          },
-          "postal_code": {
-            "type": "keyword"
+          "ip":{
+            "type": "ip"
           }
         }
       }

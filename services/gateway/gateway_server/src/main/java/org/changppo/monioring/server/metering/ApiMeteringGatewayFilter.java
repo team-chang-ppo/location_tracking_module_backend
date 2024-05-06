@@ -20,10 +20,10 @@ import java.util.function.Function;
 
 
 @Slf4j
-public class ApiMeteringGatewayFilterFactory implements GlobalFilter, Ordered {
+public class ApiMeteringGatewayFilter implements GlobalFilter, Ordered {
     private final ApiMeteringEventPublisher apiMeteringEventPublisher;
 
-    public ApiMeteringGatewayFilterFactory(ApiMeteringEventPublisher apiMeteringEventPublisher) {
+    public ApiMeteringGatewayFilter(ApiMeteringEventPublisher apiMeteringEventPublisher) {
         this.apiMeteringEventPublisher = apiMeteringEventPublisher;
     }
 
@@ -41,7 +41,21 @@ public class ApiMeteringGatewayFilterFactory implements GlobalFilter, Ordered {
         event.setRequestProtocol(request.getURI().getScheme());
         event.setRequestMethod(request.getMethod().name());
         event.setRequestUri(request.getURI().getPath());
-        event.setClientIp(doIfNotNull(request.getRemoteAddress(), address -> address.getAddress().getHostAddress()));
+        //TODO 나중에, 바꿔야함
+        // 테스트를 위해 만약 localhost 면 googleIp로 바꿔서 기록 ㅋㅋ
+        String clientIp = doIfNotNull(request.getRemoteAddress(), address -> address.getAddress().getHostAddress());
+        if(clientIp == null
+                || clientIp.equals("0:0:0:0:0:0:0:1") // ipv6
+                || clientIp.equals("127.0.0.1") // ipv4
+                || clientIp.equals("localhost") // localhost
+                || clientIp.startsWith("192.168.") // 내부망
+                || clientIp.startsWith("10.") // 내부망
+                || clientIp.startsWith("172.") // 내부망
+        ) {
+            clientIp = "172.217.161.206"; // google.com
+        }
+
+        event.setClientIp(clientIp);
         event.setClientAgent(request.getHeaders().getFirst("User-Agent"));
         event.setApiKey(request.getHeaders().getFirst(GatewayConstant.API_KEY_HEADER));
         event.setTraceId(request.getHeaders().getFirst(GatewayConstant.TRACE_ID_HEADER));
