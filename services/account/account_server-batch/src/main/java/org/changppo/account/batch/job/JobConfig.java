@@ -1,4 +1,4 @@
-package org.changppo.account.batch;
+package org.changppo.account.batch.job;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
@@ -37,7 +36,7 @@ import java.util.UUID;
 public class JobConfig {
 
     private final JobRepository jobRepository;
-    private final PlatformTransactionManager transactionManager;
+    private final PlatformTransactionManager domainTransactionManager;
     private final CardRepository cardRepository;
     private final List<PaymentGatewayClient> paymentGatewayClients;
 
@@ -54,7 +53,7 @@ public class JobConfig {
                                             ItemProcessor<Member, Payment> paymentProcessorForAutomaticPayment,
                                             ItemWriter<Payment> paymentItemWriterForAutomaticPayment) {
         return new StepBuilder("executeAutomaticPaymentStep", jobRepository)
-                .<Member, Payment>chunk(10, transactionManager)
+                .<Member, Payment>chunk(10, domainTransactionManager)
                 .reader(memberItemReaderForAutomaticPayment)
                 .processor(paymentProcessorForAutomaticPayment)
                 .writer(paymentItemWriterForAutomaticPayment)
@@ -74,7 +73,7 @@ public class JobConfig {
                                             ItemProcessor<Member, Payment> paymentProcessorForDeletion,
                                             ItemWriter<Payment> paymentItemWriterForDeletion) {
         return new StepBuilder("executeDeletionStep", jobRepository)
-                .<Member, Payment>chunk(10, transactionManager)
+                .<Member, Payment>chunk(10, domainTransactionManager)
                 .reader(memberItemReaderForDeletion)
                 .processor(paymentProcessorForDeletion)
                 .writer(paymentItemWriterForDeletion)
@@ -108,7 +107,7 @@ public class JobConfig {
                         contribution.setExitStatus(ExitStatus.FAILED);
                     }
                     return RepeatStatus.FINISHED;
-                }, transactionManager)
+                }, domainTransactionManager)
                 .build();
     }
 

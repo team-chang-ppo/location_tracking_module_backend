@@ -17,6 +17,12 @@ spring:
       initialize-schema: never
     job-store-type: jdbc
 
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: never
+
   servlet:
     multipart:
       max-file-size: 5MB

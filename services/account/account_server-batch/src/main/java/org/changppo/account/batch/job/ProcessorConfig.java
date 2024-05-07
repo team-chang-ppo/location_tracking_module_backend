@@ -1,4 +1,4 @@
-package org.changppo.account.batch.config;
+package org.changppo.account.batch.job;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

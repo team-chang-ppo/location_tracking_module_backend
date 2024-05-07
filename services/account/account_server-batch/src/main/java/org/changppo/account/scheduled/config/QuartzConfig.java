@@ -1,4 +1,4 @@
-package org.changppo.account.scheduled;
+package org.changppo.account.scheduled.config;
 
 import lombok.RequiredArgsConstructor;
 import org.quartz.spi.TriggerFiredBundle;
@@ -21,7 +21,7 @@ import java.util.Properties;
 public class QuartzConfig {
 
     private final ApplicationContext applicationContext;
-    private final PlatformTransactionManager platformTransactionManager;
+    private final PlatformTransactionManager metaTransactionManager;
 
     @Bean
     public SchedulerFactoryBean schedulerFactoryBean() {
@@ -32,7 +32,7 @@ public class QuartzConfig {
         schedulerFactoryBean.setJobFactory(autoWiringSpringBeanJobFactory);
         schedulerFactoryBean.setOverwriteExistingJobs(true);
         schedulerFactoryBean.setAutoStartup(true);
-        schedulerFactoryBean.setTransactionManager(platformTransactionManager);
+        schedulerFactoryBean.setTransactionManager(metaTransactionManager);
         schedulerFactoryBean.setQuartzProperties(quartzProperties());
         return schedulerFactoryBean;
     }
