@@ -109,7 +109,7 @@ public class JobConfig {
                                 .filter(Objects::nonNull)
                                 .findFirst()
                                 .orElseThrow(() -> new RuntimeException("All payment attempts failed for memberId: " + memberId));  //TODO. 메서드로 분리
-                        storePaymentExecutionDetails(contribution, paymentExecutionJobResponse);
+                        savePaymentExecutionDetails(contribution, paymentExecutionJobResponse);
                     }
                     catch (Exception e) {
                         contribution.getStepExecution().setStatus(BatchStatus.FAILED);
@@ -150,12 +150,16 @@ public class JobConfig {
         };
     }
 
-    private void storePaymentExecutionDetails(StepContribution contribution, PaymentExecutionJobResponse response) {
+    private void savePaymentExecutionDetails(StepContribution contribution, PaymentExecutionJobResponse response) {
         ExecutionContext executionContext = contribution.getStepExecution().getJobExecution().getExecutionContext();
-        executionContext.put("key", response.getKey());
-        executionContext.put("cardType", response.getCardType());
-        executionContext.put("cardIssuerCorporation", response.getCardIssuerCorporation());
-        executionContext.put("cardBin", response.getCardBin());
+        safePutString(executionContext, "key", response.getKey());
+        safePutString(executionContext, "cardType", response.getCardType());
+        safePutString(executionContext, "cardIssuerCorporation", response.getCardIssuerCorporation());
+        safePutString(executionContext, "cardBin", response.getCardBin());
+    }
+
+    private void safePutString(ExecutionContext executionContext, String key, Object value) {
+        executionContext.put(key, Objects.requireNonNullElse(value, "Unknown"));
     }
 
 }
