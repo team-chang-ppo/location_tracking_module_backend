@@ -6,18 +6,20 @@ import org.springframework.batch.core.repository.dao.Jackson2ExecutionContextStr
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
-
 import javax.sql.DataSource;
+
+import static org.changppo.account.batch.config.TransactionManagerConfig.META_TRANSACTION_MANAGER;
+
 
 @Configuration
 public class BatchConfig extends DefaultBatchConfiguration {
 
     private final DataSource mainDataSource;
-    private final PlatformTransactionManager mainTransactionManager;
+    private final PlatformTransactionManager metaTransactionManager;
 
-    public BatchConfig(@Qualifier(DataSourceConfig.META_DATASOURCE) DataSource metaDataSource, @Qualifier(JpaConfig.META_TRANSACTION_MANAGER) PlatformTransactionManager metaTransactionManager) {
+    public BatchConfig(@Qualifier(DataSourceConfig.META_DATASOURCE) DataSource metaDataSource, @Qualifier(META_TRANSACTION_MANAGER) PlatformTransactionManager metaTransactionManager) {
         this.mainDataSource = metaDataSource;
-        this.mainTransactionManager = metaTransactionManager;
+        this.metaTransactionManager = metaTransactionManager;
     }
 
     @Override
@@ -37,6 +39,6 @@ public class BatchConfig extends DefaultBatchConfiguration {
 
     @Override
     protected PlatformTransactionManager getTransactionManager() {
-        return mainTransactionManager;
+        return metaTransactionManager;
     }
 }

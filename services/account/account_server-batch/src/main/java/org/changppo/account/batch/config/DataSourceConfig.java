@@ -2,7 +2,6 @@ package org.changppo.account.batch.config;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,7 +10,6 @@ import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
 import javax.sql.DataSource;
 
 @Configuration
-@RequiredArgsConstructor
 public class DataSourceConfig {
     public static final String META_DATASOURCE = "metaDataSource";
     public static final String DOMAIN_DATASOURCE = "domainDataSource";

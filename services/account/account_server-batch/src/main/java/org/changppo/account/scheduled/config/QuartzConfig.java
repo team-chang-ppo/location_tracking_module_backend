@@ -1,6 +1,5 @@
 package org.changppo.account.scheduled.config;
 
-import org.changppo.account.batch.config.JpaConfig;
 import org.quartz.spi.TriggerFiredBundle;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -17,13 +16,15 @@ import org.springframework.transaction.PlatformTransactionManager;
 import java.io.IOException;
 import java.util.Properties;
 
+import static org.changppo.account.batch.config.TransactionManagerConfig.META_TRANSACTION_MANAGER;
+
 @Configuration
 public class QuartzConfig {
 
     private final ApplicationContext applicationContext;
     private final PlatformTransactionManager metaTransactionManager;
 
-    public QuartzConfig(ApplicationContext applicationContext, @Qualifier(JpaConfig.META_TRANSACTION_MANAGER)PlatformTransactionManager metaTransactionManager) {
+    public QuartzConfig(ApplicationContext applicationContext, @Qualifier(META_TRANSACTION_MANAGER)PlatformTransactionManager metaTransactionManager) {
         this.applicationContext = applicationContext;
         this.metaTransactionManager = metaTransactionManager;
     }

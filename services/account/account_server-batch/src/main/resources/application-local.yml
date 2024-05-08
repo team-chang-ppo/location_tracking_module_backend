@@ -6,7 +6,6 @@ spring:
         jdbc-url: jdbc:postgresql://${local.meta-db.host}:${local.meta-db.port}/${local.meta-db.name}
         username: ${local.meta-db.username}
         password: ${local.meta-db.password}
-        auto-commit: false
 
     domain:
       hikari:
