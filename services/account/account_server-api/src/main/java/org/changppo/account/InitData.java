@@ -20,7 +20,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,7 +41,7 @@ public class InitData {
     @Transactional
     public void initData() {
         initRole();
-        // initMember();
+        initMember();
         initGrade();
         initPaymentGateway();
     }
@@ -53,30 +53,21 @@ public class InitData {
     }
 
     private void initMember() {
-        Role freeRole = roleRepository.findByRoleType(RoleType.ROLE_FREE).orElseThrow(RoleNotFoundException::new);
         Role normalRole = roleRepository.findByRoleType(RoleType.ROLE_NORMAL).orElseThrow(RoleNotFoundException::new);
 
-        Member freeMember = Member.builder()
-                .name("freeMemberName")
-                .username("free")
-                .profileImage("freeMemberProfileImage")
-                .roles(Collections.singleton(freeRole))
-                .build();
-        Member normalMember = Member.builder()
-                .name("normalMemberName")
-                .username("normal")
-                .profileImage("normalMemberProfileImage")
-                .roles(Collections.singleton(normalRole))
-                .build();
-        Member banForPaymentFailureMember = Member.builder()
-                .name("banForPaymentFailureMemberName")
-                .username("banForPaymentFailureMember")
-                .profileImage("banForPaymentFailureMemberProfileImage")
-                .roles(Collections.singleton(normalRole))
-                .build();
+        List<Member> members = new ArrayList<>();
+        for (int i = 1; i <= 50; i++) {
+            Member member = Member.builder()
+                    .name("OAUTH2_TEST_" + i)
+                    .username("Member" + i)
+                    .profileImage("deletedProfileImage" + i)
+                    .roles(Collections.singleton(normalRole))
+                    .build();
+            // member.requestDeletion(LocalDateTime.now());
+            members.add(member);
+        }
 
-        banForPaymentFailureMember.banForPaymentFailure(LocalDateTime.now());
-        memberRepository.saveAll(List.of(freeMember, normalMember, banForPaymentFailureMember));
+        memberRepository.saveAll(members);
     }
 
     private void initGrade() {

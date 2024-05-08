@@ -47,7 +47,7 @@ public class ProcessorConfig {
         LocalDateTime periodStart = paymentRepository.findFirstByMemberIdOrderByEndedAtDesc(member.getId()).map(Payment::getEndedAt).orElse(member.getCreatedAt());;
         LocalDateTime periodEnd = LocalDateTime.now().with(periodEndAdjuster);
         BigDecimal paymentAmount = fakeBillingInfoClient.getBillingAmountForPeriod(member.getId(), periodStart, periodEnd).getData().orElseThrow(() -> new RuntimeException("Payment amount is not found"));
-        return decidePaymentExecution(member, paymentAmount, periodStart, periodEnd);
+        return decidePaymentExecution(member, new BigDecimal("0"), periodStart, periodEnd);
     }
 
     private Payment decidePaymentExecution(Member member, BigDecimal amount, LocalDateTime start, LocalDateTime end) {

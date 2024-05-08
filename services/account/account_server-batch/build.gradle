@@ -19,6 +19,7 @@ repositories {
     mavenCentral()
     maven { url 'https://repo.spring.io/milestone' }
     maven { url 'https://repo.spring.io/snapshot' }
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -50,6 +51,7 @@ dependencies {
     annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+    implementation 'com.github.jojoldu.spring-batch-querydsl:spring-batch-querydsl-reader:2.4.8'
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test' // Spring Boot Test
     testImplementation 'org.springframework.security:spring-security-test' // Spring Security Test

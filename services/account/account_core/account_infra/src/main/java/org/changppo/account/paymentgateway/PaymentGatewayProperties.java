@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 @Setter
 @Configuration
-@ConfigurationProperties(prefix = "paymentgateway")
+@ConfigurationProperties(prefix = "paymentgateway")  // TODO. @EnableConfigurationProperties 를 사용하도록 수정
 public class PaymentGatewayProperties {
     private Kakaopay kakaopay;
 

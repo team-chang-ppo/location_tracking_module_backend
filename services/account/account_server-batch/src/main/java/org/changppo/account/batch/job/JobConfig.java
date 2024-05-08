@@ -18,13 +18,15 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.data.RepositoryItemReader;
+import org.springframework.batch.item.querydsl.reader.QuerydslNoOffsetPagingItemReader;
+import org.springframework.batch.item.querydsl.reader.QuerydslPagingItemReader;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
+
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
@@ -58,7 +60,7 @@ public class JobConfig {
     }
 
     @Bean
-    public Step executeAutomaticPaymentStep(RepositoryItemReader<Member> memberItemReaderForAutomaticPayment,
+    public Step executeAutomaticPaymentStep(QuerydslNoOffsetPagingItemReader<Member> memberItemReaderForAutomaticPayment,
                                             ItemProcessor<Member, Payment> paymentProcessorForAutomaticPayment,
                                             ItemWriter<Payment> paymentItemWriterForAutomaticPayment) {
         return new StepBuilder("executeAutomaticPaymentStep", jobRepository)
@@ -78,9 +80,9 @@ public class JobConfig {
     }
 
     @Bean
-    public Step executeDeletionStep(RepositoryItemReader<Member> memberItemReaderForDeletion,
-                                            ItemProcessor<Member, Payment> paymentProcessorForDeletion,
-                                            ItemWriter<Payment> paymentItemWriterForDeletion) {
+    public Step executeDeletionStep(QuerydslPagingItemReader<Member> memberItemReaderForDeletion,
+                                    ItemProcessor<Member, Payment> paymentProcessorForDeletion,
+                                    ItemWriter<Payment> paymentItemWriterForDeletion) {
         return new StepBuilder("executeDeletionStep", jobRepository)
                 .<Member, Payment>chunk(10, domainTransactionManager)
                 .reader(memberItemReaderForDeletion)

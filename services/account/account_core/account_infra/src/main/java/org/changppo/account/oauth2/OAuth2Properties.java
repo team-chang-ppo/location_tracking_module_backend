@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 @Setter
 @Configuration
-@ConfigurationProperties(prefix = "oauth2")
+@ConfigurationProperties(prefix = "oauth2") // TODO. @EnableConfigurationProperties 를 사용하도록 수정
 public class OAuth2Properties {
     private Kakao kakao;
     @Getter
