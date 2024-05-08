@@ -1,7 +1,7 @@
 package org.changppo.account.batch.job;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.changppo.account.batch.config.JpaConfig;
 import org.changppo.account.entity.card.Card;
 import org.changppo.account.entity.member.Member;
 import org.changppo.account.entity.payment.Payment;
@@ -21,24 +21,32 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.data.RepositoryItemReader;
 import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
+
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 @Configuration
-@RequiredArgsConstructor
 @Slf4j
 public class JobConfig {
 
     private final JobRepository jobRepository;
-    private final PlatformTransactionManager domainTransactionManager;
+    private final PlatformTransactionManager chainedTransactionManager;
     private final CardRepository cardRepository;
     private final List<PaymentGatewayClient> paymentGatewayClients;
+
+    public JobConfig(JobRepository jobRepository, @Qualifier(JpaConfig.CHAINED_TRANSACTION_MANAGER) PlatformTransactionManager chainedTransactionManager, CardRepository cardRepository, List<PaymentGatewayClient> paymentGatewayClients) {
+        this.jobRepository = jobRepository;
+        this.chainedTransactionManager = chainedTransactionManager;
+        this.cardRepository = cardRepository;
+        this.paymentGatewayClients = paymentGatewayClients;
+    }
 
     @Bean
     public Job AutomaticPaymentExecutionJob(Step executeAutomaticPaymentStep) {
@@ -53,7 +61,7 @@ public class JobConfig {
                                             ItemProcessor<Member, Payment> paymentProcessorForAutomaticPayment,
                                             ItemWriter<Payment> paymentItemWriterForAutomaticPayment) {
         return new StepBuilder("executeAutomaticPaymentStep", jobRepository)
-                .<Member, Payment>chunk(10, domainTransactionManager)
+                .<Member, Payment>chunk(10, chainedTransactionManager)
                 .reader(memberItemReaderForAutomaticPayment)
                 .processor(paymentProcessorForAutomaticPayment)
                 .writer(paymentItemWriterForAutomaticPayment)
@@ -73,7 +81,7 @@ public class JobConfig {
                                             ItemProcessor<Member, Payment> paymentProcessorForDeletion,
                                             ItemWriter<Payment> paymentItemWriterForDeletion) {
         return new StepBuilder("executeDeletionStep", jobRepository)
-                .<Member, Payment>chunk(10, domainTransactionManager)
+                .<Member, Payment>chunk(10, chainedTransactionManager)
                 .reader(memberItemReaderForDeletion)
                 .processor(paymentProcessorForDeletion)
                 .writer(paymentItemWriterForDeletion)
@@ -107,7 +115,7 @@ public class JobConfig {
                         contribution.setExitStatus(ExitStatus.FAILED);
                     }
                     return RepeatStatus.FINISHED;
-                }, domainTransactionManager)
+                }, chainedTransactionManager)
                 .build();
     }
 

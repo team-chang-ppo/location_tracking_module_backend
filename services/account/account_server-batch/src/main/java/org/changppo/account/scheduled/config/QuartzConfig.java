@@ -1,8 +1,9 @@
 package org.changppo.account.scheduled.config;
 
-import lombok.RequiredArgsConstructor;
+import org.changppo.account.batch.config.JpaConfig;
 import org.quartz.spi.TriggerFiredBundle;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.context.ApplicationContext;
@@ -17,11 +18,15 @@ import java.io.IOException;
 import java.util.Properties;
 
 @Configuration
-@RequiredArgsConstructor
 public class QuartzConfig {
 
     private final ApplicationContext applicationContext;
     private final PlatformTransactionManager metaTransactionManager;
+
+    public QuartzConfig(ApplicationContext applicationContext, @Qualifier(JpaConfig.META_TRANSACTION_MANAGER)PlatformTransactionManager metaTransactionManager) {
+        this.applicationContext = applicationContext;
+        this.metaTransactionManager = metaTransactionManager;
+    }
 
     @Bean
     public SchedulerFactoryBean schedulerFactoryBean() {
