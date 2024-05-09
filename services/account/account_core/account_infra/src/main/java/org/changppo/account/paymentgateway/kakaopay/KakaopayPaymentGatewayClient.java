@@ -12,6 +12,7 @@ import org.changppo.account.paymentgateway.kakaopay.dto.subscription.KakaopaySub
 import org.changppo.account.paymentgateway.kakaopay.dto.subscription.KakaopaySubscriptionStatusResponse;
 import org.changppo.account.response.ClientResponse;
 import org.changppo.account.type.PaymentGatewayType;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -27,6 +28,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @RequiredArgsConstructor
 @Service
 @Slf4j
+@EnableConfigurationProperties(PaymentGatewayProperties.class)
 public class KakaopayPaymentGatewayClient extends PaymentGatewayClient {
 
     private final PaymentGatewayProperties paymentGatewayProperties;

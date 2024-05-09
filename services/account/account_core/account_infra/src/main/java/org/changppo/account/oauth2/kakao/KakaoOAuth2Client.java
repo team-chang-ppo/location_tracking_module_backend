@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.changppo.account.oauth2.OAuth2Client;
 import org.changppo.account.oauth2.OAuth2Properties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -14,6 +15,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@EnableConfigurationProperties(OAuth2Properties.class)
 public class KakaoOAuth2Client extends OAuth2Client {
 
     private final RestTemplate restTemplate;
