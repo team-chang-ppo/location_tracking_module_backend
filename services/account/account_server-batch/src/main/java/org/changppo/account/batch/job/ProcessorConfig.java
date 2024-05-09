@@ -1,6 +1,5 @@
 package org.changppo.account.batch.job;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.changppo.account.entity.member.Member;
 import org.changppo.account.entity.payment.Payment;
@@ -13,6 +12,7 @@ import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -22,10 +22,14 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 
+import static org.changppo.account.batch.job.JobConfig.PAYMENT_JOB;
+
 @Configuration
 @Slf4j
-@RequiredArgsConstructor
 public class ProcessorConfig {
+
+    public static final String AUTOMATIC_PAYMENT_PROCESSOR = "paymentProcessorForAutomaticPayment";
+    public static final String DELETION_PROCESSOR = "paymentProcessorForDeletion";
 
     private final JobLauncher jobLauncher;
     private final JobRepository jobRepository;
@@ -33,12 +37,20 @@ public class ProcessorConfig {
     private final FakeBillingInfoClient fakeBillingInfoClient;
     private final PaymentRepository paymentRepository;
 
-    @Bean
+    public ProcessorConfig(JobLauncher jobLauncher, JobRepository jobRepository, @Qualifier(PAYMENT_JOB) Job paymentExecutionJob, FakeBillingInfoClient fakeBillingInfoClient, PaymentRepository paymentRepository) {
+        this.jobLauncher = jobLauncher;
+        this.jobRepository = jobRepository;
+        this.paymentExecutionJob = paymentExecutionJob;
+        this.fakeBillingInfoClient = fakeBillingInfoClient;
+        this.paymentRepository = paymentRepository;
+    }
+
+    @Bean(AUTOMATIC_PAYMENT_PROCESSOR)
     public ItemProcessor<Member, Payment> paymentProcessorForAutomaticPayment() {
         return member -> processPaymentForMember(member, LocalDateTime.of(LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()), LocalTime.MIDNIGHT));
     }
 
-    @Bean
+    @Bean(DELETION_PROCESSOR)
     public ItemProcessor<Member, Payment> paymentProcessorForDeletion() {
         return member -> processPaymentForMember(member, member.getDeletionRequestedAt());
     }

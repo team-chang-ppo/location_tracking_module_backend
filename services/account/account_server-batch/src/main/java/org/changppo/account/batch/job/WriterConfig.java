@@ -21,7 +21,10 @@ import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
-public class WriterConfig {
+public class WriterConfig {  //TODO.JPAWriter를 사용하도록 변경
+
+    public static final String AUTOMATIC_PAYMENT_WRITER = "paymentItemWriterForAutomaticPayment";
+    public static final String DELETION_WRITER = "paymentItemWriterForDeletion";
 
     private final PaymentRepository paymentRepository;
     private final PaymentEventPublisher paymentEventPublisher;
@@ -31,7 +34,7 @@ public class WriterConfig {
     private final List<PaymentGatewayClient> paymentGatewayClients;
     private final List<OAuth2Client> oauth2Clients;
 
-    @Bean
+    @Bean(AUTOMATIC_PAYMENT_WRITER)
     public ItemWriter<Payment> paymentItemWriterForAutomaticPayment() {
         return payments -> payments.forEach(payment -> {
             paymentEventPublisher.publishEvent(payment);
@@ -42,7 +45,7 @@ public class WriterConfig {
         });
     }
 
-    @Bean
+    @Bean(DELETION_WRITER)
     public ItemWriter<Payment> paymentItemWriterForDeletion() {
         return payments -> payments.forEach(payment -> {
             paymentRepository.save(payment);

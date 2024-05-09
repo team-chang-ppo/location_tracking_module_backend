@@ -16,10 +16,13 @@ import static org.changppo.account.entity.member.QMember.member;
 @RequiredArgsConstructor
 public class ReaderConfig {
 
+    public static final String AUTOMATIC_PAYMENT_READER = "memberItemReaderForAutomaticPayment";
+    public static final String DELETION_READER = "memberItemReaderForDeletion";
+
     private final EntityManagerFactory entityManagerFactory;
     private final int chunkSize = 10;
 
-    @Bean
+    @Bean(AUTOMATIC_PAYMENT_READER)
     public QuerydslNoOffsetPagingItemReader<Member> memberItemReaderForAutomaticPayment() {
         QuerydslNoOffsetNumberOptions<Member, Long> options = new QuerydslNoOffsetNumberOptions<>(member.id, Expression.ASC);
         return new QuerydslNoOffsetPagingItemReader<>(
@@ -32,7 +35,7 @@ public class ReaderConfig {
                                 .and(member.deletionRequestedAt.isNull())));
     }
 
-    @Bean
+    @Bean(DELETION_READER)
     public QuerydslZeroPagingItemReader<Member> memberItemReaderForDeletion() {
         return new QuerydslZeroPagingItemReader<>(
                 entityManagerFactory,

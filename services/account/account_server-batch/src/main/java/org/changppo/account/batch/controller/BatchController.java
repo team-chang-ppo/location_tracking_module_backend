@@ -1,12 +1,12 @@
 package org.changppo.account.batch.controller;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.changppo.account.payment.dto.PaymentExecutionJobRequest;
 import org.changppo.account.payment.dto.PaymentExecutionJobResponse;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,8 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
 
+import static org.changppo.account.batch.job.JobConfig.PAYMENT_JOB;
+
 @RestController
-@RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/batch")
 public class BatchController {
@@ -25,6 +26,12 @@ public class BatchController {
     private final JobLauncher jobLauncher;
     private final JobRepository jobRepository;
     private final Job paymentExecutionJob;
+
+    public BatchController(JobLauncher jobLauncher, JobRepository jobRepository, @Qualifier(PAYMENT_JOB) Job paymentExecutionJob) {
+        this.jobLauncher = jobLauncher;
+        this.jobRepository = jobRepository;
+        this.paymentExecutionJob = paymentExecutionJob;
+    }
 
     @PostMapping("/executePayment")
     public ResponseEntity<PaymentExecutionJobResponse> executePayment(@RequestBody PaymentExecutionJobRequest req) {

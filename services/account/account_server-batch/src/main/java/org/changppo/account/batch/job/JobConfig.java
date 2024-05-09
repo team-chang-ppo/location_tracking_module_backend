@@ -33,11 +33,23 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static org.changppo.account.batch.config.TransactionManagerConfig.DOMAIN_TRANSACTION_MANAGER;
-
+import static org.changppo.account.batch.job.ProcessorConfig.AUTOMATIC_PAYMENT_PROCESSOR;
+import static org.changppo.account.batch.job.ProcessorConfig.DELETION_PROCESSOR;
+import static org.changppo.account.batch.job.ReaderConfig.AUTOMATIC_PAYMENT_READER;
+import static org.changppo.account.batch.job.ReaderConfig.DELETION_READER;
+import static org.changppo.account.batch.job.WriterConfig.AUTOMATIC_PAYMENT_WRITER;
+import static org.changppo.account.batch.job.WriterConfig.DELETION_WRITER;
 
 @Configuration
 @Slf4j
 public class JobConfig {
+
+    public static final String AUTOMATIC_PAYMENT_JOB = "AutomaticPaymentExecutionJob";
+    public static final String AUTOMATIC_PAYMENT_STEP = "executeAutomaticPaymentStep";
+    public static final String DELETION_JOB = "DeletionExecutionJob";
+    public static final String DELETION_STEP = "executeDeletionStep";
+    public static final String PAYMENT_JOB = "paymentExecutionJob";
+    public static final String PAYMENT_STEP = "executePaymentStep";
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager domainTransactionManager;
@@ -51,18 +63,18 @@ public class JobConfig {
         this.paymentGatewayClients = paymentGatewayClients;
     }
 
-    @Bean
-    public Job AutomaticPaymentExecutionJob(Step executeAutomaticPaymentStep) {
+    @Bean(AUTOMATIC_PAYMENT_JOB)
+    public Job AutomaticPaymentExecutionJob(@Qualifier(AUTOMATIC_PAYMENT_STEP) Step executeAutomaticPaymentStep) {
         return new JobBuilder("AutomaticPaymentExecutionJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .start(executeAutomaticPaymentStep)
                 .build();
     }
 
-    @Bean
-    public Step executeAutomaticPaymentStep(QuerydslNoOffsetPagingItemReader<Member> memberItemReaderForAutomaticPayment,
-                                            ItemProcessor<Member, Payment> paymentProcessorForAutomaticPayment,
-                                            ItemWriter<Payment> paymentItemWriterForAutomaticPayment) {
+    @Bean(AUTOMATIC_PAYMENT_STEP)
+    public Step executeAutomaticPaymentStep(@Qualifier(AUTOMATIC_PAYMENT_READER) QuerydslNoOffsetPagingItemReader<Member> memberItemReaderForAutomaticPayment,
+                                            @Qualifier(AUTOMATIC_PAYMENT_PROCESSOR) ItemProcessor<Member, Payment> paymentProcessorForAutomaticPayment,
+                                            @Qualifier(AUTOMATIC_PAYMENT_WRITER) ItemWriter<Payment> paymentItemWriterForAutomaticPayment) {
         return new StepBuilder("executeAutomaticPaymentStep", jobRepository)
                 .<Member, Payment>chunk(10, domainTransactionManager)
                 .reader(memberItemReaderForAutomaticPayment)
@@ -71,18 +83,18 @@ public class JobConfig {
                 .build();
     }
 
-    @Bean
-    public Job DeletionExecutionJob(Step executeDeletionStep) {
+    @Bean(DELETION_JOB)
+    public Job DeletionExecutionJob(@Qualifier(DELETION_STEP) Step executeDeletionStep) {
         return new JobBuilder("DeletionExecutionJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .start(executeDeletionStep)
                 .build();
     }
 
-    @Bean
-    public Step executeDeletionStep(QuerydslZeroPagingItemReader<Member> memberItemReaderForDeletion,
-                                    ItemProcessor<Member, Payment> paymentProcessorForDeletion,
-                                    ItemWriter<Payment> paymentItemWriterForDeletion) {
+    @Bean(DELETION_STEP)
+    public Step executeDeletionStep(@Qualifier(DELETION_READER) QuerydslZeroPagingItemReader<Member> memberItemReaderForDeletion,
+                                    @Qualifier(DELETION_PROCESSOR) ItemProcessor<Member, Payment> paymentProcessorForDeletion,
+                                    @Qualifier(DELETION_WRITER) ItemWriter<Payment> paymentItemWriterForDeletion) {
         return new StepBuilder("executeDeletionStep", jobRepository)
                 .<Member, Payment>chunk(10, domainTransactionManager)
                 .reader(memberItemReaderForDeletion)
@@ -91,14 +103,14 @@ public class JobConfig {
                 .build();
     }
 
-    @Bean
-    public Job paymentExecutionJob(Step executePaymentStep) {
+    @Bean(PAYMENT_JOB)
+    public Job paymentExecutionJob(@Qualifier(PAYMENT_STEP) Step executePaymentStep) {
         return new JobBuilder("paymentExecutionJob", jobRepository)
                 .start(executePaymentStep)
                 .build();
     }
 
-    @Bean
+    @Bean(PAYMENT_STEP)
     @JobScope
     public Step executePaymentStep(@Value("#{jobParameters[memberId]}") Long memberId,
                             @Value("#{jobParameters[amount]}") String amount) {
