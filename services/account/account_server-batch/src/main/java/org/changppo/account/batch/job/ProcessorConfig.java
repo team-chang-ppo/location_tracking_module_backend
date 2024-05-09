@@ -52,7 +52,7 @@ public class ProcessorConfig {
 
     private Payment decidePaymentExecution(Member member, BigDecimal amount, LocalDateTime start, LocalDateTime end) {
         if (amount.compareTo(BigDecimal.valueOf(100.0)) <= 0) {
-            return createCompletedPayment(member, null, amount, null, start, end);
+            return createCompletedFreePayment(member, amount, start, end);
         } else {
             return executePayment(member, amount, start, end);
         }
@@ -87,7 +87,7 @@ public class ProcessorConfig {
     private Payment processJobExecution(JobExecution jobExecution, Member member, BigDecimal amount, LocalDateTime start, LocalDateTime end) {
         if (jobExecution != null && jobExecution.getStatus() == BatchStatus.COMPLETED) {
             PaymentExecutionJobResponse paymentExecutionJobResponse = extractPaymentDetails(jobExecution);
-            return createCompletedPayment(member, paymentExecutionJobResponse.getKey(), amount,
+            return createCompletedPaidPayment(member, paymentExecutionJobResponse.getKey(), amount,
                     new PaymentCardInfo(paymentExecutionJobResponse.getCardType(), paymentExecutionJobResponse. getCardIssuerCorporation(), paymentExecutionJobResponse.getCardBin()), start, end);
         }
         return createFailedPayment(member, amount, start, end);
@@ -108,17 +108,25 @@ public class ProcessorConfig {
 
     private Payment createFailedPayment(Member member, BigDecimal amount, LocalDateTime start, LocalDateTime end) {
         return Payment.builder()
-                .key(null)
                 .amount(amount)
                 .status(PaymentStatus.FAILED)
                 .startedAt(start)
                 .endedAt(end)
                 .member(member)
-                .cardInfo(null)
                 .build();
     }
 
-    private Payment createCompletedPayment(Member member, String key, BigDecimal amount, PaymentCardInfo paymentCardInfo, LocalDateTime start, LocalDateTime end) {
+    private Payment createCompletedFreePayment(Member member, BigDecimal amount, LocalDateTime start, LocalDateTime end) {
+        return Payment.builder()
+                .amount(amount)
+                .status(PaymentStatus.COMPLETED_FREE)
+                .startedAt(start)
+                .endedAt(end)
+                .member(member)
+                .build();
+    }
+
+    private Payment createCompletedPaidPayment(Member member, String key, BigDecimal amount, PaymentCardInfo paymentCardInfo, LocalDateTime start, LocalDateTime end) {
         return Payment.builder()
                 .key(key)
                 .amount(amount)

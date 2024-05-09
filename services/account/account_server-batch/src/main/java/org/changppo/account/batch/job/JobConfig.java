@@ -1,6 +1,8 @@
 package org.changppo.account.batch.job;
 
 import lombok.extern.slf4j.Slf4j;
+import org.changppo.account.batch.config.reader.QuerydslNoOffsetPagingItemReader;
+import org.changppo.account.batch.config.reader.QuerydslZeroPagingItemReader;
 import org.changppo.account.entity.card.Card;
 import org.changppo.account.entity.member.Member;
 import org.changppo.account.entity.payment.Payment;
@@ -18,8 +20,6 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.querydsl.reader.QuerydslNoOffsetPagingItemReader;
-import org.springframework.batch.item.querydsl.reader.QuerydslPagingItemReader;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -80,7 +80,7 @@ public class JobConfig {
     }
 
     @Bean
-    public Step executeDeletionStep(QuerydslPagingItemReader<Member> memberItemReaderForDeletion,
+    public Step executeDeletionStep(QuerydslZeroPagingItemReader<Member> memberItemReaderForDeletion,
                                     ItemProcessor<Member, Payment> paymentProcessorForDeletion,
                                     ItemWriter<Payment> paymentItemWriterForDeletion) {
         return new StepBuilder("executeDeletionStep", jobRepository)
