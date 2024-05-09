@@ -41,7 +41,7 @@ public class InitData {
     @Transactional
     public void initData() {
         initRole();
-        initMember();
+        // initMember();
         initGrade();
         initPaymentGateway();
     }

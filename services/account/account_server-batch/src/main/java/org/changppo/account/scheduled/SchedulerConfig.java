@@ -23,7 +23,7 @@ public class SchedulerConfig {
                 "AutomaticPaymentExecutionJob",
                 "Job to process payments periodically",
                 Map.of("SchedulerStartTime", LocalDateTime.now()),
-                "0 0/1 * 1/1 * ? *"  //TODO. 매달 1일에 시작하도록 수정
+                "0 0 1 ? * TUE" //시범 운영을 위해 일주일 단위로 실행 TODO. 매월 시작하도록 수정
         );
 
         schedulerService.addJob(
@@ -31,7 +31,7 @@ public class SchedulerConfig {
                 "DeletionExecutionJobRunner",
                 "Job to delete data periodically",
                 Map.of("SchedulerStartTime", LocalDateTime.now()),
-                "0 0/1 * 1/1 * ? *"  //TODO. 매일 시작하도록 수정
+                "0 0 3 * * ?"
         );
     }
 }
