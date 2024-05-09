@@ -21,7 +21,7 @@ import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
-public class WriterConfig {  //TODO.JPAWriter를 사용하도록 변경
+public class WriterConfig {
 
     public static final String AUTOMATIC_PAYMENT_WRITER = "paymentItemWriterForAutomaticPayment";
     public static final String DELETION_WRITER = "paymentItemWriterForDeletion";

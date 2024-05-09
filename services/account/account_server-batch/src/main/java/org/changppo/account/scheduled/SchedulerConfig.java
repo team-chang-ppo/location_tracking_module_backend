@@ -22,7 +22,7 @@ public class SchedulerConfig {
                 AutomaticPaymentExecutionJobRunner.class,
                 "AutomaticPaymentExecutionJob",
                 "Job to process payments periodically",
-                Map.of("Application Start Time", LocalDateTime.now()),
+                Map.of("SchedulerStartTime", LocalDateTime.now()),
                 "0 0/1 * 1/1 * ? *"  //TODO. 매달 1일에 시작하도록 수정
         );
 
@@ -30,7 +30,7 @@ public class SchedulerConfig {
                 DeletionExecutionJobRunner.class,
                 "DeletionExecutionJobRunner",
                 "Job to delete data periodically",
-                Map.of("Application Start Time", LocalDateTime.now()),
+                Map.of("SchedulerStartTime", LocalDateTime.now()),
                 "0 0/1 * 1/1 * ? *"  //TODO. 매일 시작하도록 수정
         );
     }

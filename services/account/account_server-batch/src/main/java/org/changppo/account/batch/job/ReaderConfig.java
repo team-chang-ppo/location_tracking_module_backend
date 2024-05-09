@@ -5,11 +5,15 @@ import lombok.RequiredArgsConstructor;
 import org.changppo.account.batch.config.reader.QuerydslNoOffsetPagingItemReader;
 import org.changppo.account.batch.config.reader.QuerydslZeroPagingItemReader;
 import org.changppo.account.entity.member.Member;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.querydsl.reader.expression.Expression;
 import org.springframework.batch.item.querydsl.reader.options.QuerydslNoOffsetNumberOptions;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import java.time.LocalDateTime;
+
 import static org.changppo.account.entity.member.QMember.member;
 
 @Configuration
@@ -31,19 +35,19 @@ public class ReaderConfig {
                 options,
                 queryFactory -> queryFactory
                         .selectFrom(member)
-                        .where(member.paymentFailureBannedAt.isNull()
-                                .and(member.deletionRequestedAt.isNull())));
+                            .where(member.paymentFailureBannedAt.isNull()
+                            .and(member.deletionRequestedAt.isNull())));
     }
 
     @Bean(DELETION_READER)
-    public QuerydslZeroPagingItemReader<Member> memberItemReaderForDeletion() {
+    @StepScope
+    public QuerydslZeroPagingItemReader<Member> memberItemReaderForDeletion(@Value("#{jobParameters[JobStartTime]}") LocalDateTime jobStartTime) {
         return new QuerydslZeroPagingItemReader<>(
                 entityManagerFactory,
                 chunkSize,
                 queryFactory -> queryFactory
                         .selectFrom(member)
-                        .where(member.paymentFailureBannedAt.isNull()
-                                .and(member.deletionRequestedAt.loe(LocalDateTime.now()))));
+                            .where(member.paymentFailureBannedAt.isNull()
+                            .and(member.deletionRequestedAt.loe(jobStartTime.minusDays(2)))));  //결제 정합성을 고려하여 이틀 이전의 시간으로 조회 TODO. 추후 개선
     }
-
 }

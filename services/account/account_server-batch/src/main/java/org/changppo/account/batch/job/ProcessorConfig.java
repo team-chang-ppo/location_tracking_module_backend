@@ -9,15 +9,16 @@ import org.changppo.account.payment.dto.PaymentExecutionJobResponse;
 import org.changppo.account.repository.payment.PaymentRepository;
 import org.changppo.account.type.PaymentStatus;
 import org.springframework.batch.core.*;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
@@ -46,8 +47,20 @@ public class ProcessorConfig {
     }
 
     @Bean(AUTOMATIC_PAYMENT_PROCESSOR)
-    public ItemProcessor<Member, Payment> paymentProcessorForAutomaticPayment() {
-        return member -> processPaymentForMember(member, LocalDateTime.of(LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()), LocalTime.MIDNIGHT));
+    @StepScope
+    public ItemProcessor<Member, Payment> paymentProcessorForAutomaticPayment(@Value("#{jobParameters[JobStartTime]}") LocalDateTime jobStartTime) {
+        return member -> {
+            LocalDateTime lastSunday = calculateLastSunday(jobStartTime);
+            if (lastSunday.isBefore(jobStartTime.minusDays(1))) {  //결제 정합성을 고려하여 하루 이전의 시간으로 조회 TODO. 추후 개선
+                return processPaymentForMember(member, lastSunday);
+            }
+            return null;
+        };
+    }
+
+    private LocalDateTime calculateLastSunday(LocalDateTime dateTime) {  //시범 운영에서는 일주일 단위로 계산
+        return dateTime.with(TemporalAdjusters.previous(DayOfWeek.SUNDAY))
+                .with(LocalTime.of(23, 59, 59));
     }
 
     @Bean(DELETION_PROCESSOR)
@@ -55,11 +68,13 @@ public class ProcessorConfig {
         return member -> processPaymentForMember(member, member.getDeletionRequestedAt());
     }
 
-    private Payment processPaymentForMember(Member member, LocalDateTime periodEndAdjuster) {
-        LocalDateTime periodStart = paymentRepository.findFirstByMemberIdOrderByEndedAtDesc(member.getId()).map(Payment::getEndedAt).orElse(member.getCreatedAt());;
-        LocalDateTime periodEnd = LocalDateTime.now().with(periodEndAdjuster);
-        BigDecimal paymentAmount = fakeBillingInfoClient.getBillingAmountForPeriod(member.getId(), periodStart, periodEnd).getData().orElseThrow(() -> new RuntimeException("Payment amount is not found"));
-        return decidePaymentExecution(member, new BigDecimal("0"), periodStart, periodEnd);
+    private Payment processPaymentForMember(Member member, LocalDateTime periodEnd) {
+        LocalDateTime periodStart = paymentRepository.findFirstByMemberIdOrderByEndedAtDesc(member.getId()).map(payment -> payment.getEndedAt().plusSeconds(1)).orElse(member.getCreatedAt());;
+        if (periodStart.isBefore(periodEnd)) {
+            BigDecimal paymentAmount = fakeBillingInfoClient.getBillingAmountForPeriod(member.getId(), periodStart, periodEnd).getData().orElseThrow(() -> new RuntimeException("Payment amount is not found"));
+            return decidePaymentExecution(member, paymentAmount, periodStart, periodEnd);
+        }
+        return null;
     }
 
     private Payment decidePaymentExecution(Member member, BigDecimal amount, LocalDateTime start, LocalDateTime end) {

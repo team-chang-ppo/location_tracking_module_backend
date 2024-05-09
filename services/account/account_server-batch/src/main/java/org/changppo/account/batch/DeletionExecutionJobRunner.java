@@ -36,9 +36,11 @@ public class DeletionExecutionJobRunner extends QuartzJobBean {
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
         try {
             Map<String, Object> jobDataMap = context.getMergedJobDataMap();
+            LocalDateTime schedulerStartTime = (LocalDateTime) jobDataMap.get("SchedulerStartTime");
+            log.info("Scheduler start time: {}", schedulerStartTime);
+
             JobParameters jobParameters = new JobParametersBuilder()
-                    .addLocalDateTime("Application Start Time", (LocalDateTime) jobDataMap.get("Application Start Time"))
-                    .addLocalDateTime("Process Payment Job StartTime", LocalDateTime.now())
+                    .addLocalDateTime("JobStartTime", LocalDateTime.now())
                     .toJobParameters();
             jobLauncher.run(DeletionExecutionJob, jobParameters);
         } catch (Exception e) {
