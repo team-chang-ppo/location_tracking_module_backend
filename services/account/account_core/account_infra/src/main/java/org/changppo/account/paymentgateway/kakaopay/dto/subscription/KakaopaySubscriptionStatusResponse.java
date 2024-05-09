@@ -2,9 +2,11 @@ package org.changppo.account.paymentgateway.kakaopay.dto.subscription;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class KakaopaySubscriptionStatusResponse {
     private boolean available;
     private String cid;

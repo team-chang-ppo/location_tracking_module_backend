@@ -2,10 +2,12 @@ package org.changppo.account.paymentgateway.kakaopay.dto.payment;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.changppo.account.paymentgateway.dto.PaymentResponse;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class KakaopayApproveResponse implements PaymentResponse {
     private String aid;
     private String tid;
@@ -50,6 +52,7 @@ public class KakaopayApproveResponse implements PaymentResponse {
 
     @Data
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class Amount {
         private int total;
         private int tax_free;
@@ -61,6 +64,7 @@ public class KakaopayApproveResponse implements PaymentResponse {
 
     @Data
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class CardInfo {
         private String kakaopay_purchase_corp;
         private String kakaopay_purchase_corp_code;
