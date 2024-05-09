@@ -1,4 +1,4 @@
-package org.changppo.account.batch.config;
+package org.changppo.account.batch.config.database;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.ObjectProvider;
@@ -20,7 +20,7 @@ import javax.sql.DataSource;
 import java.util.Collection;
 import java.util.Objects;
 
-import static org.changppo.account.batch.config.DataSourceConfig.META_DATASOURCE;
+import static org.changppo.account.batch.config.database.DataSourceConfig.META_DATASOURCE;
 
 @Configuration
 @RequiredArgsConstructor

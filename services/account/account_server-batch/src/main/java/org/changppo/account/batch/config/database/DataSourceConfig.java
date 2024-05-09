@@ -1,4 +1,4 @@
-package org.changppo.account.batch.config;
+package org.changppo.account.batch.config.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;

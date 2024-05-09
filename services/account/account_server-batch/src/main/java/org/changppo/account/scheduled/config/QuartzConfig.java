@@ -16,7 +16,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import java.io.IOException;
 import java.util.Properties;
 
-import static org.changppo.account.batch.config.TransactionManagerConfig.META_TRANSACTION_MANAGER;
+import static org.changppo.account.batch.config.database.TransactionManagerConfig.META_TRANSACTION_MANAGER;
 
 @Configuration
 public class QuartzConfig {

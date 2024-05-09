@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import static org.changppo.account.batch.config.TransactionManagerConfig.DOMAIN_TRANSACTION_MANAGER;
+import static org.changppo.account.batch.config.database.TransactionManagerConfig.DOMAIN_TRANSACTION_MANAGER;
 import static org.changppo.account.batch.job.ProcessorConfig.AUTOMATIC_PAYMENT_PROCESSOR;
 import static org.changppo.account.batch.job.ProcessorConfig.DELETION_PROCESSOR;
 import static org.changppo.account.batch.job.ReaderConfig.AUTOMATIC_PAYMENT_READER;

@@ -1,5 +1,6 @@
 package org.changppo.account.batch.config;
 
+import org.changppo.account.batch.config.database.DataSourceConfig;
 import org.springframework.batch.core.configuration.support.DefaultBatchConfiguration;
 import org.springframework.batch.core.repository.ExecutionContextSerializer;
 import org.springframework.batch.core.repository.dao.Jackson2ExecutionContextStringSerializer;
@@ -8,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 import javax.sql.DataSource;
 
-import static org.changppo.account.batch.config.TransactionManagerConfig.META_TRANSACTION_MANAGER;
+import static org.changppo.account.batch.config.database.TransactionManagerConfig.META_TRANSACTION_MANAGER;
 
 
 @Configuration
