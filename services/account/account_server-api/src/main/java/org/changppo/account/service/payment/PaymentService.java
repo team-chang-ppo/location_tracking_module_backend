@@ -63,7 +63,7 @@ public class PaymentService {
 
     @PreAuthorize("@memberAccessEvaluator.check(#memberId)")
     public PaymentListDto readAll(@Param("memberId")Long memberId, PaymentReadAllRequest req){
-        Slice<PaymentDto> slice = paymentRepository.findAllByMemberIdOrderByDesc(memberId, req.getLastPaymentId(), Pageable.ofSize(req.getSize()));
+        Slice<PaymentDto> slice = paymentRepository.findAllByMemberIdAndStatusNotCompletedFree(memberId, req.getLastPaymentId(), Pageable.ofSize(req.getSize()));
         return new PaymentListDto(slice.getNumberOfElements(), slice.hasNext(), slice.getContent());
     }
 }

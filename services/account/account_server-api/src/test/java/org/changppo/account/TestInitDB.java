@@ -75,7 +75,9 @@ public class TestInitDB {
     @Getter
     private final String kakaopayCardKey = "kakaopay-card-key";
     @Getter
-    private final String successfulPaymentKey = "successful-payment-key";
+    private final String successfulFreePaymentKey = "successful-free-payment-key";
+    @Getter
+    private final String successfulPaidPaymentKey = "successful-paid-payment-key";
     @Getter
     private final String failedPaymentKey = "failed-payment-key";
 
@@ -226,9 +228,19 @@ public class TestInitDB {
         Member banForPaymentFailureMember = memberRepository.findByName(banForPaymentFailureMemberName).orElseThrow(MemberNotFoundException::new);
         Card kakaopayCard = cardRepository.findByKey(kakaopayCardKey).orElseThrow(CardNotFoundException::new);
 
-        Payment successfulPayment = Payment.builder()
-                .key(successfulPaymentKey)
-                .amount(new BigDecimal("100.00"))
+        Payment successfulfreePayment = Payment.builder()
+                .key(successfulFreePaymentKey)
+                .amount(new BigDecimal("0"))
+                .status(PaymentStatus.COMPLETED_FREE)
+                .startedAt(LocalDateTime.now())
+                .endedAt(LocalDateTime.now().plusHours(1))
+                .member(kakaopayCard.getMember())
+                .cardInfo(new PaymentCardInfo(kakaopayCard.getType(), kakaopayCard.getIssuerCorporation(), kakaopayCard.getBin()))
+                .build();
+
+        Payment successfulPaidPayment = Payment.builder()
+                .key(successfulPaidPaymentKey)
+                .amount(new BigDecimal("200.00"))
                 .status(PaymentStatus.COMPLETED_PAID)
                 .startedAt(LocalDateTime.now())
                 .endedAt(LocalDateTime.now().plusHours(1))
@@ -238,7 +250,7 @@ public class TestInitDB {
 
         Payment failedPayment = Payment.builder()
                 .key(failedPaymentKey)
-                .amount(new BigDecimal("50.00"))
+                .amount(new BigDecimal("300.00"))
                 .status(PaymentStatus.FAILED)
                 .startedAt(LocalDateTime.now())
                 .endedAt(LocalDateTime.now().plusHours(1))
@@ -246,6 +258,6 @@ public class TestInitDB {
                 .cardInfo(null)
                 .build();
 
-        paymentRepository.saveAll(List.of(successfulPayment, failedPayment));
+        paymentRepository.saveAll(List.of(successfulfreePayment, successfulPaidPayment, failedPayment));
     }
 }

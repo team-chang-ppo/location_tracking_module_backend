@@ -80,7 +80,7 @@ public class PaymentControllerIntegrationTest {
     CustomOAuth2User customOAuth2FreeMember, customOAuth2NormalMember, customOAuth2BanForPaymentFailureMember, customOAuth2RequestDeletionMember, customOAuth2AdminMember;
     ApiKey freeApiKey, classicApiKey, banForPaymentFailureApiKey, banForCardDeletionApiKey, requestDeletionApiKey;
     Card kakaopayCard;
-    Payment successfulPayment, failedPayment;
+    Payment successfulPaidPayment, successfulFreePayment, failedPayment;
 
     @BeforeEach
     void beforeEach() {
@@ -122,7 +122,8 @@ public class PaymentControllerIntegrationTest {
     }
 
     private void setupPayments() {
-        successfulPayment = paymentRepository.findByKey(testInitDB.getSuccessfulPaymentKey()).orElseThrow(PaymentNotFoundException::new);
+        successfulPaidPayment = paymentRepository.findByKey(testInitDB.getSuccessfulPaidPaymentKey()).orElseThrow(PaymentNotFoundException::new);
+        successfulFreePayment = paymentRepository.findByKey(testInitDB.getSuccessfulFreePaymentKey()).orElseThrow(PaymentNotFoundException::new);
         failedPayment = paymentRepository.findByKey(testInitDB.getFailedPaymentKey()).orElseThrow(PaymentNotFoundException::new);
     }
 
@@ -178,7 +179,7 @@ public class PaymentControllerIntegrationTest {
         PaymentExecutionJobResponse paymentExecutionJobResponse = buildPaymentExecutionJobResponse();
         when(paymentExecutionJobClient.PaymentExecutionJob(any(PaymentExecutionJobRequest.class))).thenReturn(ClientResponse.success(paymentExecutionJobResponse));
         // when
-        mockMvc.perform(post("/api/payments/v1/repayment/{id}", successfulPayment.getId())
+        mockMvc.perform(post("/api/payments/v1/repayment/{id}", successfulPaidPayment.getId())
                         .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2NormalMember)))
                 .andExpect(status().isForbidden());
     }
@@ -206,9 +207,9 @@ public class PaymentControllerIntegrationTest {
                         .param("size", req.getSize().toString())
                         .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2NormalMember)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.data.numberOfElements").value(normalMemberPaymentCount))
+                .andExpect(jsonPath("$.result.data.numberOfElements").value(normalMemberPaymentCount-1))
                 .andExpect(jsonPath("$.result.data.hasNext").value(false))
-                .andExpect(jsonPath("$.result.data.paymentList.length()").value(normalMemberPaymentCount));
+                .andExpect(jsonPath("$.result.data.paymentList.length()").value(normalMemberPaymentCount-1));
     }
 
     @Test
@@ -223,9 +224,9 @@ public class PaymentControllerIntegrationTest {
                                 .param("size", req.getSize().toString())
                                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2AdminMember)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.data.numberOfElements").value(normalMemberPaymentCount))
+                .andExpect(jsonPath("$.result.data.numberOfElements").value(normalMemberPaymentCount-1))
                 .andExpect(jsonPath("$.result.data.hasNext").value(false))
-                .andExpect(jsonPath("$.result.data.paymentList.length()").value(normalMemberPaymentCount));
+                .andExpect(jsonPath("$.result.data.paymentList.length()").value(normalMemberPaymentCount-1));
     }
 
     @Test
