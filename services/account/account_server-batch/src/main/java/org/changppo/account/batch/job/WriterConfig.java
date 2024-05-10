@@ -14,6 +14,7 @@ import org.changppo.account.service.event.payment.PaymentEventPublisher;
 import org.changppo.account.type.PaymentGatewayType;
 import org.changppo.account.type.PaymentStatus;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import java.time.LocalDateTime;
@@ -35,23 +36,23 @@ public class WriterConfig {
     private final List<OAuth2Client> oauth2Clients;
 
     @Bean(AUTOMATIC_PAYMENT_WRITER)
-    public ItemWriter<Payment> paymentItemWriterForAutomaticPayment() {
+    public ItemWriter<Payment> paymentItemWriterForAutomaticPayment(@Value("#{jobParameters[JobStartTime]}") LocalDateTime jobStartTime) {
         return payments -> payments.forEach(payment -> {
             paymentEventPublisher.publishEvent(payment);
             paymentRepository.save(payment);
             if (payment.getStatus() == PaymentStatus.FAILED) {
-                handlePaymentFailure(payment.getMember());
+                handlePaymentFailure(payment.getMember(), jobStartTime);
             }
         });
     }
 
     @Bean(DELETION_WRITER)
-    public ItemWriter<Payment> paymentItemWriterForDeletion() {
+    public ItemWriter<Payment> paymentItemWriterForDeletion(@Value("#{jobParameters[JobStartTime]}") LocalDateTime jobStartTime) {
         return payments -> payments.forEach(payment -> {
             paymentRepository.save(payment);
             paymentEventPublisher.publishEvent(payment);
             if (payment.getStatus() == PaymentStatus.FAILED) {
-                handlePaymentFailure(payment.getMember());
+                handlePaymentFailure(payment.getMember(), jobStartTime);
                 handleMemberDeletionFailure(payment.getMember());
             }
             else {
@@ -60,9 +61,9 @@ public class WriterConfig {
         });
     }
 
-    public void handlePaymentFailure(Member member) {
-        member.banForPaymentFailure(LocalDateTime.now());
-        apiKeyRepository.unbanApiKeysForPaymentFailure(member.getId());
+    public void handlePaymentFailure(Member member, LocalDateTime jobStartTime) {
+        member.banForPaymentFailure(jobStartTime);
+        apiKeyRepository.banApiKeysForPaymentFailure(member.getId(), jobStartTime);
     }
 
     public void handleMemberDeletionFailure(Member member) {
@@ -72,9 +73,9 @@ public class WriterConfig {
 
     public void handleMemberDeletion(Member member) {
         deleteMemberApiKeys(member.getId());
+        inactivePaymentGatewayCards(member.getId());
         deleteMemberCards(member.getId());
         deleteMemberPayment(member.getId());
-        inactivePaymentGatewayCards(member.getId());
         unlinkOAuth2Member(member.getName());
         deleteMember(member);
     }
