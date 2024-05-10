@@ -57,6 +57,7 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test' // Spring Security Test
     testImplementation 'org.projectlombok:lombok' // Lombok for testing
     testAnnotationProcessor 'org.projectlombok:lombok' // Lombok for testing
+    testImplementation 'org.springframework.batch:spring-batch-test' // Spring Batch Test
 }
 
 tasks.named('bootBuildImage') {
