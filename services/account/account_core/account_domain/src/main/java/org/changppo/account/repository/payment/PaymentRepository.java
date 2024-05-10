@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -21,4 +22,5 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {  //TOD
     Slice<PaymentDto> findAllByMemberIdAndStatusNotCompletedFree(@Param("memberId") Long memberId, @Param("lastPaymentId") Long lastPaymentId, Pageable pageable);
     Optional<Payment> findByKey(String key);
     long countByMemberId(Long memberId);
+    List<Payment> findByMemberId(Long memberId);
 }

@@ -25,6 +25,9 @@ spring:
     open-in-view: false
     show-sql: true
 
+quartz:
+  properties: security/quartz-local.properties
+
 logging:
   level:
     org.hibernate.orm.jdbc.bind: trace

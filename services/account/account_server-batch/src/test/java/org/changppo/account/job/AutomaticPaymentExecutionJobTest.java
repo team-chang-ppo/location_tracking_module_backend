@@ -2,12 +2,16 @@ package org.changppo.account.job;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.changppo.account.TestInitDB;
+import org.changppo.account.entity.apikey.ApiKey;
 import org.changppo.account.entity.card.Card;
 import org.changppo.account.entity.member.Member;
-import org.changppo.account.payment.dto.PaymentExecutionJobResponse;
+import org.changppo.account.entity.payment.Payment;
 import org.changppo.account.paymentgateway.kakaopay.dto.payment.KakaopayApproveResponse;
+import org.changppo.account.repository.apikey.ApiKeyRepository;
 import org.changppo.account.repository.card.CardRepository;
 import org.changppo.account.repository.member.MemberRepository;
+import org.changppo.account.repository.payment.PaymentRepository;
+import org.changppo.account.type.PaymentStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.*;
@@ -23,13 +27,13 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import static org.changppo.account.batch.job.JobConfig.PAYMENT_JOB;
+import static org.changppo.account.batch.job.JobConfig.AUTOMATIC_PAYMENT_JOB;
 import static org.changppo.account.builder.card.paymentgateway.kakaopay.KakaopayResponseBuilder.buildKakaopayApproveResponse;
 import static org.changppo.account.paymentgateway.kakaopay.KakaopayConstants.KAKAOPAY_PAYMENT_URL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
@@ -37,17 +41,21 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 @ActiveProfiles(value = "test")
 @SpringBatchTest
 @SpringBootTest
-public class PaymentExecutionJobTest {
+public class AutomaticPaymentExecutionJobTest { //TODO. 비용집계 서버와 통신 이후 Mock으로 대체
 
     @Autowired
     JobLauncherTestUtils jobLauncherTestUtils;
     @Autowired
-    @Qualifier(PAYMENT_JOB)
-    Job paymentExecutionJob;
+    @Qualifier(AUTOMATIC_PAYMENT_JOB)
+    Job automaticPaymentExecutionJob;
     @Autowired
     TestInitDB testInitDB;
     @Autowired
+    PaymentRepository paymentRepository;
+    @Autowired
     CardRepository cardRepository;
+    @Autowired
+    ApiKeyRepository apiKeyRepository;
     @Autowired
     MemberRepository memberRepository;
     @Autowired
@@ -55,43 +63,56 @@ public class PaymentExecutionJobTest {
 
     MockRestServiceServer mockServer;
     ObjectMapper objectMapper = new ObjectMapper();
-    Member normalMember;
+    Member freeMember, normalMember;
     Card kakaopayCardByNormalMember;
 
     @BeforeEach
     void beforeEach() {
-        jobLauncherTestUtils.setJob(paymentExecutionJob);
+        jobLauncherTestUtils.setJob(automaticPaymentExecutionJob);
         mockServer = MockRestServiceServer.createServer(restTemplate);
         testInitDB.initMember();
+        testInitDB.initApiKey();
         testInitDB.initCard();
         setupMembers();
         setupCards();
     }
 
     private void setupMembers() {
+        freeMember =  memberRepository.findByName(testInitDB.getFreeMemberName()).orElseThrow();
         normalMember = memberRepository.findByName(testInitDB.getNormalMemberName()).orElseThrow();
     }
 
     private void setupCards() {
         kakaopayCardByNormalMember = cardRepository.findByKey(testInitDB.getKakaopayCardByNormalMemberKey()).orElseThrow();
     }
-    
+
     @Test
     public void paymentExecutionJobTest() throws Exception {
         // given
-        BigDecimal paymentAmount = new BigDecimal("10000");
         KakaopayApproveResponse kakaopayApproveResponse = buildKakaopayApproveResponse(normalMember.getId(), LocalDateTime.now());
         simulatePaymentSuccess(kakaopayApproveResponse);
-        JobParameters jobParameters = buildJobParameters(normalMember.getId(), paymentAmount, LocalDateTime.now());
+        JobParameters jobParameters = buildJobParameters();
         // when
         JobExecution jobExecution = jobLauncherTestUtils.launchJob(jobParameters);
-        PaymentExecutionJobResponse paymentExecutionJobResponse = extractPaymentDetails(jobExecution);
+        StepExecution stepExecution = jobExecution.getStepExecutions().iterator().next();
+        Payment paymentsByNormalMember = paymentRepository.findByMemberId(normalMember.getId()).get(0);
+        Payment paymentsByFreeMember = paymentRepository.findByMemberId(freeMember.getId()).get(0);
+        Member updatedFreeMember = memberRepository.findByName(testInitDB.getFreeMemberName()).orElseThrow();
+        ApiKey updatedFreeApiKey = apiKeyRepository.findByValue(testInitDB.getFreeApiKeyValue()).orElseThrow();
         // then
         assertEquals(BatchStatus.COMPLETED, jobExecution.getStatus());
-        assertEquals(kakaopayApproveResponse.getKey(), paymentExecutionJobResponse.getKey());
-        assertEquals(kakaopayCardByNormalMember.getType(), paymentExecutionJobResponse.getCardType());
-        assertEquals(kakaopayCardByNormalMember.getIssuerCorporation(), paymentExecutionJobResponse.getCardIssuerCorporation());
-        assertEquals(kakaopayCardByNormalMember.getBin(), paymentExecutionJobResponse.getCardBin());
+        assertEquals(2, stepExecution.getReadCount());
+        assertEquals(2, stepExecution.getWriteCount());
+        assertEquals(1, stepExecution.getCommitCount());
+        assertEquals(PaymentStatus.COMPLETED_PAID, paymentsByNormalMember.getStatus());
+        assertEquals(kakaopayApproveResponse.getKey(), paymentsByNormalMember.getKey());
+        assertEquals(kakaopayCardByNormalMember.getType(), paymentsByNormalMember.getCardInfo().getType());
+        assertEquals(kakaopayCardByNormalMember.getIssuerCorporation(), paymentsByNormalMember.getCardInfo().getIssuerCorporation());
+        assertEquals(kakaopayCardByNormalMember.getBin(), paymentsByNormalMember.getCardInfo().getBin());
+
+        assertEquals(PaymentStatus.FAILED, paymentsByFreeMember.getStatus());
+        assertTrue(updatedFreeMember.isPaymentFailureBanned());
+        assertTrue(updatedFreeApiKey.isPaymentFailureBanned());
     }
 
     private void simulatePaymentSuccess(KakaopayApproveResponse kakaopayApproveResponse) throws Exception{
@@ -101,25 +122,10 @@ public class PaymentExecutionJobTest {
                 .andRespond(withSuccess(KakaopayApproveResponseJson, MediaType.APPLICATION_JSON));
     }
 
-    private JobParameters buildJobParameters(Long memberId, BigDecimal amount, LocalDateTime date) {
+    private JobParameters buildJobParameters() {
         return new JobParametersBuilder()
-                .addLong("memberId", memberId)
-                .addString("amount", amount.toString())
-                .addLocalDateTime("date", date)
+                .addLocalDateTime("JobStartTime", LocalDateTime.now().plusDays(3))
                 .toJobParameters();
-    }
-
-    private PaymentExecutionJobResponse extractPaymentDetails(JobExecution jobExecution) {
-        String key = safeExtractString(jobExecution, "key");
-        String cardType = safeExtractString(jobExecution, "cardType");
-        String cardIssuerCorporation = safeExtractString(jobExecution, "cardIssuerCorporation");
-        String cardBin = safeExtractString(jobExecution, "cardBin");
-        return new PaymentExecutionJobResponse(key, cardType, cardIssuerCorporation, cardBin);
-    }
-
-    private String safeExtractString(JobExecution jobExecution, String key) {
-        Object value = jobExecution.getExecutionContext().get(key);
-        return value != null ? value.toString() : "Unknown";
     }
 
     private String convertToJson(Object object) throws IOException {

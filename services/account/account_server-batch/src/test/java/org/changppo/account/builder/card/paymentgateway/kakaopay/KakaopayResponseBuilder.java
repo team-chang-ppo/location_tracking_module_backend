@@ -2,7 +2,6 @@ package org.changppo.account.builder.card.paymentgateway.kakaopay;
 
 
 import org.changppo.account.paymentgateway.kakaopay.dto.payment.KakaopayApproveResponse;
-import org.changppo.account.paymentgateway.kakaopay.dto.payment.KakaopayReadyResponse;
 import org.changppo.account.paymentgateway.kakaopay.dto.subscription.KakaopaySubscriptionInactiveResponse;
 
 import java.time.LocalDateTime;
@@ -10,27 +9,8 @@ import java.util.UUID;
 
 import static org.changppo.account.paymentgateway.kakaopay.KakaopayConstants.*;
 
+
 public class KakaopayResponseBuilder {
-
-    public static KakaopayReadyResponse buildKakaopayReadyResponse(LocalDateTime time) {
-        String tid = UUID.randomUUID().toString();
-        String nextRedirectAppUrl = "kakaoapp://kakaopay/ready/" + UUID.randomUUID();
-        String nextRedirectMobileUrl = "https://m.kakaopay.com/ready/" + UUID.randomUUID();
-        String nextRedirectPcUrl = "https://kakaopay.com/ready/" + UUID.randomUUID();
-        String androidAppScheme = "kakaopay-android-app-scheme://" + UUID.randomUUID();
-        String iosAppScheme = "kakaopay-ios-app-scheme://" + UUID.randomUUID();
-        String createdAt = time.toString();
-
-        return new KakaopayReadyResponse(
-                tid,
-                nextRedirectAppUrl,
-                nextRedirectMobileUrl,
-                nextRedirectPcUrl,
-                androidAppScheme,
-                iosAppScheme,
-                createdAt
-        );
-    }
 
     public static KakaopayApproveResponse buildKakaopayApproveResponse(Long memberId, LocalDateTime time) {
         String aid = "aid_" + UUID.randomUUID();
@@ -55,6 +35,7 @@ public class KakaopayResponseBuilder {
                 createdAt, approvedAt, payload
         );
     }
+
     public static KakaopaySubscriptionInactiveResponse buildKakaopaySubscriptionInactiveResponse(LocalDateTime time) {
         return new KakaopaySubscriptionInactiveResponse(
                 CID,

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PaymentExecutionJobResponse {
     private String key;
-    private String CardType;
+    private String cardType;
     private String cardIssuerCorporation;
     private String cardBin;
 }

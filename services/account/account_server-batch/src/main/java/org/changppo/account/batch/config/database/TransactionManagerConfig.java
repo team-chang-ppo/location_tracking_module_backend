@@ -20,6 +20,7 @@ import javax.sql.DataSource;
 import java.util.Collection;
 import java.util.Objects;
 
+import static org.changppo.account.batch.config.database.DataSourceConfig.DOMAIN_DATASOURCE;
 import static org.changppo.account.batch.config.database.DataSourceConfig.META_DATASOURCE;
 
 @Configuration
@@ -43,7 +44,7 @@ public class TransactionManagerConfig {
 
 
     @Bean(name = DOMAIN_ENTITY_MANAGER_FACTORY)
-    public LocalContainerEntityManagerFactoryBean domainEntityManagerFactory(@Qualifier(DataSourceConfig.DOMAIN_DATASOURCE) DataSource dataSource)  {
+    public LocalContainerEntityManagerFactoryBean domainEntityManagerFactory(@Qualifier(DOMAIN_DATASOURCE) DataSource dataSource)  {
         return EntityManagerFactoryCreator.builder()
                 .properties(jpaProperties)
                 .hibernateProperties(hibernateProperties)

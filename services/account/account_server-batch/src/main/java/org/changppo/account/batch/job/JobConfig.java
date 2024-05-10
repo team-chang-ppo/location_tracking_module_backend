@@ -44,9 +44,9 @@ import static org.changppo.account.batch.job.WriterConfig.DELETION_WRITER;
 @Slf4j
 public class JobConfig {
 
-    public static final String AUTOMATIC_PAYMENT_JOB = "AutomaticPaymentExecutionJob";
+    public static final String AUTOMATIC_PAYMENT_JOB = "automaticPaymentExecutionJob";
     public static final String AUTOMATIC_PAYMENT_STEP = "executeAutomaticPaymentStep";
-    public static final String DELETION_JOB = "DeletionExecutionJob";
+    public static final String DELETION_JOB = "deletionExecutionJob";
     public static final String DELETION_STEP = "executeDeletionStep";
     public static final String PAYMENT_JOB = "paymentExecutionJob";
     public static final String PAYMENT_STEP = "executePaymentStep";
@@ -64,7 +64,7 @@ public class JobConfig {
     }
 
     @Bean(AUTOMATIC_PAYMENT_JOB)
-    public Job AutomaticPaymentExecutionJob(@Qualifier(AUTOMATIC_PAYMENT_STEP) Step executeAutomaticPaymentStep) {
+    public Job automaticPaymentExecutionJob(@Qualifier(AUTOMATIC_PAYMENT_STEP) Step executeAutomaticPaymentStep) {
         return new JobBuilder("AutomaticPaymentExecutionJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .start(executeAutomaticPaymentStep)
@@ -84,7 +84,7 @@ public class JobConfig {
     }
 
     @Bean(DELETION_JOB)
-    public Job DeletionExecutionJob(@Qualifier(DELETION_STEP) Step executeDeletionStep) {
+    public Job deletionExecutionJob(@Qualifier(DELETION_STEP) Step executeDeletionStep) {
         return new JobBuilder("DeletionExecutionJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .start(executeDeletionStep)

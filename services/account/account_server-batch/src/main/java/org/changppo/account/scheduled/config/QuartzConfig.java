@@ -5,6 +5,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
@@ -15,18 +16,20 @@ import org.springframework.scheduling.quartz.SpringBeanJobFactory;
 import org.springframework.transaction.PlatformTransactionManager;
 import java.io.IOException;
 import java.util.Properties;
-
 import static org.changppo.account.batch.config.database.TransactionManagerConfig.META_TRANSACTION_MANAGER;
 
 @Configuration
+@EnableConfigurationProperties(QuartzProperties.class)
 public class QuartzConfig {
 
     private final ApplicationContext applicationContext;
     private final PlatformTransactionManager metaTransactionManager;
+    private final QuartzProperties quartzProperties;
 
-    public QuartzConfig(ApplicationContext applicationContext, @Qualifier(META_TRANSACTION_MANAGER)PlatformTransactionManager metaTransactionManager) {
+    public QuartzConfig(ApplicationContext applicationContext, @Qualifier(META_TRANSACTION_MANAGER)PlatformTransactionManager metaTransactionManager, QuartzProperties quartzProperties) {
         this.applicationContext = applicationContext;
         this.metaTransactionManager = metaTransactionManager;
+        this.quartzProperties =  quartzProperties;
     }
 
     @Bean
@@ -45,7 +48,7 @@ public class QuartzConfig {
 
     private Properties quartzProperties() {
         PropertiesFactoryBean propertiesFactoryBean = new PropertiesFactoryBean();
-        propertiesFactoryBean.setLocation(new ClassPathResource("security/quartz.properties"));
+        propertiesFactoryBean.setLocation(new ClassPathResource(quartzProperties.getProperties()));
         Properties properties = null;
 
         try {
