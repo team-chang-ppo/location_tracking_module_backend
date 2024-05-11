@@ -12,6 +12,7 @@ import org.changppo.account.repository.card.CardRepository;
 import org.changppo.account.repository.member.MemberRepository;
 import org.changppo.account.repository.payment.PaymentRepository;
 import org.changppo.account.type.PaymentStatus;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.*;
@@ -75,6 +76,11 @@ public class AutomaticPaymentExecutionJobTest { //TODO. 비용집계 서버와 �
         testInitDB.initCard();
         setupMembers();
         setupCards();
+    }
+
+    @AfterEach
+    void afterEach() {
+        mockServer.reset();
     }
 
     private void setupMembers() {

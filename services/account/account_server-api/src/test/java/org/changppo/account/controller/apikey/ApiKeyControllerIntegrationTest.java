@@ -52,6 +52,7 @@ public class ApiKeyControllerIntegrationTest {
     ApiKeyRepository apiKeyRepository;
     @Autowired
     MemberRepository memberRepository;
+
     ObjectMapper objectMapper = new ObjectMapper();
     Member freeMember, normalMember, banForPaymentFailureMember, requestDeletionMember, adminMember;
     CustomOAuth2User customOAuth2FreeMember, customOAuth2NormalMember, customOAuth2BanForPaymentFailureMember, customOAuth2RequestDeletionMember, customOAuth2AdminMember;

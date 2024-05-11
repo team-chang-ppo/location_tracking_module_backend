@@ -9,6 +9,7 @@ import org.changppo.account.paymentgateway.kakaopay.dto.payment.KakaopayApproveR
 import org.changppo.account.repository.apikey.ApiKeyRepository;
 import org.changppo.account.repository.card.CardRepository;
 import org.changppo.account.repository.member.MemberRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.*;
@@ -72,6 +73,11 @@ public class DeletionExecutionJobTest { //TODO. 비용집계 서버와 통신 �
         setupMembers();
     }
 
+    @AfterEach
+    void afterEach() {
+        mockServer.reset();
+    }
+
     private void setupMembers() {
         requestDeletionMember = memberRepository.findByName(testInitDB.getRequestDeletionMemberName()).orElseThrow();
     }
@@ -81,13 +87,14 @@ public class DeletionExecutionJobTest { //TODO. 비용집계 서버와 통신 �
         // given
         KakaopayApproveResponse kakaopayApproveResponse = buildKakaopayApproveResponse(requestDeletionMember.getId(), LocalDateTime.now());
         simulatePaymentSuccess(kakaopayApproveResponse);
-        simulateMemberUnlinkSuccess();
         simulateCardInactiveSuccess();
+        simulateMemberUnlinkSuccess();
         JobParameters jobParameters = buildJobParameters();
         // when
         JobExecution jobExecution = jobLauncherTestUtils.launchJob(jobParameters);
         StepExecution stepExecution = jobExecution.getStepExecutions().iterator().next();
         // then
+        mockServer.verify();
         assertEquals(BatchStatus.COMPLETED, jobExecution.getStatus());
         assertEquals(1, stepExecution.getReadCount());
         assertEquals(1, stepExecution.getWriteCount());

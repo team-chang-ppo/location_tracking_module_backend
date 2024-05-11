@@ -6,6 +6,7 @@ import org.changppo.account.repository.member.MemberRepository;
 import org.changppo.account.response.exception.member.MemberNotFoundException;
 import org.changppo.account.security.oauth2.CustomOAuth2User;
 import org.changppo.account.type.RoleType;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,7 @@ class MemberControllerIntegrationTest {
     MemberRepository memberRepository;
     @Autowired
     RestTemplate restTemplate;
+
     MockRestServiceServer mockServer;
     Member freeMember, normalMember, banForPaymentFailureMember, requestDeletionMember, adminMember;
     CustomOAuth2User customOAuth2FreeMember, customOAuth2NormalMember, customOAuth2BanForPaymentFailureMember, customOAuth2RequestDeletionMember, customOAuth2AdminMember;
@@ -55,6 +57,11 @@ class MemberControllerIntegrationTest {
         mockServer = MockRestServiceServer.createServer(restTemplate);
         testInitDB.initMember();
         setupMembers();
+    }
+
+    @AfterEach
+    void afterEach() {
+        mockServer.reset();
     }
 
     private void setupMembers() {

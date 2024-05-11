@@ -10,6 +10,7 @@ import org.changppo.account.paymentgateway.kakaopay.dto.payment.KakaopayApproveR
 import org.changppo.account.repository.card.CardRepository;
 import org.changppo.account.repository.member.MemberRepository;
 import org.changppo.account.repository.payment.PaymentRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.Job;
@@ -89,6 +90,11 @@ public class BatchControllerTest {
         setupPayments();
     }
 
+    @AfterEach
+    void afterEach() {
+        mockServer.reset();
+    }
+
     private void setupMembers() {
         banForPaymentFailureMember = memberRepository.findByName(testInitDB.getBanForPaymentFailureMemberName()).orElseThrow();
     }
@@ -104,12 +110,11 @@ public class BatchControllerTest {
     @Test
     public void batchControllerTest() throws Exception {
         // given
-        simulatePaymentFailure();
+        simulatePaymentFailure();  // 실패 후 성공
+        KakaopayApproveResponse kakaopayApproveResponse = buildKakaopayApproveResponse(banForPaymentFailureMember.getId(), LocalDateTime.now());
+        simulatePaymentSuccess(kakaopayApproveResponse);
         JobParameters jobParameters = buildJobParameters(failedPayment.getMember().getId(), failedPayment.getAmount(), failedPayment.getEndedAt());
         jobLauncher.run(paymentExecutionJob, jobParameters);
-        KakaopayApproveResponse kakaopayApproveResponse = buildKakaopayApproveResponse(banForPaymentFailureMember.getId(), LocalDateTime.now());
-        mockServer = MockRestServiceServer.createServer(restTemplate);
-        simulatePaymentSuccess(kakaopayApproveResponse);
         PaymentExecutionJobRequest req = buildPaymentExecutionJobRequest(failedPayment.getMember().getId(), failedPayment.getAmount(), failedPayment.getEndedAt());
         // when, then
         mockMvc.perform(

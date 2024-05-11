@@ -21,6 +21,7 @@ import org.changppo.account.response.exception.paymentgateway.KakaopayPaymentGat
 import org.changppo.account.security.oauth2.CustomOAuth2User;
 import org.changppo.account.type.PaymentGatewayType;
 import org.changppo.account.type.RoleType;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,6 +101,11 @@ public class KakaopayCardControllerIntegrationTest {
         setupMembers();
         setupApiKeys();
         setupCards();
+    }
+
+    @AfterEach
+    void afterEach() {
+        mockServer.reset();
     }
 
     private void setupMembers() {

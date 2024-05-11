@@ -8,6 +8,7 @@ import org.changppo.account.payment.dto.PaymentExecutionJobResponse;
 import org.changppo.account.paymentgateway.kakaopay.dto.payment.KakaopayApproveResponse;
 import org.changppo.account.repository.card.CardRepository;
 import org.changppo.account.repository.member.MemberRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.*;
@@ -66,6 +67,11 @@ public class PaymentExecutionJobTest {
         testInitDB.initCard();
         setupMembers();
         setupCards();
+    }
+
+    @AfterEach
+    void afterEach() {
+        mockServer.reset();
     }
 
     private void setupMembers() {

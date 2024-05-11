@@ -21,6 +21,7 @@ import org.changppo.account.response.exception.member.MemberNotFoundException;
 import org.changppo.account.response.exception.payment.PaymentNotFoundException;
 import org.changppo.account.security.oauth2.CustomOAuth2User;
 import org.changppo.account.type.PaymentStatus;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +75,7 @@ public class PaymentControllerIntegrationTest {
     MemberRepository memberRepository;
     @Autowired
     RestTemplate restTemplate;
+
     MockRestServiceServer mockServer;
     ObjectMapper objectMapper = new ObjectMapper();
     Member freeMember, normalMember, banForPaymentFailureMember, requestDeletionMember, adminMember;
@@ -94,6 +96,11 @@ public class PaymentControllerIntegrationTest {
         setupApiKeys();
         setupCards();
         setupPayments();
+    }
+
+    @AfterEach
+    void afterEach() {
+        mockServer.reset();
     }
 
     private void setupMembers() {
