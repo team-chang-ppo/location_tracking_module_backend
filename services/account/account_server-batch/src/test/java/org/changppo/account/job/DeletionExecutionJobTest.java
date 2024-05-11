@@ -1,6 +1,7 @@
 package org.changppo.account.job;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.changppo.account.DatabaseCleaner;
 import org.changppo.account.TestInitDB;
 import org.changppo.account.builder.card.paymentgateway.kakaopay.KakaopayResponseBuilder;
 import org.changppo.account.entity.apikey.ApiKey;
@@ -49,6 +50,8 @@ public class DeletionExecutionJobTest { //TODO. 비용집계 서버와 통신 �
     @Qualifier(DELETION_JOB)
     Job deletionExecutionJob;
     @Autowired
+    DatabaseCleaner databaseCleaner;
+    @Autowired
     TestInitDB testInitDB;
     @Autowired
     CardRepository cardRepository;
@@ -66,6 +69,7 @@ public class DeletionExecutionJobTest { //TODO. 비용집계 서버와 통신 �
     @BeforeEach
     void beforeEach() {
         jobLauncherTestUtils.setJob(deletionExecutionJob);
+        databaseCleaner.clean();
         mockServer = MockRestServiceServer.createServer(restTemplate);
         testInitDB.initMember();
         testInitDB.initApiKey();
@@ -83,7 +87,7 @@ public class DeletionExecutionJobTest { //TODO. 비용집계 서버와 통신 �
     }
 
     @Test
-    public void paymentExecutionJobTest() throws Exception {
+    public void paymentExecutionJobPaymentSuccessTest() throws Exception {
         // given
         KakaopayApproveResponse kakaopayApproveResponse = buildKakaopayApproveResponse(requestDeletionMember.getId(), LocalDateTime.now());
         simulatePaymentSuccess(kakaopayApproveResponse);

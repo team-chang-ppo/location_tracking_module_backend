@@ -1,6 +1,7 @@
 package org.changppo.account.job;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.changppo.account.DatabaseCleaner;
 import org.changppo.account.TestInitDB;
 import org.changppo.account.entity.apikey.ApiKey;
 import org.changppo.account.entity.card.Card;
@@ -50,6 +51,8 @@ public class AutomaticPaymentExecutionJobTest { //TODO. 비용집계 서버와 �
     @Qualifier(AUTOMATIC_PAYMENT_JOB)
     Job automaticPaymentExecutionJob;
     @Autowired
+    DatabaseCleaner databaseCleaner;
+    @Autowired
     TestInitDB testInitDB;
     @Autowired
     PaymentRepository paymentRepository;
@@ -70,6 +73,7 @@ public class AutomaticPaymentExecutionJobTest { //TODO. 비용집계 서버와 �
     @BeforeEach
     void beforeEach() {
         jobLauncherTestUtils.setJob(automaticPaymentExecutionJob);
+        databaseCleaner.clean();
         mockServer = MockRestServiceServer.createServer(restTemplate);
         testInitDB.initMember();
         testInitDB.initApiKey();

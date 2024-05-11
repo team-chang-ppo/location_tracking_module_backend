@@ -1,6 +1,7 @@
 package org.changppo.account.job;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.changppo.account.DatabaseCleaner;
 import org.changppo.account.TestInitDB;
 import org.changppo.account.entity.card.Card;
 import org.changppo.account.entity.member.Member;
@@ -46,6 +47,8 @@ public class PaymentExecutionJobTest {
     @Qualifier(PAYMENT_JOB)
     Job paymentExecutionJob;
     @Autowired
+    DatabaseCleaner databaseCleaner;
+    @Autowired
     TestInitDB testInitDB;
     @Autowired
     CardRepository cardRepository;
@@ -62,6 +65,7 @@ public class PaymentExecutionJobTest {
     @BeforeEach
     void beforeEach() {
         jobLauncherTestUtils.setJob(paymentExecutionJob);
+        databaseCleaner.clean();
         mockServer = MockRestServiceServer.createServer(restTemplate);
         testInitDB.initMember();
         testInitDB.initCard();

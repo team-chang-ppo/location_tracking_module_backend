@@ -1,6 +1,7 @@
 package org.changppo.account.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.changppo.account.DatabaseCleaner;
 import org.changppo.account.TestInitDB;
 import org.changppo.account.entity.card.Card;
 import org.changppo.account.entity.member.Member;
@@ -57,6 +58,8 @@ public class BatchControllerTest {
     @Qualifier(PAYMENT_JOB)
     Job paymentExecutionJob;
     @Autowired
+    DatabaseCleaner databaseCleaner;
+    @Autowired
     WebApplicationContext context;
     @Autowired
     MockMvc mockMvc;
@@ -80,6 +83,7 @@ public class BatchControllerTest {
     @BeforeEach
     void beforeEach() {
         mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+        databaseCleaner.clean();
         mockServer = MockRestServiceServer.createServer(restTemplate);
         testInitDB.initMember();
         testInitDB.initApiKey();
