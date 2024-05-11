@@ -15,6 +15,9 @@ spring:
     open-in-view: false
     show-sql: true
 
+api:
+  url: https://api.joon6093.link
+
 batch:
   url: https://batch.joon6093.link
 
