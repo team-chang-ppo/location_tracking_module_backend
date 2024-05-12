@@ -1,0 +1,3 @@
+[submodule "services/pipeline/monitoring_elk"]
+	path = services/pipeline/monitoring_elk
+	url = https://github.com/onjik/kafka-to-elk-pipline-preset.git

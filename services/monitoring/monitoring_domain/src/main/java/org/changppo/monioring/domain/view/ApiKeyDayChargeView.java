@@ -12,11 +12,11 @@ import java.util.List;
  * @param charges 일별 요금 정보 never null
  */
 public record ApiKeyDayChargeView (
-        String apiKey,
+        Long apiKey,
         List<DateChargeView> charges
 ) {
 
-    public ApiKeyDayChargeView(String apiKey, List<DateChargeView> charges) {
+    public ApiKeyDayChargeView(Long apiKey, List<DateChargeView> charges) {
         this.apiKey = apiKey;
         this.charges = Collections.unmodifiableList(charges);
     }

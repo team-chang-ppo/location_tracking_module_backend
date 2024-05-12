@@ -7,15 +7,13 @@ import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Aspect
-@Order(Ordered.HIGHEST_PRECEDENCE) // 가장 먼저 검증하도록
+//@Order(Ordered.HIGHEST_PRECEDENCE) // 가장 먼저 검증하도록
 @Component
 @RequiredArgsConstructor
 public class ValidatedArgsAspect {
