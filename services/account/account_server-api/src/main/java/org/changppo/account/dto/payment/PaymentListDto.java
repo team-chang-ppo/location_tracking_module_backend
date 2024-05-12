@@ -13,5 +13,5 @@ public class PaymentListDto {
 
     private boolean hasNext;
 
-    private List<PaymentDto> apiKeyList;
+    private List<PaymentDto> paymentList;
 }

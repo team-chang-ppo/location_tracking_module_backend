@@ -9,19 +9,12 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ApiKeyRepository extends JpaRepository<ApiKey, Long> {
-
-    @Query("select a from ApiKey a join fetch a.member where a.id = :id")
-    Optional<ApiKey> findByIdWithMember(@Param("id") Long id);
-
-    @Query("select a from ApiKey a join fetch a.grade where a.id = :id")
-    Optional<ApiKey> findByIdWithGrade(@Param("id") Long id);
-
+public interface ApiKeyRepository extends JpaRepository<ApiKey, Long> {  //TODO. 복잡한 쿼리는 Querydsl로 변경
     @Query("select new org.changppo.account.service.dto.apikey.ApiKeyDto(a.id, a.value, a.grade.gradeType, a.paymentFailureBannedAt, a.cardDeletionBannedAt, a.createdAt) " +
             "from ApiKey a where a.member.id = :memberId and a.id >= :firstApiKeyId " +
             "order by a.id asc")
@@ -32,8 +25,6 @@ public interface ApiKeyRepository extends JpaRepository<ApiKey, Long> {
     Optional<ApiKey> findByValue(String value);
 
     long countByMemberId(Long memberId);
-
-    List<ApiKey> findAllByMemberId(Long memberId);
 
     @Modifying
     @Query("UPDATE ApiKey a SET a.cardDeletionBannedAt = :time WHERE a.member.id = :memberId AND a.grade.gradeType != 'GRADE_FREE'")

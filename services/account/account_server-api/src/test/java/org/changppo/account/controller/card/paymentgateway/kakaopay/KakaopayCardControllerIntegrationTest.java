@@ -21,6 +21,7 @@ import org.changppo.account.response.exception.paymentgateway.KakaopayPaymentGat
 import org.changppo.account.security.oauth2.CustomOAuth2User;
 import org.changppo.account.type.PaymentGatewayType;
 import org.changppo.account.type.RoleType;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,15 +44,14 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static org.changppo.account.builder.card.KakaopayRequestBuilder.*;
-import static org.changppo.account.builder.card.KakaopayResponseBuilder.buildKakaopayApproveResponse;
-import static org.changppo.account.builder.card.KakaopayResponseBuilder.buildKakaopayReadyResponse;
+import static org.changppo.account.builder.card.paymentgateway.kakaopay.KakaopayRequestBuilder.*;
+import static org.changppo.account.builder.card.paymentgateway.kakaopay.KakaopayResponseBuilder.buildKakaopayApproveResponse;
+import static org.changppo.account.builder.card.paymentgateway.kakaopay.KakaopayResponseBuilder.buildKakaopayReadyResponse;
 import static org.changppo.account.builder.member.CustomOAuth2UserBuilder.buildCustomOAuth2User;
 import static org.changppo.account.builder.response.JsonNodeBuilder.buildJsonNode;
 import static org.changppo.account.paymentgateway.kakaopay.KakaopayConstants.KAKAOPAY_APPROVE_URL;
 import static org.changppo.account.paymentgateway.kakaopay.KakaopayConstants.KAKAOPAY_READY_URL;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
@@ -81,6 +81,7 @@ public class KakaopayCardControllerIntegrationTest {
     MemberRepository memberRepository;
     @Autowired
     RestTemplate restTemplate;
+
     MockRestServiceServer mockServer;
     MockHttpSession mockSession;
     ObjectMapper objectMapper = new ObjectMapper();
@@ -88,6 +89,7 @@ public class KakaopayCardControllerIntegrationTest {
     CustomOAuth2User customOAuth2FreeMember, customOAuth2NormalMember, customOAuth2BannedMember, customOAuth2AdminMember;
     ApiKey freeApiKey, classicApiKey, classicApiKeyByBannedMember, bannedApiKey;
     Card card;
+
     @BeforeEach
     void beforeEach() {
         mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
@@ -101,10 +103,15 @@ public class KakaopayCardControllerIntegrationTest {
         setupCards();
     }
 
+    @AfterEach
+    void afterEach() {
+        mockServer.reset();
+    }
+
     private void setupMembers() {
         freeMember = memberRepository.findByName(testInitDB.getFreeMemberName()).orElseThrow(MemberNotFoundException::new);
         normalMember = memberRepository.findByName(testInitDB.getNormalMemberName()).orElseThrow(MemberNotFoundException::new);
-        bannedMember = memberRepository.findByName(testInitDB.getBannedMemberName()).orElseThrow(MemberNotFoundException::new);
+        bannedMember = memberRepository.findByName(testInitDB.getBanForPaymentFailureMemberName()).orElseThrow(MemberNotFoundException::new);
         adminMember = memberRepository.findByName(testInitDB.getAdminMemberName()).orElseThrow(MemberNotFoundException::new);
         customOAuth2FreeMember = buildCustomOAuth2User(freeMember);
         customOAuth2NormalMember = buildCustomOAuth2User(normalMember);
@@ -115,12 +122,11 @@ public class KakaopayCardControllerIntegrationTest {
     private void setupApiKeys() {
         freeApiKey = apiKeyRepository.findByValue(testInitDB.getFreeApiKeyValue()).orElseThrow(ApiKeyNotFoundException::new);
         classicApiKey = apiKeyRepository.findByValue(testInitDB.getClassicApiKeyValue()).orElseThrow(ApiKeyNotFoundException::new);
-        classicApiKeyByBannedMember = apiKeyRepository.findByValue(testInitDB.getClassicApiKeyByBannedMemberValue()).orElseThrow(ApiKeyNotFoundException::new);
-        bannedApiKey = apiKeyRepository.findByValue(testInitDB.getBannedApiKeyValue()).orElseThrow(ApiKeyNotFoundException::new);
+        bannedApiKey = apiKeyRepository.findByValue(testInitDB.getBanForPaymentFailureApiKeyValue()).orElseThrow(ApiKeyNotFoundException::new);
     }
 
     private void setupCards() {
-        card = cardRepository.findByKey(testInitDB.getTestCardKey()).orElseThrow(CardNotFoundException::new);
+        card = cardRepository.findByKey(testInitDB.getKakaopayCardKey()).orElseThrow(CardNotFoundException::new);
     }
     @Test
     void registerReadyTest() throws Exception{
@@ -261,7 +267,7 @@ public class KakaopayCardControllerIntegrationTest {
                     .session(mockSession)
                     .param("partner_order_id", kakaopayCardRegisterFailRequest.getPartner_order_id())
                     .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof KakaopayPaymentGatewayFailException))
+                .andExpect(result -> assertInstanceOf(KakaopayPaymentGatewayFailException.class, result.getResolvedException()))
                 .andExpect(status().isInternalServerError());
     }
 

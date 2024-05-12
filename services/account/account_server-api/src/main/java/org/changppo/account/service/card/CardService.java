@@ -118,6 +118,15 @@ public class CardService {
         }
     }
 
+    private void inactivePaymentGatewayCard(Card card) {
+        PaymentGatewayType paymentGatewayType = card.getPaymentGateway().getPaymentGatewayType();
+        paymentGatewayClients.stream()
+                .filter(client -> client.supports(paymentGatewayType))
+                .findFirst()
+                .orElseThrow(UnsupportedPaymentGatewayException::new)
+                .inactive(card.getKey());
+    }
+
     private boolean isLastCard(Card card) {
         return cardRepository.countByMemberId(card.getMember().getId()) == 0;
     }
@@ -130,15 +139,6 @@ public class CardService {
 
     private void banForCardDeletionApiKeys(Member member) {
         apiKeyRepository.banForCardDeletionByMemberId(member.getId(), LocalDateTime.now());
-    }
-
-    private void inactivePaymentGatewayCard(Card card) {
-        PaymentGatewayType paymentGatewayType = card.getPaymentGateway().getPaymentGatewayType();
-        paymentGatewayClients.stream()
-                .filter(client -> client.supports(paymentGatewayType))
-                .findFirst()
-                .orElseThrow(UnsupportedPaymentGatewayException::new)
-                .inactive(card.getKey());
     }
 
     private void updateAuthentication(Member member) {

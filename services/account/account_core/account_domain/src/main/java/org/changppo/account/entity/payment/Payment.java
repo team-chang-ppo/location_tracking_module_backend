@@ -19,12 +19,15 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE payment SET deleted_at = CURRENT_TIMESTAMP WHERE payment_id = ?")
 @SQLRestriction("deleted_at is NULL")
-public class Payment extends EntityDate {  // TODO. 동시성 문제 고려
+public class Payment extends EntityDate {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "payment_id")
     private Long id;
+
+    @Column(name = "`key`", unique = true)
+    private String key;
 
     @Column(nullable = false)
     private BigDecimal amount;
@@ -50,7 +53,8 @@ public class Payment extends EntityDate {  // TODO. 동시성 문제 고려
     private LocalDateTime deletedAt;
 
     @Builder
-    public Payment(BigDecimal amount, PaymentStatus status, LocalDateTime startedAt, LocalDateTime endedAt, Member member, PaymentCardInfo cardInfo) {
+    public Payment(String key, BigDecimal amount, PaymentStatus status, LocalDateTime startedAt, LocalDateTime endedAt, Member member, PaymentCardInfo cardInfo) {
+        this.key = key;
         this.amount = amount;
         this.status = status;
         this.startedAt = startedAt;
@@ -60,8 +64,13 @@ public class Payment extends EntityDate {  // TODO. 동시성 문제 고려
         this.deletedAt = null;
     }
 
-    public void changeStatus(PaymentStatus status, PaymentCardInfo cardInfo) {
+    public void changeStatus(PaymentStatus status, String key, PaymentCardInfo cardInfo) {
         this.status = status;
+        this.key = key;
         this.cardInfo = cardInfo;
+    }
+
+    public void delete(LocalDateTime time) {
+        this.deletedAt = time;
     }
 }

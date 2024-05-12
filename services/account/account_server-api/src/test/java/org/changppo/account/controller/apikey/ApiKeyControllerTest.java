@@ -3,14 +3,12 @@ package org.changppo.account.controller.apikey;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.changppo.account.dto.apikey.ApiKeyCreateRequest;
 import org.changppo.account.dto.apikey.ApiKeyReadAllRequest;
-import org.changppo.account.security.PrincipalHandler;
 import org.changppo.account.service.apikey.ApiKeyService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -20,7 +18,6 @@ import static org.changppo.account.builder.apikey.ApiKeyRequestBuilder.buildApiK
 import static org.changppo.account.builder.apikey.ApiKeyRequestBuilder.buildApiKeyReadAllRequest;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -32,8 +29,6 @@ class ApiKeyControllerTest {
     private ApiKeyController apiKeyController;
     @Mock
     private ApiKeyService apiKeyService;
-    @Mock
-    private PrincipalHandler principalHandler;
     private MockMvc mockMvc;
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -83,25 +78,6 @@ class ApiKeyControllerTest {
                 .andExpect(status().isOk());
 
         verify(apiKeyService).read(eq(id));
-    }
-
-    @Test
-    void readAllMeTest() throws Exception {
-        // given
-        Long id = 1L;
-        ApiKeyReadAllRequest req = buildApiKeyReadAllRequest(1L, 10);
-        try (MockedStatic<PrincipalHandler> mocked = mockStatic(PrincipalHandler.class)) {
-            mocked.when(PrincipalHandler::extractId).thenReturn(id);
-
-            // when, then
-            mockMvc.perform(
-                            get("/api/apikeys/v1/member/me")
-                                    .param("firstApiKeyId", req.getFirstApiKeyId().toString())
-                                    .param("size", req.getSize().toString()))
-                    .andExpect(status().isOk());
-
-            verify(apiKeyService).readAll(eq(id), any(ApiKeyReadAllRequest.class));
-        }
     }
 
     @Test

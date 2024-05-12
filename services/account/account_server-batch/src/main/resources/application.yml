@@ -8,6 +8,8 @@ spring:
   config:
     import:
       - security/application-db.yml
+      - security/application-oauth2.yml
+      - security/application-paymentgateway.yml
 
   quartz:
     scheduler-name: QuartzScheduler
@@ -15,11 +17,13 @@ spring:
       initialize-schema: never
     job-store-type: jdbc
 
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: never
+
   servlet:
     multipart:
       max-file-size: 5MB
       max-request-size: 5MB
-
-  messages:
-    basename: i18n/exception,i18n/validation
-    fallback-to-system-locale: false

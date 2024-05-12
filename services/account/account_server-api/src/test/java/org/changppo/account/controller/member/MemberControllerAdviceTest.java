@@ -1,5 +1,7 @@
 package org.changppo.account.controller.member;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.changppo.account.response.exception.common.ExceptionAdvice;
 import org.changppo.account.response.exception.common.ResponseHandler;
 import org.changppo.account.response.exception.member.MemberNotFoundException;
@@ -13,9 +15,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,24 +49,25 @@ class MemberControllerAdviceTest {
                 .andExpect(status().isNotFound());
     }
 
-//    @Test
-//    void deleteMemberNotFoundExceptionTest() throws Exception{
-//        // given
-//        doThrow(new MemberNotFoundException()).when(memberService).delete(anyLong(), any(HttpServletRequest.class), any(HttpServletResponse.class));
-//
-//        // when, then
-//        mockMvc.perform(
-//                        delete("/api/members/v1/{id}", 1L))
-//                .andExpect(status().isNotFound());
-//    }
-//
-//    @Test
-//    void deleteMemberUnsupportedOAuth2ExceptionTest() throws Exception {
-//        // given
-//        doThrow(new UnsupportedOAuth2Exception()).when(memberService).delete(anyLong(), any(HttpServletRequest.class), any(HttpServletResponse.class));
-//
-//        // when, then
-//        mockMvc.perform(delete("/api/members/v1/{id}", 1L))
-//                .andExpect(status().isInternalServerError());
-//    }
+    @Test
+    void requestDeleteMemberNotFoundExceptionTest() throws Exception {
+        // given
+        doThrow(new MemberNotFoundException()).when(memberService).requestDelete(anyLong(), any(HttpServletRequest.class), any(HttpServletResponse.class));
+
+        // when, then
+        mockMvc.perform(
+                        put("/api/members/v1/request/{id}", 1L))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void cancelDeleteMemberNotFoundExceptionTest() throws Exception {
+        // given
+        doThrow(new MemberNotFoundException()).when(memberService).cancelDelete(anyLong());
+
+        // when, then
+        mockMvc.perform(
+                        put("/api/members/v1/cancel/{id}", 1L))
+                .andExpect(status().isNotFound());
+    }
 }

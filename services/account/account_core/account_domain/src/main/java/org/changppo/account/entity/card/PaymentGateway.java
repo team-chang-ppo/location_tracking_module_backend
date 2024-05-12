@@ -14,7 +14,7 @@ public class PaymentGateway {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "method_id")
+    @Column(name = "payment_gateway_id")
     private Long id;
 
     @Enumerated(EnumType.STRING)

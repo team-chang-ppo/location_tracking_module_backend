@@ -10,21 +10,28 @@ import org.changppo.account.entity.card.Card;
 import org.changppo.account.entity.card.PaymentGateway;
 import org.changppo.account.entity.member.Member;
 import org.changppo.account.entity.member.Role;
+import org.changppo.account.entity.payment.Payment;
+import org.changppo.account.entity.payment.PaymentCardInfo;
 import org.changppo.account.repository.apikey.ApiKeyRepository;
 import org.changppo.account.repository.apikey.GradeRepository;
 import org.changppo.account.repository.card.CardRepository;
 import org.changppo.account.repository.card.PaymentGatewayRepository;
 import org.changppo.account.repository.member.MemberRepository;
 import org.changppo.account.repository.member.RoleRepository;
+import org.changppo.account.repository.payment.PaymentRepository;
 import org.changppo.account.response.exception.apikey.GradeNotFoundException;
+import org.changppo.account.response.exception.card.CardNotFoundException;
 import org.changppo.account.response.exception.card.PaymentGatewayNotFoundException;
 import org.changppo.account.response.exception.member.MemberNotFoundException;
 import org.changppo.account.response.exception.member.RoleNotFoundException;
 import org.changppo.account.type.GradeType;
 import org.changppo.account.type.PaymentGatewayType;
+import org.changppo.account.type.PaymentStatus;
 import org.changppo.account.type.RoleType;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,6 +40,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Profile("test")
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -44,6 +52,7 @@ public class TestInitDB {
     private final ApiKeyRepository apiKeyRepository;
     private final PaymentGatewayRepository paymentGatewayRepository;
     private final CardRepository cardRepository;
+    private final PaymentRepository paymentRepository;
 
     @Getter
     private final String adminMemberName = "kakao_0000";
@@ -52,17 +61,27 @@ public class TestInitDB {
     @Getter
     private final String normalMemberName = "kakao_2345";
     @Getter
-    private final String bannedMemberName = "kakao_3456";
+    private final String banForPaymentFailureMemberName = "kakao_3456";
+    @Getter
+    private final String requestDeletionMemberName = "kakao_4567";
     @Getter
     private final String freeApiKeyValue = "free-api-key";
     @Getter
     private final String classicApiKeyValue = "classic-api-key";
     @Getter
-    private final String classicApiKeyByBannedMemberValue = "classic-api-key-by-banned-member";
+    private final String banForPaymentFailureApiKeyValue = "ban-payment-fail-api-key";
     @Getter
-    private final String bannedApiKeyValue = "banned-api-key";
+    private final String banForCardDeletionApiKeyValue = "ban-card-delete-api-key";
     @Getter
-    private final String testCardKey = "test-card-key";
+    private final String requestDeletionApiKeyValue = "request-delete-api-key";
+    @Getter
+    private final String kakaopayCardKey = "kakaopay-card-key";
+    @Getter
+    private final String successfulFreePaymentKey = "successful-free-payment-key";
+    @Getter
+    private final String successfulPaidPaymentKey = "successful-paid-payment-key";
+    @Getter
+    private final String failedPaymentKey = "failed-payment-key";
 
     @Transactional
     public void initMember() {
@@ -81,6 +100,11 @@ public class TestInitDB {
     public void initCard() {
         initPaymentGateway();
         initTestCard();
+    }
+
+    @Transactional
+    public void initPayment() {
+        initTestPayment();
     }
 
     private void initRole() {
@@ -117,15 +141,21 @@ public class TestInitDB {
                 .profileImage("normalMemberProfileImage")
                 .roles(Collections.singleton(normalRole))
                 .build();
-        Member bannedMember = Member.builder()
-                .name(bannedMemberName)
-                .username("banned")
-                .profileImage("bannedMemberProfileImage")
+        Member banForPaymentFailureMember = Member.builder()
+                .name(banForPaymentFailureMemberName)
+                .username("banForPaymentFailureMember")
+                .profileImage("banForPaymentFailureMemberProfileImage")
                 .roles(Collections.singleton(normalRole))
                 .build();
-        bannedMember.banForPaymentFailure(LocalDateTime.now());
-
-        memberRepository.saveAll(List.of(freeMember, normalMember, bannedMember));
+        banForPaymentFailureMember.banForPaymentFailure(LocalDateTime.now());
+        Member requestDeletionMember = Member.builder()
+                .name(requestDeletionMemberName)
+                .username("requestDeletionMember")
+                .profileImage("requestDeletionMemberProfileImage")
+                .roles(Collections.singleton(normalRole))
+                .build();
+        requestDeletionMember.requestDeletion(LocalDateTime.now());
+        memberRepository.saveAll(List.of(freeMember, normalMember, banForPaymentFailureMember, requestDeletionMember));
     }
 
     private void initGrade() {
@@ -137,7 +167,8 @@ public class TestInitDB {
     private void initTestApiKey() {
         Member freeMember = memberRepository.findByName(freeMemberName).orElseThrow(MemberNotFoundException::new);
         Member normalMember = memberRepository.findByName(normalMemberName).orElseThrow(MemberNotFoundException::new);
-        Member bannedMember = memberRepository.findByName(bannedMemberName).orElseThrow(MemberNotFoundException::new);
+        Member banForPaymentFailureMember = memberRepository.findByName(banForPaymentFailureMemberName).orElseThrow(MemberNotFoundException::new);
+        Member requestDeletionMember = memberRepository.findByName(requestDeletionMemberName).orElseThrow(MemberNotFoundException::new);
         Grade freeGrade = gradeRepository.findByGradeType(GradeType.GRADE_FREE).orElseThrow(GradeNotFoundException::new);
         Grade classicGrade = gradeRepository.findByGradeType(GradeType.GRADE_CLASSIC).orElseThrow(GradeNotFoundException::new);
 
@@ -151,18 +182,25 @@ public class TestInitDB {
                 .grade(classicGrade)
                 .member(normalMember)
                 .build();
-        ApiKey classicApiKeyByBannedMember = ApiKey.builder()
-                .value(classicApiKeyByBannedMemberValue)
+        ApiKey banForPaymentFailureApiKey = ApiKey.builder()
+                .value(banForPaymentFailureApiKeyValue)
                 .grade(classicGrade)
-                .member(bannedMember)
+                .member(banForPaymentFailureMember)
                 .build();
-        ApiKey bannedApiKey = ApiKey.builder()
-                .value(bannedApiKeyValue)
-                .grade(freeGrade)
-                .member(normalMember)
+        banForPaymentFailureApiKey.banForPaymentFailure(LocalDateTime.now());
+        ApiKey banForCardDeletionApiKey = ApiKey.builder()
+                .value(banForCardDeletionApiKeyValue)
+                .grade(classicGrade)
+                .member(banForPaymentFailureMember)
                 .build();
-        bannedApiKey.banForPaymentFailure(LocalDateTime.now());
-        apiKeyRepository.saveAll(List.of(freeApiKey, classicApiKey, classicApiKeyByBannedMember, bannedApiKey));
+        banForCardDeletionApiKey.banForCardDeletion(LocalDateTime.now());
+        ApiKey requestDeletionApiKey = ApiKey.builder()
+                .value(requestDeletionApiKeyValue)
+                .grade(classicGrade)
+                .member(requestDeletionMember)
+                .build();
+        requestDeletionApiKey.requestDeletion(LocalDateTime.now());
+        apiKeyRepository.saveAll(List.of(freeApiKey, classicApiKey, banForPaymentFailureApiKey, banForCardDeletionApiKey, requestDeletionApiKey));
     }
 
     private void initPaymentGateway() {
@@ -175,8 +213,8 @@ public class TestInitDB {
         Member normalMember = memberRepository.findByName(normalMemberName).orElseThrow(MemberNotFoundException::new);
         PaymentGateway kakaopayPaymentGateway = paymentGatewayRepository.findByPaymentGatewayType(PaymentGatewayType.PG_KAKAOPAY).orElseThrow(PaymentGatewayNotFoundException::new);
 
-        Card card = Card.builder()
-                .key(testCardKey)
+        Card kakaopayCard = Card.builder()
+                .key(kakaopayCardKey)
                 .member(normalMember)
                 .paymentGateway(kakaopayPaymentGateway)
                 .type("신용")
@@ -185,6 +223,43 @@ public class TestInitDB {
                 .bin("123456")
                 .build();
 
-        cardRepository.save(card);
+        cardRepository.save(kakaopayCard);
+    }
+
+    public void initTestPayment() {
+        Member banForPaymentFailureMember = memberRepository.findByName(banForPaymentFailureMemberName).orElseThrow(MemberNotFoundException::new);
+        Card kakaopayCard = cardRepository.findByKey(kakaopayCardKey).orElseThrow(CardNotFoundException::new);
+
+        Payment successfulfreePayment = Payment.builder()
+                .key(successfulFreePaymentKey)
+                .amount(new BigDecimal("0"))
+                .status(PaymentStatus.COMPLETED_FREE)
+                .startedAt(LocalDateTime.now())
+                .endedAt(LocalDateTime.now().plusHours(1))
+                .member(kakaopayCard.getMember())
+                .cardInfo(new PaymentCardInfo(kakaopayCard.getType(), kakaopayCard.getIssuerCorporation(), kakaopayCard.getBin()))
+                .build();
+
+        Payment successfulPaidPayment = Payment.builder()
+                .key(successfulPaidPaymentKey)
+                .amount(new BigDecimal("200.00"))
+                .status(PaymentStatus.COMPLETED_PAID)
+                .startedAt(LocalDateTime.now())
+                .endedAt(LocalDateTime.now().plusHours(1))
+                .member(kakaopayCard.getMember())
+                .cardInfo(new PaymentCardInfo(kakaopayCard.getType(), kakaopayCard.getIssuerCorporation(), kakaopayCard.getBin()))
+                .build();
+
+        Payment failedPayment = Payment.builder()
+                .key(failedPaymentKey)
+                .amount(new BigDecimal("300.00"))
+                .status(PaymentStatus.FAILED)
+                .startedAt(LocalDateTime.now())
+                .endedAt(LocalDateTime.now().plusHours(1))
+                .member(banForPaymentFailureMember)
+                .cardInfo(null)
+                .build();
+
+        paymentRepository.saveAll(List.of(successfulfreePayment, successfulPaidPayment, failedPayment));
     }
 }

@@ -15,8 +15,8 @@ public class RestTemplateConfig {
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder restTemplateBuilder) {
         return restTemplateBuilder
-                .setConnectTimeout(Duration.ofSeconds(5))
-                .setReadTimeout(Duration.ofSeconds(5))
+                .setConnectTimeout(Duration.ofSeconds(20))
+                .setReadTimeout(Duration.ofSeconds(20))
                 .additionalInterceptors(clientHttpRequestInterceptor())
                 .build();
     }

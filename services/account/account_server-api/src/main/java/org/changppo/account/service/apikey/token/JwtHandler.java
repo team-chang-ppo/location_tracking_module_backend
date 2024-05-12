@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -15,6 +16,7 @@ import java.util.Optional;
 
 @Component
 @Slf4j
+@EnableConfigurationProperties(TokenKeyProperties.class)
 public class JwtHandler {
 
     private final SecretKey secretKey;

@@ -30,7 +30,7 @@ public class PaymentExecutionJobClient {  //TODO. Spring Cloud Feign Clientë¡œ ë
             validatePaymentExecutionJobResponse(paymentExecutionJobResponse);
             return ClientResponse.success(paymentExecutionJobResponse);
         } catch (Exception e) {
-            log.error("Failed to process payment execution for User ID: {}", req.getMemberId(), e);
+            log.info("Failed to process payment execution for User ID: {}", req.getMemberId(), e);
             return ClientResponse.failure();
         }
     }
@@ -42,7 +42,7 @@ public class PaymentExecutionJobClient {  //TODO. Spring Cloud Feign Clientë¡œ ë
     }
 
     private void validatePaymentExecutionJobResponse(PaymentExecutionJobResponse response) {
-        if (response.getBin() == null || response.getIssuerCorporation() == null || response.getType() == null) {
+        if (response.getKey() == null || response.getCardType() == null || response.getCardIssuerCorporation() == null || response.getCardBin() == null) {
             throw new IllegalStateException("PaymentExecutionJobResponse cannot be null.");
         }
     }
