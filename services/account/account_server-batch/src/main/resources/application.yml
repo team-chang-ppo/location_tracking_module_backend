@@ -27,3 +27,18 @@ spring:
     multipart:
       max-file-size: 5MB
       max-request-size: 5MB
+
+management:
+  endpoints:
+    enabled-by-default: false
+    web:
+      exposure:
+        include: info, health
+    jmx:
+      exposure:
+        exclude: '*'
+  endpoint:
+    info:
+      enabled: true
+    health:
+      enabled: true
