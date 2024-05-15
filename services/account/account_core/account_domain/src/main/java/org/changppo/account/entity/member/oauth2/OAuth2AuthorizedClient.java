@@ -30,7 +30,7 @@ public class OAuth2AuthorizedClient {
     @Column(nullable = false)
     private LocalDateTime accessTokenExpiresAt;
 
-    @Column(length = 1000, nullable = false)
+    @Column(length = 1000)
     private String accessTokenScopes;
 
     private byte[] refreshTokenValue;

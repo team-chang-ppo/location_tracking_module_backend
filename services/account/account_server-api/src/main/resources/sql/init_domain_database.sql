@@ -88,7 +88,7 @@ create table oauth2_authorized_client (
                                           access_token_type varchar(100) not null,
                                           client_registration_id varchar(100) not null,
                                           principal_name varchar(200) not null,
-                                          access_token_scopes varchar(1000) not null,
+                                          access_token_scopes varchar(1000),
                                           access_token_value bytea not null,
                                           refresh_token_value bytea,
                                           primary key (client_registration_id, principal_name)
