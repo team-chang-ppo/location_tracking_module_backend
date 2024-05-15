@@ -1,0 +1,77 @@
+PUT api_usage_trace
+
+{
+  "mappings": {
+    "properties": {
+      "eventId": {
+        "type": "keyword"
+      },
+      "requestTime": {
+        "type": "date",
+        "format": "strict_date_optional_time||epoch_millis"
+      },
+      "responseTime": {
+        "type": "date",
+        "format": "strict_date_optional_time||epoch_millis"
+      },
+      "requestProtocol": {
+        "type": "keyword"
+      },
+      "requestMethod": {
+        "type": "keyword"
+      },
+      "requestUri": {
+        "type": "keyword"
+      },
+      "responseStatus": {
+        "type": "keyword"
+      },
+      "errorCode": {
+        "type": "keyword"
+      },
+      "clientIp": {
+        "type": "ip"
+      },
+      "clientAgent": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword"
+          }
+        }
+      },
+      "apiKey": {
+        "type": "keyword"
+      },
+      "traceId" : {
+        "type": "keyword"
+      },
+      "requestLocation": {
+        "properties": {
+          "geo": {
+            "properties": {
+              "country_name": {
+                "type": "keyword"
+              },
+              "location": {
+                "type": "geo_point"
+              },
+              "country_iso_code": {
+                "type": "keyword"
+              },
+              "timezone": {
+                "type": "keyword"
+              },
+              "continent_code": {
+                "type": "keyword"
+              }
+            }
+          },
+          "ip":{
+            "type": "ip"
+          }
+        }
+      }
+    }
+  }
+}
