@@ -1,4 +1,4 @@
-package org.changppo.account.security.oauth2;
+package org.changppo.account.security.oauth2.response;
 
 import java.util.Map;
 

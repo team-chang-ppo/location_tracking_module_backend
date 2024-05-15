@@ -1,5 +1,5 @@
 package org.changppo.account.type;
 
-public enum OAuth2Type {  //TODO: OAUTH2_GITHUB
-    OAUTH2_KAKAO
+public enum OAuth2Type {
+    OAUTH2_KAKAO, OAUTH2_GITHUB
 }
