@@ -1,7 +1,7 @@
 package org.changppo.monioring.server.config;
 
 import org.apache.kafka.clients.admin.NewTopic;
-import org.changppo.monioring.server.GatewayConstant;
+import org.changppo.monioring.domain.GatewayConstant;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

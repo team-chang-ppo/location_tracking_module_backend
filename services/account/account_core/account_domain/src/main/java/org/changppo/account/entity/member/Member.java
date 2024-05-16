@@ -28,7 +28,7 @@ public class Member extends EntityDate {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @Column(nullable = false, length = 10)
+    @Column(nullable = false)
     private String username;
 
     @Column(nullable = false)

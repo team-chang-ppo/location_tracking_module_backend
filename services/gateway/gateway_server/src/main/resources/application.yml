@@ -16,7 +16,6 @@ spring:
                 notAllowedStatus: TOO_MANY_REQUESTS
                 denyEmptyKey: true
                 emptyKeyStatus: UNAUTHORIZED
-            - name: ApiMetering
         - id: route1
           uri: http://localhost:8000
           predicates:
@@ -30,7 +29,6 @@ spring:
                 notAllowedStatus: TOO_MANY_REQUESTS
                 denyEmptyKey: true
                 emptyKeyStatus: UNAUTHORIZED
-            - name: ApiMetering
   kafka:
     producer:
       bootstrap-servers: localhost:29092

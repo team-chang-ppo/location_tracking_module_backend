@@ -6,6 +6,6 @@ import org.changppo.account.response.exception.member.MemberBusinessException;
 public class PaymentNotFoundException extends MemberBusinessException {
 
     public PaymentNotFoundException() {
-        super(ExceptionType.MEMBER_NOT_FOUND_EXCEPTION);
+        super(ExceptionType.PAYMENT_NOT_FOUND_EXCEPTION);
     }
 }

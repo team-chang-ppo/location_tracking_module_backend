@@ -49,6 +49,7 @@ public class ApiRateLimiterGatewayFilterFactory extends AbstractGatewayFilterFac
             if (!(rateContext instanceof ValidApiRateContext)) {
                 if (rateContext instanceof AbsentApiRateContext) {
                     if (denyEmptyKey) {
+                        log.debug("Deny because of empty key, response status: {}", emptyKeyStatus);
                         ServerWebExchangeUtils.setResponseStatus(exchange, emptyKeyStatus);
                         return exchange.getResponse().setComplete();
                     }

@@ -5,24 +5,30 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.changppo.account.paymentgateway.PaymentGatewayClient;
 import org.changppo.account.paymentgateway.PaymentGatewayProperties;
+import org.changppo.account.paymentgateway.dto.PaymentRequest;
+import org.changppo.account.paymentgateway.dto.PaymentResponse;
 import org.changppo.account.paymentgateway.kakaopay.dto.payment.*;
 import org.changppo.account.paymentgateway.kakaopay.dto.subscription.KakaopaySubscriptionInactiveResponse;
 import org.changppo.account.paymentgateway.kakaopay.dto.subscription.KakaopaySubscriptionStatusResponse;
 import org.changppo.account.response.ClientResponse;
 import org.changppo.account.type.PaymentGatewayType;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
 import java.util.HashMap;
 import java.util.Map;
+
 import static org.changppo.account.paymentgateway.kakaopay.KakaopayConstants.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @RequiredArgsConstructor
 @Service
 @Slf4j
+@EnableConfigurationProperties(PaymentGatewayProperties.class)
 public class KakaopayPaymentGatewayClient extends PaymentGatewayClient {
 
     private final PaymentGatewayProperties paymentGatewayProperties;
@@ -178,8 +184,10 @@ public class KakaopayPaymentGatewayClient extends PaymentGatewayClient {
     }
 
     @Override
-    public ClientResponse<KakaopayApproveResponse> payment(KakaopayPaymentRequest req) {
+    public ClientResponse<PaymentResponse> payment(PaymentRequest paymentRequest) {
+        KakaopayPaymentRequest req = null;
         try {
+            req = createKakaopayPaymentRequest(paymentRequest);
             HttpEntity<Map<String, Object>> request = createPaymentRequest(req);
             KakaopayApproveResponse kakaopayApproveResponse = restTemplate.postForObject(
                     KAKAOPAY_PAYMENT_URL,
@@ -190,9 +198,15 @@ public class KakaopayPaymentGatewayClient extends PaymentGatewayClient {
             validateApproveResponse(kakaopayApproveResponse);
             return ClientResponse.success(kakaopayApproveResponse);
         } catch (Exception e) {
-            log.error("Failed to process Kakaopay Payment for User ID: {}", req.getPartnerUserId(), e);
+            log.error("Failed to process Kakaopay Payment for User ID: {}", req != null ? req.getPartnerUserId() : null, e);
             return ClientResponse.failure();
         }
+    }
+    private KakaopayPaymentRequest createKakaopayPaymentRequest(PaymentRequest paymentRequest) {
+        if (!(paymentRequest instanceof KakaopayPaymentRequest)) {
+            throw new IllegalArgumentException("Request must be an instance of KakaopayPaymentRequest");
+        }
+        return (KakaopayPaymentRequest) paymentRequest;
     }
 
     private HttpEntity<Map<String, Object>> createPaymentRequest(KakaopayPaymentRequest req) {

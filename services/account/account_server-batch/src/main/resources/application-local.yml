@@ -1,9 +1,19 @@
 spring:
   datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://${local-db.host}:${local-db.port}/${local-db.name}
-    username: ${local-db.username}
-    password: ${local-db.password}
+    meta:
+      hikari:
+        driver-class-name: org.postgresql.Driver
+        jdbc-url: jdbc:postgresql://${local.meta-db.host}:${local.meta-db.port}/${local.meta-db.name}
+        username: ${local.meta-db.username}
+        password: ${local.meta-db.password}
+
+    domain:
+      hikari:
+        driver-class-name: org.postgresql.Driver
+        jdbc-url: jdbc:postgresql://${local.domain-db.host}:${local.domain-db.port}/${local.domain-db.name}
+        username: ${local.domain-db.username}
+        password: ${local.domain-db.password}
+        auto-commit: false
 
   jpa:
     properties:
@@ -15,11 +25,8 @@ spring:
     open-in-view: false
     show-sql: true
 
-  batch:
-    job:
-      enabled: false
-    jdbc:
-      initialize-schema: always
+quartz:
+  properties: security/quartz-local.properties
 
 logging:
   level:

@@ -1,0 +1,34 @@
+spring:
+  datasource:
+    meta:
+      hikari:
+        driver-class-name: org.postgresql.Driver
+        jdbc-url: jdbc:postgresql://${dev.meta-db.host}:${dev.meta-db.port}/${dev.meta-db.name}
+        username: ${dev.meta-db.username}
+        password: ${dev.meta-db.password}
+
+    domain:
+      hikari:
+        driver-class-name: org.postgresql.Driver
+        jdbc-url: jdbc:postgresql://${dev.domain-db.host}:${dev.domain-db.port}/${dev.domain-db.name}
+        username: ${dev.domain-db.username}
+        password: ${dev.domain-db.password}
+        auto-commit: false
+
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true            # SQL 보기 좋게 출력
+        highlight_sql: true         # SQL 색깔
+        hbm2ddl.auto: validate
+        default_batch_fetch_size: 100
+    open-in-view: false
+    show-sql: true
+
+quartz:
+  properties: security/quartz-dev.properties
+
+logging:
+  level:
+    org.hibernate.orm.jdbc.bind: trace
+#    org.springframework.transaction.interceptor: trace

@@ -36,7 +36,7 @@ public class ApiKeyService {
     private final JwtHandler jwtHandler;
 
     @Transactional
-    @PreAuthorize("@memberPaymentFailureStatusEvaluator.check(#req.memberId) and @memberDeletionRequestedStatusEvaluator.check(#req.memberId)")
+    @PreAuthorize("@memberNotPaymentFailureStatusEvaluator.check(#req.memberId)")
     public ApiKeyDto createFreeKey(@Param("req") ApiKeyCreateRequest req) {
         Member member = memberRepository.findById(req.getMemberId()).orElseThrow(MemberNotFoundException::new);
         Grade grade = gradeRepository.findByGradeType(GradeType.GRADE_FREE).orElseThrow(GradeNotFoundException::new);
@@ -52,7 +52,7 @@ public class ApiKeyService {
     }
 
     @Transactional
-    @PreAuthorize("@memberPaymentFailureStatusEvaluator.check(#req.memberId) and @memberDeletionRequestedStatusEvaluator.check(#req.memberId)")
+    @PreAuthorize("@memberNotPaymentFailureStatusEvaluator.check(#req.memberId)")
     public ApiKeyDto createClassicKey(@Param("req") ApiKeyCreateRequest req) {
         Member member = memberRepository.findById(req.getMemberId()).orElseThrow(MemberNotFoundException::new);
         Grade grade = gradeRepository.findByGradeType(GradeType.GRADE_CLASSIC).orElseThrow(GradeNotFoundException::new);
@@ -89,7 +89,7 @@ public class ApiKeyService {
     }
 
     @Transactional
-    @PreAuthorize("@apiKeyAccessEvaluator.check(#id)")
+    @PreAuthorize("@apiKeyAccessEvaluator.check(#id) and @apiKeyNotPaymentFailureStatusEvaluator.check(#id)")
     public void delete(@Param("id")Long id) {
         ApiKey apiKey = apiKeyRepository.findById(id).orElseThrow(ApiKeyNotFoundException::new);
         apiKeyRepository.delete(apiKey);
