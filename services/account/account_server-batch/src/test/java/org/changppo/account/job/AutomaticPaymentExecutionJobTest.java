@@ -29,7 +29,10 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.TemporalAdjusters;
 
 import static org.changppo.account.batch.job.JobConfig.AUTOMATIC_PAYMENT_JOB;
 import static org.changppo.account.builder.card.paymentgateway.kakaopay.KakaopayResponseBuilder.buildKakaopayApproveResponse;
@@ -134,9 +137,17 @@ public class AutomaticPaymentExecutionJobTest { //TODO. 비용집계 서버와 �
     }
 
     private JobParameters buildJobParameters() {
+        LocalDateTime lastSunday = calculateLastSunday(LocalDateTime.now());
+        LocalDateTime jobStartTime = lastSunday.plusDays(2);
+
         return new JobParametersBuilder()
-                .addLocalDateTime("JobStartTime", LocalDateTime.now().plusDays(3))
+                .addLocalDateTime("JobStartTime", jobStartTime)
                 .toJobParameters();
+    }
+
+    private LocalDateTime calculateLastSunday(LocalDateTime dateTime) {
+        return dateTime.with(TemporalAdjusters.previous(DayOfWeek.SUNDAY))
+                .with(LocalTime.of(23, 59, 59));
     }
 
     private String convertToJson(Object object) throws IOException {
