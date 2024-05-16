@@ -3,10 +3,12 @@ package org.changppo.account;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Table;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,7 +26,10 @@ public class DatabaseCleaner implements InitializingBean {
     public void afterPropertiesSet() {
         tableNames = entityManager.getMetamodel().getEntities().stream()
                 .filter(e -> e.getJavaType().getAnnotation(Entity.class) != null)
-                .map(e -> toSnakeCase(e.getName()))
+                .map(e -> {
+                    Table table = e.getJavaType().getAnnotation(Table.class);
+                    return table != null ? table.name() : toSnakeCase(e.getName());
+                })
                 .collect(Collectors.toList());
     }
 
