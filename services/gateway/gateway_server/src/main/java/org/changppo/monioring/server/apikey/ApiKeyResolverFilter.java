@@ -19,7 +19,7 @@ public class ApiKeyResolverFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         try {
             return apiKeyResolver.resolve(exchange).filterWhen(apiKey -> {
-                        Long id = apiKey.id();
+                        Long id = apiKey.apiKeyId();
                         return apiKeyIdManager.isValidApiKeyId(id);
                     })
                     .doOnNext(apiKey -> {
