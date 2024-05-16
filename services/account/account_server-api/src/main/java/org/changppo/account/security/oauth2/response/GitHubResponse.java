@@ -2,6 +2,7 @@ package org.changppo.account.security.oauth2.response;
 
 import java.util.Map;
 
+import static org.changppo.account.oauth2.github.GitHubConstants.*;
 import static org.changppo.account.type.OAuth2Type.OAUTH2_GITHUB;
 
 public class GitHubResponse implements OAuth2Response {
@@ -19,16 +20,16 @@ public class GitHubResponse implements OAuth2Response {
 
     @Override
     public String getProviderId() {
-        return attribute.get("id").toString();
+        return attribute.get(GITHUB_ID).toString();
     }
 
     @Override
     public String getName() {
-        return attribute.get("name").toString();
+        return attribute.get(GITHUB_NICKNAME).toString();
     }
 
     @Override
     public String getProfileImage() {
-        return attribute.get("avatar_url").toString();
+        return attribute.get(GITHUB_PROFILE_IMAGE_URL).toString();
     }
 }
