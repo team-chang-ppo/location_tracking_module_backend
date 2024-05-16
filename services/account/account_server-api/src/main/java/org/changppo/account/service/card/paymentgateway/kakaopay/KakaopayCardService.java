@@ -1,28 +1,34 @@
 package org.changppo.account.service.card.paymentgateway.kakaopay;
 
 import lombok.RequiredArgsConstructor;
+import org.changppo.account.config.ApiServerUrlProperties;
 import org.changppo.account.dto.card.CardCreateRequest;
-import org.changppo.account.service.dto.card.CardDto;
 import org.changppo.account.dto.card.kakaopay.*;
+import org.changppo.account.paymentgateway.kakaopay.KakaopayPaymentGatewayClient;
 import org.changppo.account.paymentgateway.kakaopay.dto.payment.*;
+import org.changppo.account.response.exception.card.CardCreateFailureException;
 import org.changppo.account.response.exception.paymentgateway.KakaopayPaymentGatewayApproveFailureException;
 import org.changppo.account.response.exception.paymentgateway.KakaopayPaymentGatewayFailException;
 import org.changppo.account.response.exception.paymentgateway.KakaopayPaymentGatewayReadyFailureException;
-import org.changppo.account.type.PaymentGatewayType;
-import org.changppo.account.response.exception.card.CardCreateFailureException;
 import org.changppo.account.service.card.CardService;
-import org.changppo.account.paymentgateway.kakaopay.KakaopayPaymentGatewayClient;
+import org.changppo.account.service.dto.card.CardDto;
+import org.changppo.account.type.PaymentGatewayType;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
+
 import java.util.Optional;
 import java.util.UUID;
+
 import static org.changppo.account.paymentgateway.kakaopay.KakaopayConstants.*;
 
 @RequiredArgsConstructor
 @Service
+@EnableConfigurationProperties(ApiServerUrlProperties.class)
 public class KakaopayCardService {
 
     private final KakaopayPaymentGatewayClient kakaopayPaymentGatewayClient;
     private final CardService cardService;
+    private final ApiServerUrlProperties apiServerUrlProperties;
 
     public KakaopayCardRegisterRedirectResponse registerReady(KakaopayCardRegisterReadyRequest req) {
         KakaopayReadyResponse kakaopayReadyResponse = kakaopayPaymentGatewayClient.Ready(createKakaopayReadyRequest(req)).getData().orElseThrow(KakaopayPaymentGatewayReadyFailureException::new);
@@ -40,9 +46,9 @@ public class KakaopayCardService {
                 0,
                 0,
                 0,
-                "http://localhost:8080" + APPROVE_CALLBACK_PATH + partnerOrderId,
-                "http://localhost:8080" + CANCEL_CALLBACK_PATH + partnerOrderId,
-                "http://localhost:8080" + FAIL_CALLBACK_PATH + partnerOrderId
+                apiServerUrlProperties.getUrl() + APPROVE_CALLBACK_PATH + partnerOrderId,
+                apiServerUrlProperties.getUrl() + CANCEL_CALLBACK_PATH + partnerOrderId,
+                apiServerUrlProperties.getUrl() + FAIL_CALLBACK_PATH + partnerOrderId
         );
     }
 

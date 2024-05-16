@@ -1,25 +1,25 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://${local-db.host}:${local-db.port}/${local-db.name}
-    username: ${local-db.username}
-    password: ${local-db.password}
+    url: jdbc:postgresql://${dev-db.host}:${dev-db.port}/${dev-db.name}
+    username: ${dev-db.username}
+    password: ${dev-db.password}
 
   jpa:
     properties:
       hibernate:
         format_sql: true            # SQL 보기 좋게 출력
         highlight_sql: true         # SQL 색깔
-        hbm2ddl.auto: create
+        hbm2ddl.auto: validate
         default_batch_fetch_size: 100
     open-in-view: false
     show-sql: true
 
 api:
-  url: http://localhost:8080
+  url: https://api.joon6093.link
 
 batch:
-  url: http://localhost:8081
+  url: https://batch.joon6093.link
 
 logging:
   level:

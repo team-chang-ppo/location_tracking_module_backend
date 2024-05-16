@@ -78,6 +78,7 @@ public class AutomaticPaymentExecutionJobTest { //TODO. 비용집계 서버와 �
         testInitDB.initMember();
         testInitDB.initApiKey();
         testInitDB.initCard();
+        testInitDB.initPayment();
         setupMembers();
         setupCards();
     }
@@ -97,7 +98,7 @@ public class AutomaticPaymentExecutionJobTest { //TODO. 비용집계 서버와 �
     }
 
     @Test
-    public void paymentExecutionJobTest() throws Exception {
+    public void automaticPaymentExecutionJobTest() throws Exception {
         // given
         KakaopayApproveResponse kakaopayApproveResponse = buildKakaopayApproveResponse(normalMember.getId(), LocalDateTime.now());
         simulatePaymentSuccess(kakaopayApproveResponse);
@@ -105,8 +106,8 @@ public class AutomaticPaymentExecutionJobTest { //TODO. 비용집계 서버와 �
         // when
         JobExecution jobExecution = jobLauncherTestUtils.launchJob(jobParameters);
         StepExecution stepExecution = jobExecution.getStepExecutions().iterator().next();
-        Payment paymentsByNormalMember = paymentRepository.findByMemberId(normalMember.getId()).get(0);
-        Payment paymentsByFreeMember = paymentRepository.findByMemberId(freeMember.getId()).get(0);
+        Payment paymentsByNormalMember = paymentRepository.findTopByMemberIdOrderByEndedAtDesc(normalMember.getId()).orElseThrow();
+        Payment paymentsByFreeMember = paymentRepository.findTopByMemberIdOrderByEndedAtDesc(freeMember.getId()).orElseThrow();
         Member updatedFreeMember = memberRepository.findByName(testInitDB.getFreeMemberName()).orElseThrow();
         ApiKey updatedFreeApiKey = apiKeyRepository.findByValue(testInitDB.getFreeApiKeyValue()).orElseThrow();
         // then

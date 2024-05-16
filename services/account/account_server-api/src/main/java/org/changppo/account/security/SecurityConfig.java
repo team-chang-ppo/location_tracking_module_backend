@@ -78,6 +78,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/oauth2/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/login/success").hasRole("FREE")
                         .requestMatchers(HttpMethod.GET, "/api/members/**").hasRole("FREE")
                         .requestMatchers(HttpMethod.PUT, "/api/members/v1/request/**").hasRole("FREE")
                         .requestMatchers(HttpMethod.PUT, "/api/members/v1/cancel/**").hasRole("ADMIN")

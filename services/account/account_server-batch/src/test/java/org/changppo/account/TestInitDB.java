@@ -10,6 +10,7 @@ import org.changppo.account.entity.card.PaymentGateway;
 import org.changppo.account.entity.member.Member;
 import org.changppo.account.entity.member.Role;
 import org.changppo.account.entity.payment.Payment;
+import org.changppo.account.entity.payment.PaymentCardInfo;
 import org.changppo.account.repository.apikey.ApiKeyRepository;
 import org.changppo.account.repository.apikey.GradeRepository;
 import org.changppo.account.repository.card.CardRepository;
@@ -232,7 +233,28 @@ public class TestInitDB {
     }
 
     public void initTestPayment() {
+        Member freeMember = memberRepository.findByName(freeMemberName).orElseThrow();
         Member banForPaymentFailureMember = memberRepository.findByName(banForPaymentFailureMemberName).orElseThrow();
+        Card kakaopayCardByNormalMember = cardRepository.findByKey(kakaopayCardByNormalMemberKey).orElseThrow();
+
+        Payment successfulfreePayment = Payment.builder()
+                .key(successfulFreePaymentKey)
+                .amount(new BigDecimal("0"))
+                .status(PaymentStatus.COMPLETED_FREE)
+                .startedAt(LocalDateTime.now().minusDays(9))
+                .endedAt(LocalDateTime.now().minusDays(8))
+                .member(freeMember)
+                .build();
+
+        Payment successfulPaidPayment = Payment.builder()
+                .key(successfulPaidPaymentKey)
+                .amount(new BigDecimal("200.00"))
+                .status(PaymentStatus.COMPLETED_PAID)
+                .startedAt(LocalDateTime.now().minusDays(9))
+                .endedAt(LocalDateTime.now().minusDays(8))
+                .member(kakaopayCardByNormalMember.getMember())
+                .cardInfo(new PaymentCardInfo(kakaopayCardByNormalMember.getType(), kakaopayCardByNormalMember.getIssuerCorporation(), kakaopayCardByNormalMember.getBin()))
+                .build();
 
         Payment failedPayment = Payment.builder()
                 .key(failedPaymentKey)
@@ -243,6 +265,6 @@ public class TestInitDB {
                 .member(banForPaymentFailureMember)
                 .build();
 
-        paymentRepository.save(failedPayment);
+        paymentRepository.saveAll(List.of(successfulfreePayment, successfulPaidPayment, failedPayment));
     }
 }

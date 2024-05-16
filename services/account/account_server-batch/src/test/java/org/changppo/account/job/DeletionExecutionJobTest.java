@@ -87,7 +87,7 @@ public class DeletionExecutionJobTest { //TODO. 비용집계 서버와 통신 �
     }
 
     @Test
-    public void paymentExecutionJobPaymentSuccessTest() throws Exception {
+    public void deletionExecutionJobPaymentSuccessTest() throws Exception {
         // given
         KakaopayApproveResponse kakaopayApproveResponse = buildKakaopayApproveResponse(requestDeletionMember.getId(), LocalDateTime.now());
         simulatePaymentSuccess(kakaopayApproveResponse);
@@ -109,7 +109,7 @@ public class DeletionExecutionJobTest { //TODO. 비용집계 서버와 통신 �
     }
 
     @Test
-    public void paymentExecutionJobPaymentFailTest() throws Exception {
+    public void deletionExecutionJobPaymentFailTest() throws Exception {
         // given
         simulatePaymentFailure();
         JobParameters jobParameters = buildJobParameters();
