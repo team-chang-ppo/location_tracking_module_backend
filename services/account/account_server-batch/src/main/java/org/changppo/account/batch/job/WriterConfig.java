@@ -99,7 +99,7 @@ public class WriterConfig {
     }
 
     private void inactivePaymentGatewayCards(Long memberId) {
-        List<Card> cards = cardRepository.findAllCardByMemberId(memberId);
+        List<Card> cards = cardRepository.findAllCardByMemberIdOrderByAsc(memberId);
         cards.forEach(card -> {
             PaymentGatewayType paymentGatewayType = card.getPaymentGateway().getPaymentGatewayType();
             paymentGatewayClients.stream()
