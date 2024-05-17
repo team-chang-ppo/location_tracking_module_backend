@@ -8,6 +8,7 @@ import org.changppo.account.service.dto.apikey.QApiKeyDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -55,7 +56,7 @@ public class ApiKeyRepositoryImpl implements QuerydslApiKeyRepository {
     public void banForCardDeletionByMemberId(Long memberId, LocalDateTime time) {
         queryFactory.update(apiKey)
                 .set(apiKey.cardDeletionBannedAt, time)
-                .where(memberIdEquals(memberId).and(apiKey.grade.gradeType.ne(GRADE_FREE)))
+                .where(memberIdEquals(memberId).and(statusNotGradeFree()))
                 .execute();
     }
 
@@ -63,7 +64,7 @@ public class ApiKeyRepositoryImpl implements QuerydslApiKeyRepository {
     public void unbanForCardDeletionByMemberId(Long memberId) {
         queryFactory.update(apiKey)
                 .set(apiKey.cardDeletionBannedAt, (LocalDateTime) null)
-                .where(memberIdEquals(memberId).and(apiKey.grade.gradeType.ne(GRADE_FREE)))
+                .where(memberIdEquals(memberId).and(statusNotGradeFree()))
                 .execute();
     }
 
@@ -104,5 +105,9 @@ public class ApiKeyRepositoryImpl implements QuerydslApiKeyRepository {
 
     private BooleanExpression apiKeyIdGreaterThanOrEqual(Long apiKeyId) {
         return apiKeyId != null ? apiKey.id.goe(apiKeyId) : null;
+    }
+
+    private BooleanExpression statusNotGradeFree() {
+        return apiKey.grade.gradeType.ne(GRADE_FREE);
     }
 }
