@@ -1,14 +1,13 @@
 package org.changppo.account.service.dto.card;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 import org.changppo.account.type.PaymentGatewayType;
 
 import java.time.LocalDateTime;
 
 @Data
-@AllArgsConstructor
 public class CardDto {
     private Long id;
     private String type;
@@ -17,4 +16,14 @@ public class CardDto {
     private PaymentGatewayType paymentGateway;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime createdAt;
+
+    @QueryProjection
+    public CardDto(Long id, String type, String issuerCorporation, String bin, PaymentGatewayType paymentGateway, LocalDateTime createdAt) {
+        this.id = id;
+        this.type = type;
+        this.issuerCorporation = issuerCorporation;
+        this.bin = bin;
+        this.paymentGateway = paymentGateway;
+        this.createdAt = createdAt;
+    }
 }
