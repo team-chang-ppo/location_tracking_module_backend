@@ -37,15 +37,14 @@ public class ApiKey extends EntityDate {
     @Column
     private LocalDateTime deletedAt;
 
-    // 정지 상태를 나누어야 다른 사유로 인한 정지가 해제되지 않도록 할 수 있음.
     @Column
-    private LocalDateTime paymentFailureBannedAt; // TODO. 정기 결제 실패로 인한 정지.
+    private LocalDateTime paymentFailureBannedAt;
 
     @Column
-    private LocalDateTime cardDeletionBannedAt; // TODO. 카드 삭제로 인한 유료키 정지.
+    private LocalDateTime cardDeletionBannedAt;
 
     @Column
-    private LocalDateTime deletionRequestedAt; // TODO. 회원 탈퇴 요청.
+    private LocalDateTime deletionRequestedAt;
 
     @Builder
     public ApiKey(String value, Grade grade, Member member) {
