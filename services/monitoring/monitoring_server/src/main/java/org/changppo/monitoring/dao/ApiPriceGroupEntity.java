@@ -23,8 +23,8 @@ public class ApiPriceGroupEntity {
     @Column(name = "group_name")
     private String groupName;
 
-    @OneToMany(mappedBy = "apiPriceGroupEntity", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<ApiPriceEntity> apiPriceEntities = new ArrayList<>();
+    @Column(name = "cost_won")
+    private Long costPerRequest;
 
     @OneToMany(mappedBy = "apiPriceGroupEntity", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ApiEndpointEntity> apiEndpointEntities = new ArrayList<>();
