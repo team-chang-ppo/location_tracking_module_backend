@@ -13,16 +13,17 @@ import org.changppo.account.repository.member.MemberRepository;
 import org.changppo.account.response.exception.apikey.ApiKeyNotFoundException;
 import org.changppo.account.response.exception.apikey.GradeNotFoundException;
 import org.changppo.account.response.exception.member.MemberNotFoundException;
-import org.changppo.account.service.apikey.token.JwtHandler;
-import org.changppo.account.service.apikey.token.TokenClaims;
 import org.changppo.account.service.dto.apikey.ApiKeyDto;
 import org.changppo.account.type.GradeType;
+import org.changppo.utils.jwt.apikey.JwtHandler;
+import org.changppo.utils.jwt.apikey.TokenClaims;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.repository.query.Param;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.UUID;
 
 @RequiredArgsConstructor

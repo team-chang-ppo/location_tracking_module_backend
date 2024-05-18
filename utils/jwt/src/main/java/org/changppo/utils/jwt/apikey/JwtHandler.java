@@ -5,8 +5,6 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
 import org.changppo.utils.jwt.TokenKeyProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
@@ -14,9 +12,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 
-@Component
 @Slf4j
-@EnableConfigurationProperties(TokenKeyProperties.class)
 public class JwtHandler {
 
     private final SecretKey secretKey;
