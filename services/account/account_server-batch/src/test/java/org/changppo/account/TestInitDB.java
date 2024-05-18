@@ -9,6 +9,7 @@ import org.changppo.account.entity.card.Card;
 import org.changppo.account.entity.card.PaymentGateway;
 import org.changppo.account.entity.member.Member;
 import org.changppo.account.entity.member.Role;
+import org.changppo.account.entity.member.oauth2.OAuth2AuthorizedClient;
 import org.changppo.account.entity.payment.Payment;
 import org.changppo.account.entity.payment.PaymentCardInfo;
 import org.changppo.account.repository.apikey.ApiKeyRepository;
@@ -17,6 +18,7 @@ import org.changppo.account.repository.card.CardRepository;
 import org.changppo.account.repository.card.PaymentGatewayRepository;
 import org.changppo.account.repository.member.MemberRepository;
 import org.changppo.account.repository.member.RoleRepository;
+import org.changppo.account.repository.member.oauth2.OAuth2AuthorizedClientRepository;
 import org.changppo.account.repository.payment.PaymentRepository;
 import org.changppo.account.type.GradeType;
 import org.changppo.account.type.PaymentGatewayType;
@@ -43,6 +45,7 @@ public class TestInitDB {
 
     private final RoleRepository roleRepository;
     private final MemberRepository memberRepository;
+    private final OAuth2AuthorizedClientRepository authorizedClientRepository;
     private final GradeRepository gradeRepository;
     private final ApiKeyRepository apiKeyRepository;
     private final PaymentGatewayRepository paymentGatewayRepository;
@@ -84,6 +87,7 @@ public class TestInitDB {
     public void initMember() {
         initRole();
         initTestMember();
+        initTestOAuth2AuthorizedClient();
     }
 
     @Transactional(transactionManager = DOMAIN_TRANSACTION_MANAGER)
@@ -140,6 +144,63 @@ public class TestInitDB {
                 .build();
         requestDeletionMember.requestDeletion(LocalDateTime.now().plusHours(1));
         memberRepository.saveAll(List.of(freeMember, normalMember, banForPaymentFailureMember, requestDeletionMember));
+    }
+
+    private void initTestOAuth2AuthorizedClient() {
+        Member freeMember = memberRepository.findByName(freeMemberName).orElseThrow();
+        Member normalMember = memberRepository.findByName(normalMemberName).orElseThrow();
+        Member banForPaymentFailureMember = memberRepository.findByName(banForPaymentFailureMemberName).orElseThrow();
+        Member requestDeletionMember = memberRepository.findByName(requestDeletionMemberName).orElseThrow();
+
+        OAuth2AuthorizedClient freeOAuth2AuthorizedClient = OAuth2AuthorizedClient.builder()
+                .principalName(freeMember.getName())
+                .clientRegistrationId("kakao")
+                .accessTokenType("Bearer")
+                .accessTokenValue("free-access-token".getBytes())
+                .accessTokenIssuedAt(LocalDateTime.now().minusDays(9))
+                .accessTokenExpiresAt(LocalDateTime.now().plusDays(1))
+                .accessTokenScopes("read_profile")
+                .refreshTokenValue("free-refresh-token".getBytes())
+                .refreshTokenIssuedAt(LocalDateTime.now().minusDays(8))
+                .build();
+
+        OAuth2AuthorizedClient normalOAuth2AuthorizedClient = OAuth2AuthorizedClient.builder()
+                .principalName(normalMember.getName())
+                .clientRegistrationId("kakao")
+                .accessTokenType("Bearer")
+                .accessTokenValue("normal-access-token".getBytes())
+                .accessTokenIssuedAt(LocalDateTime.now().minusDays(9))
+                .accessTokenExpiresAt(LocalDateTime.now().plusDays(1))
+                .accessTokenScopes("read_profile,write_profile")
+                .refreshTokenValue("normal-refresh-token".getBytes())
+                .refreshTokenIssuedAt(LocalDateTime.now().minusDays(8))
+                .build();
+
+        OAuth2AuthorizedClient banForPaymentFailureOAuth2AuthorizedClient = OAuth2AuthorizedClient.builder()
+                .principalName(banForPaymentFailureMember.getName())
+                .clientRegistrationId("kakao")
+                .accessTokenType("Bearer")
+                .accessTokenValue("ban-for-payment-failure-access-token".getBytes())
+                .accessTokenIssuedAt(LocalDateTime.now().minusDays(9))
+                .accessTokenExpiresAt(LocalDateTime.now().plusDays(1))
+                .accessTokenScopes("read_profile")
+                .refreshTokenValue("ban-for-payment-failure-refresh-token".getBytes())
+                .refreshTokenIssuedAt(LocalDateTime.now().minusDays(8))
+                .build();
+
+        OAuth2AuthorizedClient requestDeletionOAuth2AuthorizedClient = OAuth2AuthorizedClient.builder()
+                .principalName(requestDeletionMember.getName())
+                .clientRegistrationId("kakao")
+                .accessTokenType("Bearer")
+                .accessTokenValue("request-deletion-access-token".getBytes())
+                .accessTokenIssuedAt(LocalDateTime.now().minusDays(9))
+                .accessTokenExpiresAt(LocalDateTime.now().plusDays(1))
+                .accessTokenScopes("read_profile")
+                .refreshTokenValue("request-deletion-refresh-token".getBytes())
+                .refreshTokenIssuedAt(LocalDateTime.now().minusDays(8))
+                .build();
+
+        authorizedClientRepository.saveAll(List.of(freeOAuth2AuthorizedClient, normalOAuth2AuthorizedClient, banForPaymentFailureOAuth2AuthorizedClient, requestDeletionOAuth2AuthorizedClient));
     }
 
     private void initGrade() {
