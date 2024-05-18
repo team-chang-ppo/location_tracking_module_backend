@@ -15,8 +15,8 @@ import org.changppo.account.response.exception.apikey.GradeNotFoundException;
 import org.changppo.account.response.exception.member.MemberNotFoundException;
 import org.changppo.account.service.dto.apikey.ApiKeyDto;
 import org.changppo.account.type.GradeType;
-import org.changppo.utils.jwt.apikey.JwtHandler;
-import org.changppo.utils.jwt.apikey.TokenClaims;
+import org.changppo.utils.jwt.apikey.apiKeyJwtHandler;
+import org.changppo.utils.jwt.apikey.apiKeyJwtClaims;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.repository.query.Param;
@@ -34,7 +34,7 @@ public class ApiKeyService {
     private final ApiKeyRepository apiKeyRepository;
     private final GradeRepository gradeRepository;
     private final MemberRepository memberRepository;
-    private final JwtHandler jwtHandler;
+    private final apiKeyJwtHandler apiKeyJwtHandler;
 
     @Transactional
     @PreAuthorize("@memberNotPaymentFailureStatusEvaluator.check(#req.memberId)")
@@ -73,7 +73,7 @@ public class ApiKeyService {
     }
 
     private String generateTokenValue(ApiKey apiKey) {
-        return jwtHandler.createToken(new TokenClaims(apiKey.getId(), apiKey.getMember().getId(), apiKey.getGrade().getGradeType().name()));
+        return apiKeyJwtHandler.createToken(new apiKeyJwtClaims(apiKey.getId(), apiKey.getMember().getId(), apiKey.getGrade().getGradeType().name()));
     }
 
     @PreAuthorize("@apiKeyAccessEvaluator.check(#id)")

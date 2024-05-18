@@ -5,8 +5,8 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class TokenClaims {
-    private Long id;
+public class apiKeyJwtClaims {
+    private Long apikeyId;
     private Long memberId;
     private String gradeType;
 }

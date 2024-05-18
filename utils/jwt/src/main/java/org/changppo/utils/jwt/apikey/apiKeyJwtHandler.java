@@ -4,7 +4,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
-import org.changppo.utils.jwt.TokenKeyProperties;
+import org.changppo.utils.jwt.JwtProperties;
+
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
@@ -13,19 +14,19 @@ import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
-public class JwtHandler {
+public class apiKeyJwtHandler {
 
     private final SecretKey secretKey;
-    private static final String ID = "ID";
+    private static final String APIKEY_ID = "APIKEY_ID";
     private static final String MEMBER_ID = "MEMBER_ID";
     private static final String GRADE_TYPE = "GRADE_TYPE";
 
-    public JwtHandler(TokenKeyProperties tokenKeyProperties) {
-        secretKey = new SecretKeySpec(tokenKeyProperties.getSecret().getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
+    public apiKeyJwtHandler(JwtProperties jwtProperties) {
+        secretKey = new SecretKeySpec(jwtProperties.getApiKey().getSecretKey().getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
     }
 
-    public String createToken(TokenClaims tokenClaims) {
-        return create(Map.of(ID, tokenClaims.getId(), MEMBER_ID, tokenClaims.getMemberId(), GRADE_TYPE, tokenClaims.getGradeType()));
+    public String createToken(apiKeyJwtClaims apiKeyJwtClaims) {
+        return create(Map.of(APIKEY_ID, apiKeyJwtClaims.getApikeyId(), MEMBER_ID, apiKeyJwtClaims.getMemberId(), GRADE_TYPE, apiKeyJwtClaims.getGradeType()));
     }
 
     private String create(Map<String, Object> tokenClaims) {
@@ -37,13 +38,13 @@ public class JwtHandler {
                 .compact();
     }
 
-    public Optional<TokenClaims> parseToken(String token) {
+    public Optional<apiKeyJwtClaims> parseToken(String token) {  // 반환 값이 Optional.empty면 오류
         return parse(token).map(this::convert);
     }
 
-    private TokenClaims convert(Claims claims) {
-        return new TokenClaims(
-                claims.get(ID, Long.class),
+    private apiKeyJwtClaims convert(Claims claims) {
+        return new apiKeyJwtClaims(
+                claims.get(APIKEY_ID, Long.class),
                 claims.get(MEMBER_ID, Long.class),
                 claims.get(GRADE_TYPE, String.class)
         );
