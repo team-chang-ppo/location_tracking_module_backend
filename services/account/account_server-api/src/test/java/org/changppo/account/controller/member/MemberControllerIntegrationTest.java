@@ -78,6 +78,25 @@ class MemberControllerIntegrationTest {
     }
 
     @Test
+    void readPrincipalTest() throws Exception {
+        // given, when, then
+        mockMvc.perform(
+                    get("/api/members/v1/principal")
+                            .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.data.memberId").value(freeMember.getId()))
+                .andExpect(jsonPath("$.result.data.roles").value(RoleType.ROLE_FREE.name()));
+    }
+
+    @Test
+    void readPrincipalUnauthorizedByNoneSessionTest() throws Exception {
+        // given, when, then
+        mockMvc.perform(
+                    get("/api/members/v1/principal"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void readTest() throws Exception {
         // given, when, then
         mockMvc.perform(
