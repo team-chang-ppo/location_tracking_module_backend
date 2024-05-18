@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.changppo.account.aop.AssignMemberId;
 import org.changppo.account.dto.apikey.ApiKeyCreateRequest;
+import org.changppo.account.dto.apikey.ApiKeyValidationResponse;
 import org.changppo.account.service.dto.apikey.ApiKeyDto;
 import org.changppo.account.dto.apikey.ApiKeyReadAllRequest;
 import org.changppo.utils.response.body.Response;
@@ -66,5 +67,13 @@ public class ApiKeyController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(Response.success());
+    }
+
+    @GetMapping("/validate/{id}")
+    public ResponseEntity<Response> validate(@PathVariable(name = "id") Long id) {
+        ApiKeyValidationResponse apiKeyValidationResponse = apiKeyService.validate(id);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(Response.success(apiKeyValidationResponse));
     }
 }

@@ -15,4 +15,5 @@ public interface QuerydslApiKeyRepository {
     void unbanApiKeysForPaymentFailure(Long memberId);
     void requestApiKeyDeletion(Long memberId, LocalDateTime time);
     void cancelApiKeyDeletionRequest(Long memberId);
+    boolean isValid(Long Id);
 }
