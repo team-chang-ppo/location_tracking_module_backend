@@ -108,4 +108,17 @@ class ApiKeyControllerTest {
 
         verify(apiKeyService).delete(eq(id));
     }
+
+    @Test
+    void validateTest() throws Exception {
+        // given
+        Long id = 1L;
+
+        // when, then
+        mockMvc.perform(
+                        get("/api/apikeys/v1/validate/{id}", id))
+                .andExpect(status().isOk());
+
+        verify(apiKeyService).validate(eq(id));
+    }
 }
