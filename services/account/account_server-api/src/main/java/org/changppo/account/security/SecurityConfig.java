@@ -92,6 +92,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/members/**").hasRole("FREE")
                         .requestMatchers(HttpMethod.POST, "/api/apikeys/v1/createFreeKey").hasRole("FREE")
                         .requestMatchers(HttpMethod.POST, "/api/apikeys/v1/createClassicKey").hasRole("NORMAL")
+                        .requestMatchers(HttpMethod.GET, "/api/apikeys/v1/validate/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/apikeys/**").hasRole("FREE")
                         .requestMatchers(HttpMethod.DELETE, "/api/apikeys/**").hasRole("FREE")
                         .requestMatchers(HttpMethod.POST, "/api/cards/v1/kakaopay/**").hasRole("FREE")
