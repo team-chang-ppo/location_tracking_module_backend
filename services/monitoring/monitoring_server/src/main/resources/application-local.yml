@@ -7,9 +7,6 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       enable-auto-commit: false
-  data:
-    mongodb:
-      uri: mongodb://root:root@localhost:27017/monitoring?authSource=admin
   application:
     name: monitoring
 server:
