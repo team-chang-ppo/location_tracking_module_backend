@@ -101,7 +101,7 @@ public class CardService {
 
     @PreAuthorize("@memberAccessEvaluator.check(#memberId)")
     public CardListDto readAll(@Param("memberId")Long memberId){
-        List<CardDto> cards = cardRepository.findAllByMemberId(memberId);
+        List<CardDto> cards = cardRepository.findAllByMemberIdOrderByAsc(memberId);
         return new CardListDto(cards);
     }
 
@@ -127,7 +127,7 @@ public class CardService {
                 .inactive(card.getKey());
     }
 
-    private boolean isLastCard(Card card) {
+    private boolean isLastCard(Card card) {  // TODO. 동시성 문제 확인
         return cardRepository.countByMemberId(card.getMember().getId()) == 0;
     }
 
