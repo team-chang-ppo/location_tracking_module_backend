@@ -84,7 +84,7 @@ api_endpoint_df = spark.read \
 api_endpoint_df.printSchema()
 
 # WINDOWED AGGREGATION
-not_null = col("memberId").isNotNull() & col("requestUri").isNotNull() & col("requestTime").isNotNull()
+not_null = col("memberId").isNotNull() & col("apiKeyId") & col("requestUri").isNotNull() & col("requestTime").isNotNull()
 not_5xx = (col("responseStatus") >= 500) & (col("responseStatus") < 600)
 
 select_columns = [

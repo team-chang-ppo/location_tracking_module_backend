@@ -21,6 +21,8 @@ public class HourlyApiUsageEvent {
     @NotNull
     @Positive
     private Long memberId;
+    @NotNull
+    @Positive
     private Long apiKeyId;
     @NotNull
     private LocalDate date;
