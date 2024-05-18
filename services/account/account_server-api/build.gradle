@@ -20,6 +20,7 @@ repositories {
 dependencies {
     // Util
     implementation project(':services:account:account_utils')
+    implementation project(':utils:response')
     // Domain
     implementation project(':services:account:account_core:account_domain')
     // Infra
