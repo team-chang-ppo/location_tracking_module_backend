@@ -42,11 +42,18 @@ public class SecurityConfig {
     private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {  // TODO. 동시 세션 처리 및 세션 만료 반환 값 설정
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
+
+                .sessionManagement((sessionManagement) -> sessionManagement
+                        .sessionFixation().changeSessionId()
+                        .maximumSessions(1)
+                        .maxSessionsPreventsLogin(false)
+                        .expiredUrl("/login?error=expired-session")
+                )
 
                 .securityContext((securityContext) -> {
                     securityContext.securityContextRepository(delegatingSecurityContextRepository());

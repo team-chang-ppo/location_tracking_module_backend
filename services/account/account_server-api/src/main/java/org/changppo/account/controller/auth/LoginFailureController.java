@@ -18,7 +18,7 @@ public class LoginFailureController {
     private final ResponseHandler responseHandler;
 
     @GetMapping("/login")
-    public ResponseEntity<Response> loginError(@RequestParam("error")  String error) {
+    public ResponseEntity<Response> loginError(@RequestParam("error") String error) {
         ExceptionType exceptionType = getErrorType(error);
         return ResponseEntity
                 .status(exceptionType.getStatus())
@@ -29,6 +29,7 @@ public class LoginFailureController {
         return switch (error) {
             case "member-deletion" -> MEMBER_DELETION_REQUESTED_EXCEPTION;
             case "oauth-failure" -> OAUTH2_LOGIN_FAILURE_EXCEPTION;
+            case "expired-session" -> SESSION_EXPIRED_EXCEPTION;
             default -> AUTHENTICATION_ENTRY_POINT_EXCEPTION;
         };
     }
