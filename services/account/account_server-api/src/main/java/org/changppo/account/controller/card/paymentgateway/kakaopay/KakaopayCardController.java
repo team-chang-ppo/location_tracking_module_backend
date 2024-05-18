@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.changppo.account.aop.AssignMemberId;
 import org.changppo.account.service.dto.card.CardDto;
 import org.changppo.account.dto.card.kakaopay.*;
-import org.changppo.account.response.Response;
+import org.changppo.utils.response.body.Response;
 import org.changppo.account.service.card.paymentgateway.kakaopay.KakaopayCardService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

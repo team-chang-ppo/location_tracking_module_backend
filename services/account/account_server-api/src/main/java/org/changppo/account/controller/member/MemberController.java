@@ -3,7 +3,7 @@ package org.changppo.account.controller.member;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.changppo.account.response.Response;
+import org.changppo.utils.response.body.Response;
 import org.changppo.account.security.PrincipalHandler;
 import org.changppo.account.service.dto.member.MemberDto;
 import org.changppo.account.service.member.MemberService;

@@ -14,3 +14,5 @@ include('services:account:account_core:account_infra')
 include('services:account:account_utils')
 findProject(':services:account:account_utils')?.name = 'account_utils'
 
+include(':utils:response')
+include(':utils:jwt')

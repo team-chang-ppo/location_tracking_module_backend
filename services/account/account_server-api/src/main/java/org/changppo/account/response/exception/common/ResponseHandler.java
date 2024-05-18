@@ -1,7 +1,7 @@
 package org.changppo.account.response.exception.common;
 
 import lombok.RequiredArgsConstructor;
-import org.changppo.account.response.Response;
+import org.changppo.utils.response.body.Response;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
@@ -13,7 +13,7 @@ public class ResponseHandler {
     private final MessageSource messageSource;
 
     public Response getFailureResponse(ExceptionType exceptionType) {
-        return org.changppo.account.response.Response.failure(getCode(exceptionType.getCode()), getMessage(exceptionType.getMessage()));
+        return Response.failure(getCode(exceptionType.getCode()), getMessage(exceptionType.getMessage()));
     }
 
     public Response getFailureResponse(ExceptionType exceptionType, Object... args) {

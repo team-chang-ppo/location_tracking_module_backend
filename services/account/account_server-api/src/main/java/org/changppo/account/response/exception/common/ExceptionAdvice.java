@@ -2,7 +2,7 @@ package org.changppo.account.response.exception.common;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.changppo.account.response.Response;
+import org.changppo.utils.response.body.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
