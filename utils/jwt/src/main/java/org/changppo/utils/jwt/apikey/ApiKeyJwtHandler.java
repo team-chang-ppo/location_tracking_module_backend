@@ -14,18 +14,18 @@ import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
-public class apiKeyJwtHandler {
+public class ApiKeyJwtHandler {
 
     private final SecretKey secretKey;
     private static final String APIKEY_ID = "APIKEY_ID";
     private static final String MEMBER_ID = "MEMBER_ID";
     private static final String GRADE_TYPE = "GRADE_TYPE";
 
-    public apiKeyJwtHandler(JwtProperties jwtProperties) {
+    public ApiKeyJwtHandler(JwtProperties jwtProperties) {
         secretKey = new SecretKeySpec(jwtProperties.getApiKey().getSecretKey().getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
     }
 
-    public String createToken(apiKeyJwtClaims apiKeyJwtClaims) {
+    public String createToken(ApiKeyJwtClaims apiKeyJwtClaims) {
         return create(Map.of(APIKEY_ID, apiKeyJwtClaims.getApikeyId(), MEMBER_ID, apiKeyJwtClaims.getMemberId(), GRADE_TYPE, apiKeyJwtClaims.getGradeType()));
     }
 
@@ -38,12 +38,12 @@ public class apiKeyJwtHandler {
                 .compact();
     }
 
-    public Optional<apiKeyJwtClaims> parseToken(String token) {  // 반환 값이 Optional.empty면 오류
+    public Optional<ApiKeyJwtClaims> parseToken(String token) {  // 반환 값이 Optional.empty면 오류
         return parse(token).map(this::convert);
     }
 
-    private apiKeyJwtClaims convert(Claims claims) {
-        return new apiKeyJwtClaims(
+    private ApiKeyJwtClaims convert(Claims claims) {
+        return new ApiKeyJwtClaims(
                 claims.get(APIKEY_ID, Long.class),
                 claims.get(MEMBER_ID, Long.class),
                 claims.get(GRADE_TYPE, String.class)
