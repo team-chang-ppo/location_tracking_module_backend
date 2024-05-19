@@ -10,7 +10,6 @@ import org.changppo.monitoring.dao.HourlyApiUsageCostViewRepository;
 import org.changppo.monitoring.util.ViewFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -24,10 +23,6 @@ public class CostQueryService {
 
     @PreAuthorize("hasRole('ROLE_ADMIN') and #memberId == authentication.principal")
     public MemberChargeGraphView getChargeGraphView(@NotNull Long memberId, @Nullable Long apiKeyId, @NotNull LocalDate startDate, @NotNull LocalDate endDate) {
-        Assert.notNull(memberId, "memberId must not be null");
-        Assert.notNull(startDate, "startDate must not be null");
-        Assert.notNull(endDate, "endDate must not be null");
-
         // FETCH
         final List<HourlyApiUsageCostView> fetchedCostViews;
         if (apiKeyId == null) {
