@@ -7,6 +7,7 @@ import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import org.changppo.monitoring.dao.ApiEndpointIdFragment;
 import org.changppo.monitoring.dao.ApiEndpointRepository;
+import org.changppo.monitoring.dao.HourlyApiUsageEntity;
 import org.changppo.monitoring.dao.HourlyApiUsageRepository;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +16,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.support.Acknowledgment;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -92,10 +94,13 @@ class KafkaConsumerTest {
             // then
             // hourlyApiUsageRepository.saveAll(entities)가 호출되었는지 확인한다.
             verify(hourlyApiUsageRepository, times(1)).saveAll(argThat(entities -> {
-                if (entities.size() != 1) {
+                // iterable to list
+                List<HourlyApiUsageEntity> list = new ArrayList<>();
+                entities.forEach(list::add);
+                if (list.size() != 1) {
                     return false;
                 }
-                return entities.get(0).getApiEndpointId() == 1;
+                return list.get(0).getApiEndpointId() == 1;
             }));
             // acknowledgment.acknowledge()가 호출되었는지 확인한다.
             verify(acknowledgment, times(1)).acknowledge();
@@ -178,10 +183,12 @@ class KafkaConsumerTest {
             // then
             // hourlyApiUsageRepository.saveAll(entities)가 호출되었는지 확인한다.
             verify(hourlyApiUsageRepository, times(1)).saveAll(argThat(entities -> {
-                if (entities.size() != 1) {
+                List<HourlyApiUsageEntity> list = new ArrayList<>();
+                entities.forEach(list::add);
+                if (list.size() != 1) {
                     return false;
                 }
-                return entities.get(0).getApiEndpointId() == null;
+                return list.get(0).getApiEndpointId() == null;
             }));
             // acknowledgment.acknowledge()가 호출되었는지 확인한다.
             verify(acknowledgment, times(1)).acknowledge();

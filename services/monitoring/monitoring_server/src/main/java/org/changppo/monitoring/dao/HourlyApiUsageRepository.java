@@ -9,6 +9,6 @@ import java.util.List;
 public interface HourlyApiUsageRepository extends Repository<HourlyApiUsageEntity, Long>{
 
     // bulk insert
-    void saveAll(List<HourlyApiUsageEntity> hourlyApiUsageEntities);
+    void saveAll(Iterable<HourlyApiUsageEntity> hourlyApiUsageEntities);
 
 }
