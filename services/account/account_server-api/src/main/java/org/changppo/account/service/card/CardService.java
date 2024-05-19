@@ -20,7 +20,7 @@ import org.changppo.account.response.exception.card.UnsupportedPaymentGatewayExc
 import org.changppo.account.response.exception.member.MemberNotFoundException;
 import org.changppo.account.response.exception.member.RoleNotFoundException;
 import org.changppo.account.response.exception.member.UpdateAuthenticationFailureException;
-import org.changppo.account.security.oauth2.CustomOAuth2User;
+import org.changppo.account.security.oauth2.CustomOAuth2UserDetails;
 import org.changppo.account.service.dto.card.CardDto;
 import org.changppo.account.type.PaymentGatewayType;
 import org.changppo.account.type.RoleType;
@@ -166,10 +166,11 @@ public class CardService {
         );
     }
 
-    private CustomOAuth2User getPrincipal(Member member) {
-        return new CustomOAuth2User(
+    private CustomOAuth2UserDetails getPrincipal(Member member) {
+        return new CustomOAuth2UserDetails(
                 member.getId(),
                 member.getName(),
+                member.getPassword(),
                 getAuthorities(member)
         );
     }

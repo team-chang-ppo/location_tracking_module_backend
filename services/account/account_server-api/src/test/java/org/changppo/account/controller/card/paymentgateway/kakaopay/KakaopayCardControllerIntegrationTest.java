@@ -18,7 +18,7 @@ import org.changppo.account.response.exception.apikey.ApiKeyNotFoundException;
 import org.changppo.account.response.exception.card.CardNotFoundException;
 import org.changppo.account.response.exception.member.MemberNotFoundException;
 import org.changppo.account.response.exception.paymentgateway.KakaopayPaymentGatewayFailException;
-import org.changppo.account.security.oauth2.CustomOAuth2User;
+import org.changppo.account.security.oauth2.CustomOAuth2UserDetails;
 import org.changppo.account.type.PaymentGatewayType;
 import org.changppo.account.type.RoleType;
 import org.junit.jupiter.api.AfterEach;
@@ -86,7 +86,7 @@ public class KakaopayCardControllerIntegrationTest {
     MockHttpSession mockSession;
     ObjectMapper objectMapper = new ObjectMapper();
     Member freeMember, normalMember, bannedMember , adminMember;
-    CustomOAuth2User customOAuth2FreeMember, customOAuth2NormalMember, customOAuth2BannedMember, customOAuth2AdminMember;
+    CustomOAuth2UserDetails customOAuth2FreeMember, customOAuth2NormalMember, customOAuth2BannedMember, customOAuth2AdminMember;
     ApiKey freeApiKey, classicApiKey, classicApiKeyByBannedMember, bannedApiKey;
     Card card;
 

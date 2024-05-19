@@ -4,7 +4,7 @@ import org.changppo.account.TestInitDB;
 import org.changppo.account.entity.member.Member;
 import org.changppo.account.repository.member.MemberRepository;
 import org.changppo.account.response.exception.member.MemberNotFoundException;
-import org.changppo.account.security.oauth2.CustomOAuth2User;
+import org.changppo.account.security.oauth2.CustomOAuth2UserDetails;
 import org.changppo.account.type.RoleType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,7 +49,7 @@ class MemberControllerIntegrationTest {
 
     MockRestServiceServer mockServer;
     Member freeMember, normalMember, banForPaymentFailureMember, requestDeletionMember, adminMember;
-    CustomOAuth2User customOAuth2FreeMember, customOAuth2NormalMember, customOAuth2BanForPaymentFailureMember, customOAuth2RequestDeletionMember, customOAuth2AdminMember;
+    CustomOAuth2UserDetails customOAuth2FreeMember, customOAuth2NormalMember, customOAuth2BanForPaymentFailureMember, customOAuth2RequestDeletionMember, customOAuth2AdminMember;
 
     @BeforeEach
     void beforeEach() {

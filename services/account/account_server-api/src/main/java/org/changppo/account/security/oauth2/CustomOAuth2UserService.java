@@ -55,7 +55,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                                 .build());
                 });
 
-        return new CustomOAuth2User(member.getId(), name,  member.getMemberRoles().stream()
+        return new CustomOAuth2UserDetails(member.getId(), name,  null, member.getMemberRoles().stream()
                                                             .map(memberRole -> new SimpleGrantedAuthority(memberRole.getRole().getRoleType().name()))
                                                             .collect(Collectors.toSet()));
     }

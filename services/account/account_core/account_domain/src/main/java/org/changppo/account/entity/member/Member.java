@@ -38,6 +38,9 @@ public class Member extends EntityDate {
     private final Set<MemberRole> memberRoles = new HashSet<>();
 
     @Column
+    private String password;
+
+    @Column
     private LocalDateTime deletedAt;
 
     @Column
@@ -52,9 +55,14 @@ public class Member extends EntityDate {
         this.username = username;
         this.profileImage = profileImage;
         roles.forEach(role -> this.memberRoles.add(new MemberRole(this, role)));
+        this.password = null;
         this.deletedAt = null;
         this.paymentFailureBannedAt = null;
         this.deletionRequestedAt = null;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public boolean isDeleted() {
