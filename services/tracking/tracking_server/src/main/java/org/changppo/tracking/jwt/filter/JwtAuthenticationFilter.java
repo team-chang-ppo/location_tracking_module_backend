@@ -9,11 +9,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.changppo.tracking.domain.TrackingContext;
-import org.changppo.tracking.exception.common.ErrorResponse;
 import org.changppo.tracking.jwt.TokenProvider;
 import org.changppo.tracking.jwt.exception.JwtAuthenticationException;
 import org.changppo.tracking.jwt.exception.JwtNotExistException;
 import org.changppo.tracking.jwt.exception.JwtTokenExpiredException;
+import org.changppo.utils.response.body.Response;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -71,7 +71,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         response.setStatus(e.getErrorCode().getStatus());
         response.setContentType("application/json;charset=UTF-8");
         ObjectMapper objectMapper = new ObjectMapper();
-        String errorResponse = objectMapper.writeValueAsString(ErrorResponse.of(e.getErrorCode(), null));
+        String errorResponse = objectMapper.writeValueAsString(Response.failure(e.getErrorCode().getCode(), e.getErrorCode().getMessage()));
         response.getWriter().write(errorResponse);
         response.flushBuffer(); // 커밋
         response.getWriter().close();

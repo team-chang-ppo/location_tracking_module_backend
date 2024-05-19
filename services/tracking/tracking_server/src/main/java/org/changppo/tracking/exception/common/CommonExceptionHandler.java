@@ -1,6 +1,7 @@
 package org.changppo.tracking.exception.common;
 
 import lombok.extern.slf4j.Slf4j;
+import org.changppo.utils.response.body.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -14,48 +15,48 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class CommonExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException e) {
+    public ResponseEntity<Response> handleBusinessException(BusinessException e) {
         log.debug("BusinessException", e);
         ErrorCode errorCode = e.getErrorCode();
         return ResponseEntity.status(errorCode.getStatus())
-                .body(ErrorResponse.of(errorCode, e.getMessage()));
+                .body(Response.failure(errorCode.getCode(), e.getMessage()));
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e) {
+    public ResponseEntity<Response> handleAccessDeniedException(AccessDeniedException e) {
         log.debug("handleAccessDeniedException", e);
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(ErrorResponse.of(ErrorCode.ACCESS_DENIED, e.getMessage()));
+                .body(Response.failure(ErrorCode.ACCESS_DENIED.getCode(), e.getMessage()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException e) {
+    public ResponseEntity<Response> handleIllegalArgumentException(IllegalArgumentException e) {
         log.debug("handleIllegalArgumentException", e);
         return ResponseEntity.badRequest()
-                .body(ErrorResponse.of(ErrorCode.INVALID_INPUT_VALUE, e.getMessage()));
+                .body(Response.failure(ErrorCode.INVALID_INPUT_VALUE.getCode(), e.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+    public ResponseEntity<Response> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         String errorMessage = e.getBindingResult().getAllErrors().get(0).getDefaultMessage();
         log.debug("MethodArgumentNotValidException", e);
 
         return ResponseEntity.badRequest()
-                .body(ErrorResponse.of(ErrorCode.INVALID_INPUT_VALUE, errorMessage));
+                .body(Response.failure(ErrorCode.INVALID_INPUT_VALUE.getCode(), errorMessage));
     }
 
     @ExceptionHandler(MissingRequestHeaderException.class)
-    public ResponseEntity<ErrorResponse> handleMissingRequestHeaderException(MissingRequestHeaderException e) {
+    public ResponseEntity<Response> handleMissingRequestHeaderException(MissingRequestHeaderException e) {
         log.debug("MissingRequestHeaderException", e);
 
         return ResponseEntity.badRequest()
-                .body(ErrorResponse.of(ErrorCode.HEADER_NOT_FOUND, null));
+                .body(Response.failure(ErrorCode.HEADER_NOT_FOUND.getCode(), null));
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception e) {
+    public ResponseEntity<Response> handleException(Exception e) {
         log.debug("Exception", e);
         return  ResponseEntity.internalServerError()
-                .body(ErrorResponse.of(ErrorCode.UNEXPECTED_SERVER_ERROR, e.getMessage()));
+                .body(Response.failure(ErrorCode.UNEXPECTED_SERVER_ERROR.getCode(), e.getMessage()));
     }
 }
