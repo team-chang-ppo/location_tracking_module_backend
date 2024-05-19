@@ -13,6 +13,8 @@ import org.changppo.tracking.jwt.TokenProvider;
 import org.changppo.tracking.jwt.exception.JwtAuthenticationException;
 import org.changppo.tracking.jwt.exception.JwtNotExistException;
 import org.changppo.tracking.jwt.exception.JwtTokenExpiredException;
+import org.changppo.utils.jwt.tracking.TrackingJwtClaims;
+import org.changppo.utils.jwt.tracking.TrackingJwtHandler;
 import org.changppo.utils.response.body.Response;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,7 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String BEARER_PREFIX = "Bearer ";
     private final AuthenticationManager authenticationManager;
-    private final TokenProvider tokenProvider;
+    private final TrackingJwtHandler trackingJwtHandler;
     private final RequestMatcher requestMatcher = new RequestHeaderRequestMatcher(HttpHeaders.AUTHORIZATION);
 
     @Override
@@ -64,8 +66,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private void handleJwtAuthenticationException(HttpServletResponse response, JwtAuthenticationException e) throws IOException {
         if (e instanceof JwtTokenExpiredException) { // 재발급
             Claims claims = ((JwtTokenExpiredException) e).getClaims();
-            TrackingContext context = tokenProvider.createTrackingContextFromClaims(claims);
-            String newToken = tokenProvider.createToken(context);
+            TrackingJwtClaims trackingClaims = trackingJwtHandler.convert(claims);
+            String newToken = trackingJwtHandler.createToken(trackingClaims);
             response.setHeader("new-token", newToken);
         }
         response.setStatus(e.getErrorCode().getStatus());

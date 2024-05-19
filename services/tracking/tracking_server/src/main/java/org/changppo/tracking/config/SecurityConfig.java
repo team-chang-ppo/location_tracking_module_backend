@@ -7,6 +7,7 @@ import org.changppo.tracking.jwt.JwtAccessDeniedHandler;
 import org.changppo.tracking.jwt.JwtAuthenticationEntryPoint;
 import org.changppo.tracking.jwt.TokenProvider;
 import org.changppo.tracking.jwt.filter.JwtAuthenticationFilter;
+import org.changppo.utils.jwt.tracking.TrackingJwtHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -31,7 +32,7 @@ public class SecurityConfig {
     private final AccessDeniedHandler accessDeniedHandler;
 
     @Bean
-    public SecurityFilterChain httpSecurity(HttpSecurity http, AuthenticationManager authenticationManager, TokenProvider tokenProvider) throws Exception {
+    public SecurityFilterChain httpSecurity(HttpSecurity http, AuthenticationManager authenticationManager, TrackingJwtHandler trackingJwtHandler) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
@@ -49,7 +50,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/tracking/*/tracking").hasAuthority("READ_TRACKING_COORDINATE")
                         .anyRequest().authenticated())
 
-                .addFilterAfter(new JwtAuthenticationFilter(authenticationManager, tokenProvider), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(new JwtAuthenticationFilter(authenticationManager, trackingJwtHandler), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
                         .accessDeniedHandler(accessDeniedHandler));

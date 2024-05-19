@@ -17,8 +17,14 @@ import org.changppo.tracking.jwt.TokenProvider;
 import org.changppo.tracking.repository.RedisRepository;
 import org.changppo.tracking.repository.TrackingRepository;
 import org.changppo.tracking.util.RetryUtil;
+import org.changppo.utils.jwt.apikey.ApiKeyJwtClaims;
+import org.changppo.utils.jwt.apikey.ApiKeyJwtHandler;
+import org.changppo.utils.jwt.tracking.TrackingJwtClaims;
+import org.changppo.utils.jwt.tracking.TrackingJwtHandler;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -28,21 +34,31 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class TrackingService {
 
-    private final TokenProvider tokenProvider;
+    private final TrackingJwtHandler trackingJwtHandler;
+    private final ApiKeyJwtHandler apiKeyJwtHandler;
     private final TrackingRepository trackingRepository;
     private final TrackingCacheService trackingCacheService;
     private final RedisRepository redisRepository;
     private final AsyncService asyncService;
     private final ScheduledExecutorService scheduler;
 
-    public GenerateTokenResponse generateToken(String apiKeyId, GenerateTokenRequest request) {
+    public GenerateTokenResponse generateToken(String apiKeyToken, GenerateTokenRequest request) {
         if(request.getIdentifier().equals("DEFAULT")){ // DEFAULT 가 입력되면 처음 생성이라 생각하고, 랜덤 UUID 값을 생성
             request.setIdentifier(UUID.randomUUID().toString());
         }
 
-        TrackingContext context = new TrackingContext(request.getIdentifier(), apiKeyId, request.getScope());
+        // API KEY TOKEN parsing
+        ApiKeyJwtClaims apiKeyJwtClaims = apiKeyJwtHandler.parseToken(apiKeyToken).orElseThrow();
+
+        TrackingJwtClaims claims = new TrackingJwtClaims(
+                apiKeyJwtClaims.getApikeyId(),
+                apiKeyJwtClaims.getMemberId(),
+                apiKeyJwtClaims.getGradeType(),
+                request.getIdentifier(),
+                request.getScope());
+
         // TODO. Account DB로 APIKEY의 상태값 확인이 필요
-        String token = tokenProvider.createToken(context);
+        String token = trackingJwtHandler.createToken(claims);
 
         return new GenerateTokenResponse(token);
     }

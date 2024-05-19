@@ -19,21 +19,21 @@ public class CommonExceptionHandler {
         log.debug("BusinessException", e);
         ErrorCode errorCode = e.getErrorCode();
         return ResponseEntity.status(errorCode.getStatus())
-                .body(Response.failure(errorCode.getCode(), e.getMessage()));
+                .body(Response.failure(errorCode.getCode(), errorCode.getMessage()));
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Response> handleAccessDeniedException(AccessDeniedException e) {
         log.debug("handleAccessDeniedException", e);
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(Response.failure(ErrorCode.ACCESS_DENIED.getCode(), e.getMessage()));
+                .body(Response.failure(ErrorCode.ACCESS_DENIED.getCode(), ErrorCode.ACCESS_DENIED.getMessage()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Response> handleIllegalArgumentException(IllegalArgumentException e) {
         log.debug("handleIllegalArgumentException", e);
         return ResponseEntity.badRequest()
-                .body(Response.failure(ErrorCode.INVALID_INPUT_VALUE.getCode(), e.getMessage()));
+                .body(Response.failure(ErrorCode.INVALID_INPUT_VALUE.getCode(), ErrorCode.INVALID_INPUT_VALUE.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -50,7 +50,7 @@ public class CommonExceptionHandler {
         log.debug("MissingRequestHeaderException", e);
 
         return ResponseEntity.badRequest()
-                .body(Response.failure(ErrorCode.HEADER_NOT_FOUND.getCode(), null));
+                .body(Response.failure(ErrorCode.HEADER_NOT_FOUND.getCode(), ErrorCode.HEADER_NOT_FOUND.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)

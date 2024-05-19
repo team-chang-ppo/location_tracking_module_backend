@@ -30,9 +30,9 @@ public class TrackingController {
      * TODO : 토큰 헤더의 키 값은 상의 필요
      */
     @PostMapping("/generate-token")
-    public ResponseEntity<Response> generateToken(@RequestHeader("api-key-id") String apiKeyId,
-                                                                        @RequestBody @Valid GenerateTokenRequest request) {
-        GenerateTokenResponse response = trackingService.generateToken(apiKeyId, request);
+    public ResponseEntity<Response> generateToken(@RequestHeader("APIKEY") String apiKeyToken,
+                                                  @RequestBody @Valid GenerateTokenRequest request) {
+        GenerateTokenResponse response = trackingService.generateToken(apiKeyToken, request);
 
         return ResponseEntity.ok().body(Response.success(response));
     }
@@ -48,7 +48,7 @@ public class TrackingController {
     @TrackingContextParam
     @PostMapping("/start")
     public ResponseEntity<Response> startTracking(@RequestBody @Valid StartTrackingRequest request,
-                                                               TrackingContext context) {
+                                                  TrackingContext context) {
         trackingService.startTracking(request, context);
 
         return ResponseEntity.ok().body(Response.success());
@@ -66,7 +66,7 @@ public class TrackingController {
     @TrackingContextParam
     @PostMapping("/tracking")
     public ResponseEntity<Response> tracking(@RequestBody @Valid TrackingRequest request,
-                                         TrackingContext context) {
+                                             TrackingContext context) {
         trackingService.tracking(request, context);
 
         return ResponseEntity.ok().body(Response.success());
