@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConfigurationProperties(prefix = "apikey.jwt")
 public class JwtConfigurationProperty implements InitializingBean {
-    private static final String TEST_SECRET = "test-secret-key-o134084704380574235843528";
+    private static final String TEST_SECRET = "vmfhaltmskdlstkfkdgodyroqkfwkdbalroqkfwkdbalaaaaaaaaaaaaaaaabbbbb";
     private String secret = TEST_SECRET;
 
     @Override

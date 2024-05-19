@@ -1,67 +1,20 @@
-package org.changppo.monioring.server.config;
+package org.changppo.monioring.server.ratelimit;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.changppo.monioring.server.apikey.*;
-import org.changppo.monioring.server.metering.ApiMeteringEventPublisher;
-import org.changppo.monioring.server.metering.ApiMeteringGatewayFilter;
-import org.changppo.monioring.server.metering.KafkaApiMeteringEventPublisher;
-import org.changppo.monioring.server.ratelimit.*;
-import org.changppo.monioring.server.traceid.TraceIdGrantFilter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.script.RedisScript;
-import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.scripting.support.ResourceScriptSource;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 
 @Configuration
-public class GatewayConfig {
-
-    @Bean
-    public ApiKeyResolver apiKeyResolver(JwtConfigurationProperty jwtConfigurationProperty) {
-        return new JwtBasedApiKeyResolver(jwtConfigurationProperty);
-    }
-
-    @Bean
-    public ApiKeyIdManager apiKeyIdManager() {
-        // TODO : 일단 화이트 리스트 API 나올때까지는 무조건 통과하도록
-        return (id) -> Mono.just(true);
-    }
-
-    @Bean
-    public ApiMeteringEventPublisher apiMeteringEventPublisher(
-            ReactiveKafkaProducerTemplate<String, String> kafkaProducerTemplate,
-            ObjectMapper objectMapper
-    ) {
-        return new KafkaApiMeteringEventPublisher(kafkaProducerTemplate, objectMapper);
-    }
-
-    @Bean
-    public ApiKeyResolverFilter apiKeyContextResolverFilter(
-            ApiKeyResolver apiKeyResolver,
-            ApiKeyIdManager apiKeyIdManager
-    ) {
-        return new ApiKeyResolverFilter(apiKeyResolver, apiKeyIdManager);
-    }
-
-    @Bean
-    public TraceIdGrantFilter traceIdGrantFilter() {
-        return new TraceIdGrantFilter();
-    }
-
-    @Bean
-    public ApiMeteringGatewayFilter apiMeteringGatewayFilterFactory(
-            ApiMeteringEventPublisher apiMeteringEventPublisher
-    ) {
-        return new ApiMeteringGatewayFilter(apiMeteringEventPublisher);
-    }
+public class RateLimiterConfig {
 
     @Bean("apiKeyRateLimiter")
     @Primary
@@ -74,11 +27,18 @@ public class GatewayConfig {
         return new ApiRedisRateLimiter(redisTemplate, redisScript, apiRateContextResolver);
     }
 
-
+    @Profile("local")
     @Bean("apiRateContextResolver")
     public ApiRateContextResolver apiRateContextResolver() {
-        // TODO : 추후 기능 구현시 올바른 구현체로 변경
         return new MockApiRateContextResolver();
+    }
+
+    @Profile("prod")
+    @Bean("apiRateContextResolver")
+    public ApiRateContextResolver prodApiRateContextResolver(
+            RateLimiterConfigurationProperties rateLimiterConfigurationProperties
+    ) {
+        return new ApiKeyRateContextResolver(rateLimiterConfigurationProperties);
     }
 
     @Bean
@@ -86,6 +46,7 @@ public class GatewayConfig {
                                                                                      ApiRateContextResolver resolver) {
         return new ApiRateLimiterGatewayFilterFactory(rateLimiter, resolver);
     }
+
 
     @Bean("customRedisRequestRateLimiterScript")
     @SuppressWarnings("unchecked")
