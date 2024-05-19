@@ -3,7 +3,7 @@ package org.changppo.account.controller.payment;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.changppo.account.dto.payment.PaymentReadAllRequest;
-import org.changppo.account.response.Response;
+import org.changppo.utils.response.body.Response;
 import org.changppo.account.security.PrincipalHandler;
 import org.changppo.account.service.dto.payment.PaymentDto;
 import org.changppo.account.service.payment.PaymentService;

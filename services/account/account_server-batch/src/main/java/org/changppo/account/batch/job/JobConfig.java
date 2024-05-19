@@ -117,7 +117,7 @@ public class JobConfig {
         return new StepBuilder("executePaymentStep", jobRepository)
                 .tasklet((contribution, chunkContext) -> {
                     try {
-                        List<Card> cards = cardRepository.findAllCardByMemberId(memberId);
+                        List<Card> cards = cardRepository.findAllCardByMemberIdOrderByAsc(memberId);
                         PaymentExecutionJobResponse paymentExecutionJobResponse = cards.stream()
                                 .map(card -> processPayment(card, memberId, new BigDecimal(amount)))
                                 .filter(Objects::nonNull)

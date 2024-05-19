@@ -1,4 +1,4 @@
-package org.changppo.account.response;
+package org.changppo.utils.response.body;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;

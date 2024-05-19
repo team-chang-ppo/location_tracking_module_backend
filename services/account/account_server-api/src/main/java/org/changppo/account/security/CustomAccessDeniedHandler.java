@@ -9,7 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
-import org.changppo.account.response.Response;
+import org.changppo.utils.response.body.Response;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 

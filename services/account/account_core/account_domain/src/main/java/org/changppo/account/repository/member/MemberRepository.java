@@ -9,12 +9,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface MemberRepository extends JpaRepository<Member, Long> {  //TODO. 복잡한 쿼리는 Querydsl로 변경
+public interface MemberRepository extends JpaRepository<Member, Long>, QuerydslMemberRepository {
     Optional<Member> findByName(String name);
-
-    @Query("select m from Member m join fetch m.memberRoles where m.name = :name")
-    Optional<Member> findByNameWithRoles(@Param("name") String name);
-
-    @Query("select m from Member m join fetch m.memberRoles where m.id = :id")
-    Optional<Member> findByIdWithRoles(@Param("id") Long id);
 }

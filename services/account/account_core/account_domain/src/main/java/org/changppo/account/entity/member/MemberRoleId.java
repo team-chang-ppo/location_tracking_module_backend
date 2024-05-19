@@ -1,10 +1,9 @@
 package org.changppo.account.entity.member;
 
-import jakarta.persistence.Embeddable;
 import lombok.*;
+
 import java.io.Serializable;
 
-@Embeddable
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

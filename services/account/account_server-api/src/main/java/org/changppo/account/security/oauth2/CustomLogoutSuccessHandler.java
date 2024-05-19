@@ -7,7 +7,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.stereotype.Component;
-import org.changppo.account.response.Response;
+import org.changppo.utils.response.body.Response;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
