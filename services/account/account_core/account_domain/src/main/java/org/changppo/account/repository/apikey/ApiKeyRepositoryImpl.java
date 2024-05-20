@@ -128,7 +128,8 @@ public class ApiKeyRepositoryImpl implements QuerydslApiKeyRepository {
                 .where(apiKey.id.eq(id)
                         .and(isNotPaymentFailureBanned())
                         .and(isNotCardDeletionBanned())
-                        .and(isNotDeletionRequested()))
+                        .and(isNotDeletionRequested())
+                        .and(isNotAdminBanned()))
                 .fetchOne();
 
         return validApiKey != null;
@@ -181,5 +182,9 @@ public class ApiKeyRepositoryImpl implements QuerydslApiKeyRepository {
 
     private BooleanExpression isNotDeletionRequested() {
         return apiKey.deletionRequestedAt.isNull();
+    }
+
+    private BooleanExpression isNotAdminBanned() {
+        return apiKey.adminBannedAt.isNull();
     }
 }

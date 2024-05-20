@@ -56,7 +56,7 @@ public class ApiKeyControllerIntegrationTest {
     ObjectMapper objectMapper = new ObjectMapper();
     Member freeMember, normalMember, banForPaymentFailureMember, requestDeletionMember, adminMember;
     CustomOAuth2UserDetails customOAuth2FreeMember, customOAuth2NormalMember, customOAuth2BanForPaymentFailureMember, customOAuth2RequestDeletionMember, customOAuth2AdminMember;
-    ApiKey freeApiKey, classicApiKey, banForPaymentFailureApiKey, banForCardDeletionApiKey, requestDeletionApiKey;
+    ApiKey freeApiKey, classicApiKey, banForPaymentFailureApiKey, banForCardDeletionApiKey, requestDeletionApiKey, adminBannedApiKey;
 
     @BeforeEach
     void beforeEach() {
@@ -86,6 +86,7 @@ public class ApiKeyControllerIntegrationTest {
         banForPaymentFailureApiKey = apiKeyRepository.findByValue(testInitDB.getBanForPaymentFailureApiKeyValue()).orElseThrow(ApiKeyNotFoundException::new);
         banForCardDeletionApiKey = apiKeyRepository.findByValue(testInitDB.getBanForCardDeletionApiKeyValue()).orElseThrow(ApiKeyNotFoundException::new);
         requestDeletionApiKey = apiKeyRepository.findByValue(testInitDB.getRequestDeletionApiKeyValue()).orElseThrow(ApiKeyNotFoundException::new);
+        adminBannedApiKey = apiKeyRepository.findByValue(testInitDB.getAdminBannedApiKeyValue()).orElseThrow(ApiKeyNotFoundException::new);
     }
 
     @Test
@@ -454,6 +455,15 @@ public class ApiKeyControllerIntegrationTest {
         // given, when, then
         mockMvc.perform(
                         get("/api/apikeys/v1/validate/{id}", requestDeletionApiKey.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.data.valid").value(false));
+    }
+
+    @Test
+    void validateValidFalseByAdminBannedApiKeyTest() throws Exception {
+        // given, when, then
+        mockMvc.perform(
+                        get("/api/apikeys/v1/validate/{id}", adminBannedApiKey.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.data.valid").value(false));
     }
