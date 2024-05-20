@@ -3,6 +3,7 @@ package org.changppo.account.repository.apikey;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.changppo.account.entity.apikey.ApiKey;
 import org.changppo.account.service.dto.apikey.ApiKeyDto;
 import org.changppo.account.service.dto.apikey.QApiKeyDto;
 import org.springframework.data.domain.Pageable;
@@ -99,7 +100,20 @@ public class ApiKeyRepositoryImpl implements QuerydslApiKeyRepository {
                 .where(memberIdEquals(memberId))
                 .execute();
     }
-    private BooleanExpression memberIdEquals(Long memberId) {
+
+    @Override
+    public boolean isValid(Long id) {
+        ApiKey validApiKey = queryFactory.selectFrom(apiKey)
+                .where(apiKey.id.eq(id)
+                        .and(isNotPaymentFailureBanned())
+                        .and(isNotCardDeletionBanned())
+                        .and(isNotDeletionRequested()))
+                .fetchOne();
+
+        return validApiKey != null;
+    }
+
+        private BooleanExpression memberIdEquals(Long memberId) {
         return apiKey.member.id.eq(memberId);
     }
 
@@ -109,5 +123,17 @@ public class ApiKeyRepositoryImpl implements QuerydslApiKeyRepository {
 
     private BooleanExpression statusNotGradeFree() {
         return apiKey.grade.gradeType.ne(GRADE_FREE);
+    }
+
+    private BooleanExpression isNotPaymentFailureBanned() {
+        return apiKey.paymentFailureBannedAt.isNull();
+    }
+
+    private BooleanExpression isNotCardDeletionBanned() {
+        return apiKey.cardDeletionBannedAt.isNull();
+    }
+
+    private BooleanExpression isNotDeletionRequested() {
+        return apiKey.deletionRequestedAt.isNull();
     }
 }

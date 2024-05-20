@@ -421,4 +421,40 @@ public class ApiKeyControllerIntegrationTest {
                         .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2BanForPaymentFailureMember)))
                 .andExpect(status().isForbidden());
     }
+
+    @Test
+    void validateValidTrueTest() throws Exception {
+        // given, when, then
+        mockMvc.perform(
+                        get("/api/apikeys/v1/validate/{id}", freeApiKey.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.data.valid").value(true));
+    }
+
+    @Test
+    void validateValidFalseByCardDeletionApiKeyTest() throws Exception {
+        // given, when, then
+        mockMvc.perform(
+                        get("/api/apikeys/v1/validate/{id}", banForCardDeletionApiKey.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.data.valid").value(false));
+    }
+
+    @Test
+    void validateValidFalseByPaymentFailureApiKeyTest() throws Exception {
+        // given, when, then
+        mockMvc.perform(
+                        get("/api/apikeys/v1/validate/{id}", banForPaymentFailureApiKey.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.data.valid").value(false));
+    }
+
+    @Test
+    void validateValidFalseByRequestDeletionApiKeyTest() throws Exception {
+        // given, when, then
+        mockMvc.perform(
+                        get("/api/apikeys/v1/validate/{id}", requestDeletionApiKey.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.data.valid").value(false));
+    }
 }

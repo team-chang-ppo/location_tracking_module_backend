@@ -3,10 +3,11 @@ package org.changppo.account.controller.member;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.changppo.utils.response.body.Response;
+import org.changppo.account.dto.member.PrincipalDto;
 import org.changppo.account.security.PrincipalHandler;
 import org.changppo.account.service.dto.member.MemberDto;
 import org.changppo.account.service.member.MemberService;
+import org.changppo.utils.response.body.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,14 @@ import org.springframework.web.bind.annotation.*;
 public class MemberController {
 
     private final MemberService memberService;
+
+    @GetMapping("/principal")
+    public ResponseEntity<Response> readPrincipal() {
+        PrincipalDto principalDto = new PrincipalDto(PrincipalHandler.extractId(), PrincipalHandler.extractMemberRoles());
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(Response.success(principalDto));
+    }
 
     @GetMapping("/me")
     public ResponseEntity<Response> readMe() {

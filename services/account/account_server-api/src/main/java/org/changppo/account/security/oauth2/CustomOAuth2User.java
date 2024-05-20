@@ -1,6 +1,7 @@
 package org.changppo.account.security.oauth2;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
@@ -11,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 @AllArgsConstructor
+@EqualsAndHashCode
 public class CustomOAuth2User implements OAuth2User, Serializable {
 
     @Serial

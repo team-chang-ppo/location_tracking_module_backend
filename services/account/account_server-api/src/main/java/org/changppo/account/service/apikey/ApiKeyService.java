@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.changppo.account.dto.apikey.ApiKeyCreateRequest;
 import org.changppo.account.dto.apikey.ApiKeyListDto;
 import org.changppo.account.dto.apikey.ApiKeyReadAllRequest;
+import org.changppo.account.dto.apikey.ApiKeyValidationResponse;
 import org.changppo.account.entity.apikey.ApiKey;
 import org.changppo.account.entity.apikey.Grade;
 import org.changppo.account.entity.member.Member;
@@ -15,8 +16,8 @@ import org.changppo.account.response.exception.apikey.GradeNotFoundException;
 import org.changppo.account.response.exception.member.MemberNotFoundException;
 import org.changppo.account.service.dto.apikey.ApiKeyDto;
 import org.changppo.account.type.GradeType;
-import org.changppo.utils.jwt.apikey.apiKeyJwtHandler;
 import org.changppo.utils.jwt.apikey.apiKeyJwtClaims;
+import org.changppo.utils.jwt.apikey.apiKeyJwtHandler;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.repository.query.Param;
@@ -94,5 +95,9 @@ public class ApiKeyService {
     public void delete(@Param("id")Long id) {
         ApiKey apiKey = apiKeyRepository.findById(id).orElseThrow(ApiKeyNotFoundException::new);
         apiKeyRepository.delete(apiKey);
+    }
+
+    public ApiKeyValidationResponse validate(Long id) {
+        return new ApiKeyValidationResponse(apiKeyRepository.isValid(id));
     }
 }
