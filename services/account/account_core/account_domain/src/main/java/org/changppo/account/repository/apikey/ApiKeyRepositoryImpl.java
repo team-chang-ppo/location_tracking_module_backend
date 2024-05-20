@@ -1,14 +1,17 @@
 package org.changppo.account.repository.apikey;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.changppo.account.entity.apikey.ApiKey;
 import org.changppo.account.service.dto.apikey.ApiKeyDto;
 import org.changppo.account.service.dto.apikey.QApiKeyDto;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
+import org.springframework.data.support.PageableExecutionUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -113,6 +116,31 @@ public class ApiKeyRepositoryImpl implements QuerydslApiKeyRepository {
                 .fetchOne();
 
         return validApiKey != null;
+    }
+
+    @Override
+    public Page<ApiKeyDto> findAllDtos(Pageable pageable) {
+        List<ApiKeyDto> content = queryFactory
+                .select(
+                    new QApiKeyDto(
+                            apiKey.id,
+                            apiKey.value,
+                            apiKey.grade.gradeType,
+                            apiKey.paymentFailureBannedAt,
+                            apiKey.cardDeletionBannedAt,
+                            apiKey.createdAt))
+                .from(apiKey)
+                .join(apiKey.grade, grade)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        JPAQuery<Long> countQuery = queryFactory
+                .select(apiKey.count())
+                .from(apiKey)
+                .leftJoin(apiKey.grade, grade);
+
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
 
         private BooleanExpression memberIdEquals(Long memberId) {

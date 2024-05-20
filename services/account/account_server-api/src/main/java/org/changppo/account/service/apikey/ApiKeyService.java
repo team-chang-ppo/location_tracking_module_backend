@@ -18,6 +18,7 @@ import org.changppo.account.service.dto.apikey.ApiKeyDto;
 import org.changppo.account.type.GradeType;
 import org.changppo.utils.jwt.apikey.apiKeyJwtClaims;
 import org.changppo.utils.jwt.apikey.apiKeyJwtHandler;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.repository.query.Param;
@@ -88,6 +89,10 @@ public class ApiKeyService {
     public ApiKeyListDto readAll(@Param("memberId")Long memberId, ApiKeyReadAllRequest req){
         Slice<ApiKeyDto> slice = apiKeyRepository.findAllByMemberIdOrderByAsc(memberId, req.getFirstApiKeyId(), Pageable.ofSize(req.getSize()));
         return new ApiKeyListDto(slice.getNumberOfElements(), slice.hasNext(), slice.getContent());
+    }
+
+    public Page<ApiKeyDto> readList(Pageable pageable) {
+        return apiKeyRepository.findAllDtos(pageable);
     }
 
     @Transactional

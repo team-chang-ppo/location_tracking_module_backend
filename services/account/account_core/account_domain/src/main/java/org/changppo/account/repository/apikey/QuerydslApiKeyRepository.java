@@ -1,6 +1,7 @@
 package org.changppo.account.repository.apikey;
 
 import org.changppo.account.service.dto.apikey.ApiKeyDto;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
@@ -16,4 +17,5 @@ public interface QuerydslApiKeyRepository {
     void requestApiKeyDeletion(Long memberId, LocalDateTime time);
     void cancelApiKeyDeletionRequest(Long memberId);
     boolean isValid(Long Id);
+    Page<ApiKeyDto> findAllDtos(Pageable pageable);
 }
