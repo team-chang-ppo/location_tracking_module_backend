@@ -26,7 +26,7 @@ public class ApiKeyRepositoryImpl implements QuerydslApiKeyRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Slice<ApiKeyDto> findAllByMemberIdOrderByAsc(Long memberId, Long firstApiKeyId, Pageable pageable) {
+    public Slice<ApiKeyDto> findAllDtosByMemberIdOrderByAsc(Long memberId, Long firstApiKeyId, Pageable pageable) {
         List<ApiKeyDto> apiKeyDtos = queryFactory.select(
                 new QApiKeyDto(
                         apiKey.id,

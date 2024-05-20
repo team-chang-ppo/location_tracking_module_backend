@@ -87,7 +87,7 @@ public class ApiKeyService {
 
     @PreAuthorize("@memberAccessEvaluator.check(#memberId)")
     public ApiKeyListDto readAll(@Param("memberId")Long memberId, ApiKeyReadAllRequest req){
-        Slice<ApiKeyDto> slice = apiKeyRepository.findAllByMemberIdOrderByAsc(memberId, req.getFirstApiKeyId(), Pageable.ofSize(req.getSize()));
+        Slice<ApiKeyDto> slice = apiKeyRepository.findAllDtosByMemberIdOrderByAsc(memberId, req.getFirstApiKeyId(), Pageable.ofSize(req.getSize()));
         return new ApiKeyListDto(slice.getNumberOfElements(), slice.hasNext(), slice.getContent());
     }
 

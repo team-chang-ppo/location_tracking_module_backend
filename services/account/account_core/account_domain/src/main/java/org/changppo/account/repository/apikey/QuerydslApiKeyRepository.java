@@ -8,7 +8,7 @@ import org.springframework.data.domain.Slice;
 import java.time.LocalDateTime;
 
 public interface QuerydslApiKeyRepository {
-    Slice<ApiKeyDto> findAllByMemberIdOrderByAsc(Long memberId, Long firstApiKeyId, Pageable pageable);
+    Slice<ApiKeyDto> findAllDtosByMemberIdOrderByAsc(Long memberId, Long firstApiKeyId, Pageable pageable);
     void deleteAllByMemberId(Long memberId);
     void banForCardDeletionByMemberId(Long memberId, LocalDateTime time);
     void unbanForCardDeletionByMemberId(Long memberId);
