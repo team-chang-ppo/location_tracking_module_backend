@@ -33,7 +33,7 @@ public class MemberService {
         return memberRepository.findDtoById(id).orElseThrow(MemberNotFoundException::new);
     }
 
-    public Page<MemberDto> readAll(Pageable pageable) {
+    public Page<MemberDto> readList(Pageable pageable) {
         return memberRepository.findAllDtos(pageable);
     }
 
