@@ -28,6 +28,7 @@ public class LoginFailureController {
     private ExceptionType getErrorType(String error) {
         return switch (error) {
             case "member-deletion" -> MEMBER_DELETION_REQUESTED_EXCEPTION;
+            case "admin-banned" -> ADMIN_BANNED_EXCEPTION;
             case "oauth-failure" -> OAUTH2_LOGIN_FAILURE_EXCEPTION;
             case "expired-session" -> SESSION_EXPIRED_EXCEPTION;
             default -> AUTHENTICATION_ENTRY_POINT_EXCEPTION;

@@ -16,6 +16,8 @@ public interface QuerydslApiKeyRepository {
     void unbanApiKeysForPaymentFailure(Long memberId);
     void requestApiKeyDeletion(Long memberId, LocalDateTime time);
     void cancelApiKeyDeletionRequest(Long memberId);
+    void banApiKeysByAdmin(Long memberId, LocalDateTime time);
+    void unbanApiKeysByAdmin(Long memberId);
     boolean isValid(Long Id);
     Page<ApiKeyDto> findAllDtos(Pageable pageable);
 }

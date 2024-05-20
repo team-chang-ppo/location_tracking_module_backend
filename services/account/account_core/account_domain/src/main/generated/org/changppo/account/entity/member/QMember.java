@@ -24,6 +24,8 @@ public class QMember extends EntityPathBase<Member> {
 
     public final org.changppo.account.entity.common.QEntityDate _super = new org.changppo.account.entity.common.QEntityDate(this);
 
+    public final DateTimePath<java.time.LocalDateTime> adminBannedAt = createDateTime("adminBannedAt", java.time.LocalDateTime.class);
+
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
 

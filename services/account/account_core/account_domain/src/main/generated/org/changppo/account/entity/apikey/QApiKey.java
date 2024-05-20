@@ -24,6 +24,8 @@ public class QApiKey extends EntityPathBase<ApiKey> {
 
     public final org.changppo.account.entity.common.QEntityDate _super = new org.changppo.account.entity.common.QEntityDate(this);
 
+    public final DateTimePath<java.time.LocalDateTime> adminBannedAt = createDateTime("adminBannedAt", java.time.LocalDateTime.class);
+
     public final DateTimePath<java.time.LocalDateTime> cardDeletionBannedAt = createDateTime("cardDeletionBannedAt", java.time.LocalDateTime.class);
 
     //inherited

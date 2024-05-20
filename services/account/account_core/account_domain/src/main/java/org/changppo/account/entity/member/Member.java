@@ -48,6 +48,9 @@ public class Member extends EntityDate {
     @Column
     private LocalDateTime deletionRequestedAt;
 
+    @Column
+    private LocalDateTime adminBannedAt;
+
     @Builder
     public Member(String name, String username, String profileImage, Role role) {
         this.name = name;
@@ -58,6 +61,7 @@ public class Member extends EntityDate {
         this.deletedAt = null;
         this.paymentFailureBannedAt = null;
         this.deletionRequestedAt = null;
+        this.adminBannedAt = null;
     }
 
     public boolean isDeleted() {
@@ -70,6 +74,10 @@ public class Member extends EntityDate {
 
     public boolean isDeletionRequested() {
         return this.deletionRequestedAt != null;
+    }
+
+    public boolean isAdminBanned() {
+        return this.adminBannedAt != null;
     }
 
     public void updateInfo(String username, String profileImage) {
@@ -95,5 +103,13 @@ public class Member extends EntityDate {
 
     public void cancelDeletionRequest() {
         this.deletionRequestedAt = null;
+    }
+
+    public void banByAdmin(LocalDateTime time) {
+        this.adminBannedAt = time;
+    }
+
+    public void unbanByAdmin() {
+        this.adminBannedAt = null;
     }
 }

@@ -6,6 +6,7 @@ import org.changppo.account.entity.member.Role;
 import org.changppo.account.repository.member.MemberRepository;
 import org.changppo.account.repository.member.RoleRepository;
 import org.changppo.account.response.exception.member.RoleNotFoundException;
+import org.changppo.account.response.exception.oauth2.AdminBannedException;
 import org.changppo.account.response.exception.oauth2.MemberDeletionRequestedException;
 import org.changppo.account.security.oauth2.response.OAuth2Response;
 import org.changppo.account.security.oauth2.response.OAuth2ResponseFactory;
@@ -39,6 +40,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .map(existingMember -> {
                     if (existingMember.isDeletionRequested()) {
                         throw new MemberDeletionRequestedException("Member deletion requested");
+                    }
+                    else if (existingMember.isAdminBanned()) {
+                        throw new AdminBannedException("Admin banned");
                     }
                     existingMember.updateInfo(oAuth2Response.getName(), oAuth2Response.getProfileImage());
                     return existingMember;

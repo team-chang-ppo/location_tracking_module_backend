@@ -76,4 +76,20 @@ public class MemberController {
                 .status(HttpStatus.OK)
                 .body(Response.success());
     }
+
+    @PutMapping("/ban/{id}")
+    public ResponseEntity<Response> ban(@PathVariable(name = "id") Long id) {
+        memberService.ban(id);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(Response.success());
+    }
+
+    @PutMapping("/unban/{id}")
+    public ResponseEntity<Response> unban(@PathVariable(name = "id") Long id) {
+        memberService.unban(id);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(Response.success());
+    }
 }

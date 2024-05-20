@@ -107,6 +107,22 @@ public class ApiKeyRepositoryImpl implements QuerydslApiKeyRepository {
     }
 
     @Override
+    public void banApiKeysByAdmin(Long memberId, LocalDateTime time) {
+        queryFactory.update(apiKey)
+                .set(apiKey.adminBannedAt, time)
+                .where(memberIdEquals(memberId))
+                .execute();
+    }
+
+    @Override
+    public void unbanApiKeysByAdmin(Long memberId) {
+        queryFactory.update(apiKey)
+                .set(apiKey.adminBannedAt, (LocalDateTime) null)
+                .where(memberIdEquals(memberId))
+                .execute();
+    }
+
+    @Override
     public boolean isValid(Long id) {
         ApiKey validApiKey = queryFactory.selectFrom(apiKey)
                 .where(apiKey.id.eq(id)

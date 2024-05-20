@@ -16,6 +16,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.JdbcOAuth2AuthorizedClientService;
@@ -94,7 +96,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/members/v1/list").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/members/**").hasRole("FREE")
                         .requestMatchers(HttpMethod.PUT, "/api/members/v1/request/**").hasRole("FREE")
-                        .requestMatchers(HttpMethod.PUT, "/api/members/v1/cancel/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/members/v1/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/members/**").hasRole("FREE")
                         .requestMatchers(HttpMethod.POST, "/api/apikeys/v1/createFreeKey").hasRole("FREE")
                         .requestMatchers(HttpMethod.POST, "/api/apikeys/v1/createClassicKey").hasRole("NORMAL")
@@ -123,6 +125,11 @@ public class SecurityConfig {
         usernamePasswordAuthenticationFilter.setAuthenticationSuccessHandler(customLoginSuccessHandler);
         usernamePasswordAuthenticationFilter.setAuthenticationFailureHandler(customLoginFailureHandler);
         return usernamePasswordAuthenticationFilter;
+    }
+
+    @Bean
+    SessionRegistry sessionRegistry() {
+        return new SessionRegistryImpl();
     }
 
     @Bean
