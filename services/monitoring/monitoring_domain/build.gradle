@@ -16,7 +16,7 @@ repositories {
 
 
 dependencies {
-    api project(':commons:domain') // 종속성 전이
+    api project(':utils:domain') // 종속성 전이
     implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.4'
     compileOnly 'org.projectlombok:lombok:1.18.30'
