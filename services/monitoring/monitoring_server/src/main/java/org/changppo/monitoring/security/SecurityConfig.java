@@ -1,5 +1,7 @@
 package org.changppo.monitoring.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -20,7 +22,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain httpSecurity(
             HttpSecurity security,
-            RemoteSessionRetrieveStrategy remoteSessionRetrieveStrategy
+            RemoteSessionRetrieveStrategy remoteSessionRetrieveStrategy,
+            ObjectMapper objectMapper,
+            SessionQueryProperties sessionQueryProperties
     ) throws Exception {
         return security
                 .sessionManagement(SessionManagementConfigurer::disable)
@@ -40,7 +44,7 @@ public class SecurityConfig {
                                 .requestMatchers("/error").permitAll()
                                 .anyRequest().authenticated()
                 )
-                .addFilterAfter(new RemoteSessionAuthenticationFilter(remoteSessionRetrieveStrategy), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(new RemoteSessionAuthenticationFilter(remoteSessionRetrieveStrategy, sessionQueryProperties, objectMapper), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
@@ -48,6 +52,18 @@ public class SecurityConfig {
     @Profile("local")
     public RemoteSessionRetrieveStrategy localRemoteSessionRetrieveStrategy() {
         return sessionId -> new RemoteSessionAuthentication(1L, List.of("ROLE_ADMIN"));
+    }
+
+    @Bean
+    @Profile("prod")
+    public RemoteSessionRetrieveStrategy prodRemoteSessionRetrieveStrategy(
+            SessionQueryProperties sessionQueryProperties,
+            RestTemplateBuilder restTemplateBuilder
+    ) {
+        return new RestRemoteSessionRetrieveStrategy(
+                sessionQueryProperties,
+                restTemplateBuilder.build()
+        );
     }
 
 }

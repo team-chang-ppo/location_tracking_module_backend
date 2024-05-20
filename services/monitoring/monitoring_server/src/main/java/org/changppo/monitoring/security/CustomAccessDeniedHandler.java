@@ -6,11 +6,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.changppo.commons.FailedResponseBody;
 import org.changppo.monioring.domain.error.ErrorCode;
-import org.changppo.monioring.domain.response.Response;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
@@ -20,7 +19,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     private final static String ACCESS_DENIED_MESSAGE;
     static {
         ObjectMapper objectMapper = new ObjectMapper();
-        Response response = ErrorCode.ACCESS_DENIED.toResponse();
+        FailedResponseBody<?> response = ErrorCode.ACCESS_DENIED.toResponse();
         try {
             ACCESS_DENIED_MESSAGE = objectMapper.writeValueAsString(response);
         } catch (Exception e) {
