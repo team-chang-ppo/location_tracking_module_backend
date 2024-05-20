@@ -40,7 +40,6 @@ public class SecurityConfig {
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final ClientRegistrationRepository clientRegistrationRepository;
-    private final JdbcTemplate jdbcTemplate;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomUserDetailsService customUserDetailsService;
     private final CustomLoginSuccessHandler customLoginSuccessHandler;
@@ -48,11 +47,7 @@ public class SecurityConfig {
     private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder.userDetailsService(customUserDetailsService).passwordEncoder(passwordEncoder());
-        AuthenticationManager authenticationManager = authenticationManagerBuilder.build();
-
+    public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authenticationManager, DelegatingSecurityContextRepository delegatingSecurityContextRepository, OAuth2AuthorizedClientService oAuth2AuthorizedClientService) throws Exception {
         http
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
@@ -66,26 +61,27 @@ public class SecurityConfig {
                 )
 
                 .securityContext((securityContext) -> {
-                    securityContext.securityContextRepository(delegatingSecurityContextRepository());
-                    securityContext.requireExplicitSave(false);
+                    securityContext.securityContextRepository(delegatingSecurityContextRepository);
+                    securityContext.requireExplicitSave(true);
                 })
 
                 .exceptionHandling((exceptionConfig) ->
                         exceptionConfig.authenticationEntryPoint(customAuthenticationEntryPoint).accessDeniedHandler(customAccessDeniedHandler)
                 )
-                .authenticationManager(authenticationManager)
-                .addFilterBefore(customUsernamePasswordAuthenticationFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class)
+
+                .addFilterBefore(usernamePasswordAuthenticationFilter(authenticationManager, delegatingSecurityContextRepository), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new PreOAuth2AuthorizationRequestFilter(clientRegistrationRepository, new HttpSessionOAuth2AuthorizationRequestRepository()), OAuth2LoginAuthenticationFilter.class)
+
                 .oauth2Login((oauth2) -> oauth2
                         .authorizedClientRepository(authorizedClientRepository())
-                        .authorizedClientService(oAuth2AuthorizedClientService(jdbcTemplate, clientRegistrationRepository))
+                        .authorizedClientService(oAuth2AuthorizedClientService)
                         .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
                                             .userService(customOAuth2UserService))
                         .successHandler(customLoginSuccessHandler)
                         .failureHandler(customLoginFailureHandler))
 
                 .logout(logout -> logout
-                        .logoutUrl("/logout/oauth2")
+                        .logoutUrl("/logout")
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
                         .deleteCookies("JSESSIONID")
@@ -93,7 +89,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/oauth2/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/admin/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/login/success").hasRole("FREE")
                         .requestMatchers(HttpMethod.GET, "/api/members/**").hasRole("FREE")
                         .requestMatchers(HttpMethod.PUT, "/api/members/v1/request/**").hasRole("FREE")
@@ -116,11 +112,20 @@ public class SecurityConfig {
         return http.build();
     }
 
-    private CustomUsernamePasswordAuthenticationFilter customUsernamePasswordAuthenticationFilter(AuthenticationManager authenticationManager) throws Exception {
-        CustomUsernamePasswordAuthenticationFilter filter = new CustomUsernamePasswordAuthenticationFilter(authenticationManager);
-        filter.setAuthenticationSuccessHandler(customLoginSuccessHandler);
-        filter.setAuthenticationFailureHandler(customLoginFailureHandler);
-        return filter;
+    private UsernamePasswordAuthenticationFilter usernamePasswordAuthenticationFilter(AuthenticationManager authenticationManager, DelegatingSecurityContextRepository delegatingSecurityContextRepository) {
+        UsernamePasswordAuthenticationFilter usernamePasswordAuthenticationFilter = new UsernamePasswordAuthenticationFilter();
+        usernamePasswordAuthenticationFilter.setSecurityContextRepository(delegatingSecurityContextRepository);
+        usernamePasswordAuthenticationFilter.setAuthenticationManager(authenticationManager);
+        usernamePasswordAuthenticationFilter.setAuthenticationSuccessHandler(customLoginSuccessHandler);
+        usernamePasswordAuthenticationFilter.setAuthenticationFailureHandler(customLoginFailureHandler);
+        return usernamePasswordAuthenticationFilter;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http, PasswordEncoder passwordEncoder) throws Exception {
+        AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        authenticationManagerBuilder.userDetailsService(customUserDetailsService).passwordEncoder(passwordEncoder);
+        return authenticationManagerBuilder.build();
     }
 
     @Bean

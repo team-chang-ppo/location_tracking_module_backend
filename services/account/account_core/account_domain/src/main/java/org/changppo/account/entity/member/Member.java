@@ -61,10 +61,6 @@ public class Member extends EntityDate {
         this.deletionRequestedAt = null;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public boolean isDeleted() {
         return this.deletedAt != null;
     }
