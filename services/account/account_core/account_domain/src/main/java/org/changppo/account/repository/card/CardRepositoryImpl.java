@@ -9,6 +9,7 @@ import org.changppo.account.service.dto.card.QCardDto;
 import java.util.List;
 
 import static org.changppo.account.entity.card.QCard.card;
+import static org.changppo.account.entity.card.QPaymentGateway.paymentGateway;
 
 @RequiredArgsConstructor
 public class CardRepositoryImpl implements QuerydslCardRepository {
@@ -51,6 +52,7 @@ public class CardRepositoryImpl implements QuerydslCardRepository {
                         card.paymentGateway.paymentGatewayType,
                         card.createdAt))
                 .from(card)
+                .join(card.paymentGateway, paymentGateway)
                 .where(memberIdEquals(memberId))
                 .orderBy(card.id.asc())
                 .fetch();

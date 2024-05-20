@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.changppo.account.entity.apikey.QApiKey.apiKey;
+import static org.changppo.account.entity.apikey.QGrade.grade;
 import static org.changppo.account.type.GradeType.GRADE_FREE;
 
 @RequiredArgsConstructor
@@ -32,6 +33,7 @@ public class ApiKeyRepositoryImpl implements QuerydslApiKeyRepository {
                         apiKey.cardDeletionBannedAt,
                         apiKey.createdAt))
                 .from(apiKey)
+                .join(apiKey.grade, grade)
                 .where(memberIdEquals(memberId).and(apiKeyIdGreaterThanOrEqual(firstApiKeyId)))
                 .orderBy(apiKey.id.asc())
                 .limit(pageable.getPageSize() + 1)
