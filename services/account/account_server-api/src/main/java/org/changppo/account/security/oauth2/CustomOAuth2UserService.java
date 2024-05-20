@@ -17,8 +17,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
@@ -51,12 +50,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                                 .name(name)
                                 .username(oAuth2Response.getName())
                                 .profileImage(oAuth2Response.getProfileImage())
-                                .roles(Set.of(freeRole))
+                                .role(freeRole)
                                 .build());
                 });
 
-        return new CustomOAuth2UserDetails(member.getId(), name,  null, member.getMemberRoles().stream()
-                                                            .map(memberRole -> new SimpleGrantedAuthority(memberRole.getRole().getRoleType().name()))
-                                                            .collect(Collectors.toSet()));
+        return new CustomOAuth2UserDetails(member.getId(), name, null, Collections.singleton(new SimpleGrantedAuthority(member.getRole().getRoleType().name())));
     }
 }

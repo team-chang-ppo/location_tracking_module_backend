@@ -36,10 +36,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -78,13 +78,12 @@ public class CardService {
     }
 
     private boolean hasFreeRole(Member member) {
-        return member.getMemberRoles().stream()
-                .anyMatch(memberRole -> memberRole.getRole().getRoleType() == RoleType.ROLE_FREE);
+        return member.getRole().getRoleType() == RoleType.ROLE_FREE;
     }
 
     private void upgradeRole(Member member) {
         Role normalRole = roleRepository.findByRoleType(RoleType.ROLE_NORMAL).orElseThrow(RoleNotFoundException::new);
-        member.changeRole(RoleType.ROLE_FREE, normalRole);
+        member.changeRole(normalRole);
         updateAuthentication(member);
     }
 
@@ -133,7 +132,7 @@ public class CardService {
 
     private void downgradeRole(Member member) {
         Role freeRole = roleRepository.findByRoleType(RoleType.ROLE_FREE).orElseThrow(RoleNotFoundException::new);
-        member.changeRole(RoleType.ROLE_NORMAL, freeRole);
+        member.changeRole(freeRole);
         updateAuthentication(member);
     }
 
@@ -176,8 +175,7 @@ public class CardService {
     }
 
     private Set<GrantedAuthority> getAuthorities(Member member) {
-        return member.getMemberRoles().stream()
-                .map(memberRole -> new SimpleGrantedAuthority(memberRole.getRole().getRoleType().name()))
-                .collect(Collectors.toSet());
+        RoleType roleType = member.getRole().getRoleType();
+        return Collections.singleton(new SimpleGrantedAuthority(roleType.name()));
     }
 }

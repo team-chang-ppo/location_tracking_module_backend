@@ -6,12 +6,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.changppo.account.entity.common.EntityDate;
-import org.changppo.account.type.RoleType;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
+
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Getter
@@ -34,8 +32,9 @@ public class Member extends EntityDate {
     @Column(nullable = false)
     private String profileImage;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final Set<MemberRole> memberRoles = new HashSet<>();
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
 
     @Column
     private String password;
@@ -44,17 +43,17 @@ public class Member extends EntityDate {
     private LocalDateTime deletedAt;
 
     @Column
-    private LocalDateTime paymentFailureBannedAt; // TODO. 정기 결제 실패로 인한 정지.
+    private LocalDateTime paymentFailureBannedAt;
 
     @Column
-    private LocalDateTime deletionRequestedAt; // TODO. 회원 탈퇴 요청.
+    private LocalDateTime deletionRequestedAt;
 
     @Builder
-    public Member(String name, String username, String profileImage,  Set<Role> roles) {
+    public Member(String name, String username, String profileImage, Role role) {
         this.name = name;
         this.username = username;
         this.profileImage = profileImage;
-        roles.forEach(role -> this.memberRoles.add(new MemberRole(this, role)));
+        this.role = role;
         this.password = null;
         this.deletedAt = null;
         this.paymentFailureBannedAt = null;
@@ -78,14 +77,8 @@ public class Member extends EntityDate {
         this.profileImage = profileImage;
     }
 
-    public void changeRole(RoleType fromRoleType, Role toRole) {
-        this.memberRoles.stream()
-                .filter(memberRole -> memberRole.getRole().getRoleType() == fromRoleType)
-                .findFirst()
-                .ifPresent(memberRole -> {
-                    this.memberRoles.remove(memberRole);
-                    this.memberRoles.add(new MemberRole(this, toRole));
-                });
+    public void changeRole(Role role) {
+        this.role = role;
     }
 
     public void banForPaymentFailure(LocalDateTime time) {

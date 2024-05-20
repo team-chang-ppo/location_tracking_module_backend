@@ -30,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -121,26 +120,26 @@ public class TestInitDB {
                 .name(freeMemberName)
                 .username("free")
                 .profileImage("freeMemberProfileImage")
-                .roles(Collections.singleton(freeRole))
+                .role(freeRole)
                 .build();
         Member normalMember = Member.builder()
                 .name(normalMemberName)
                 .username("normal")
                 .profileImage("normalMemberProfileImage")
-                .roles(Collections.singleton(normalRole))
+                .role(normalRole)
                 .build();
         Member banForPaymentFailureMember = Member.builder()
                 .name(banForPaymentFailureMemberName)
                 .username("banForPaymentFailureMember")
                 .profileImage("banForPaymentFailureMemberProfileImage")
-                .roles(Collections.singleton(normalRole))
+                .role(normalRole)
                 .build();
         banForPaymentFailureMember.banForPaymentFailure(LocalDateTime.now());
         Member requestDeletionMember = Member.builder()
                 .name(requestDeletionMemberName)
                 .username("requestDeletionMember")
                 .profileImage("requestDeletionMemberProfileImage")
-                .roles(Collections.singleton(normalRole))
+                .role(normalRole)
                 .build();
         requestDeletionMember.requestDeletion(LocalDateTime.now().plusHours(1));
         memberRepository.saveAll(List.of(freeMember, normalMember, banForPaymentFailureMember, requestDeletionMember));

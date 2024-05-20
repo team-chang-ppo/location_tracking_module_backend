@@ -107,7 +107,7 @@ class MemberControllerIntegrationTest {
                 .andExpect(jsonPath("$.result.data.name").value(freeMember.getName()))
                 .andExpect(jsonPath("$.result.data.username").value(freeMember.getUsername()))
                 .andExpect(jsonPath("$.result.data.profileImage").value(freeMember.getProfileImage()))
-                .andExpect(jsonPath("$.result.data.roles").value(RoleType.ROLE_FREE.name()))
+                .andExpect(jsonPath("$.result.data.role").value(RoleType.ROLE_FREE.name()))
                 .andExpect(jsonPath("$.result.data.paymentFailureBannedAt").isEmpty())
                 .andExpect(jsonPath("$.result.data.createdAt").exists());
     }

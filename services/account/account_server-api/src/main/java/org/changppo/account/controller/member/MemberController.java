@@ -8,6 +8,9 @@ import org.changppo.account.security.PrincipalHandler;
 import org.changppo.account.service.dto.member.MemberDto;
 import org.changppo.account.service.member.MemberService;
 import org.changppo.utils.response.body.Response;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,6 +44,14 @@ public class MemberController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(Response.success(memberDto));
+    }
+
+    @GetMapping("/all") // 사용자에게 제공 X
+    public ResponseEntity<Response> readAll(@PageableDefault Pageable pageable) {
+        Page<MemberDto> memberDtos = memberService.readAll(pageable);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(Response.success(memberDtos));
     }
 
     @PutMapping("/request/me")

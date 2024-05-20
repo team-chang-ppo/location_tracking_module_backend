@@ -67,7 +67,7 @@ public class QPayment extends EntityPathBase<Payment> {
     public QPayment(Class<? extends Payment> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.cardInfo = inits.isInitialized("cardInfo") ? new QPaymentCardInfo(forProperty("cardInfo")) : null;
-        this.member = inits.isInitialized("member") ? new org.changppo.account.entity.member.QMember(forProperty("member")) : null;
+        this.member = inits.isInitialized("member") ? new org.changppo.account.entity.member.QMember(forProperty("member"), inits.get("member")) : null;
     }
 
 }

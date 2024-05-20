@@ -13,8 +13,8 @@ public class QMemberDto extends ConstructorExpression<MemberDto> {
 
     private static final long serialVersionUID = -784235196L;
 
-    public QMemberDto(com.querydsl.core.types.Expression<Long> id, com.querydsl.core.types.Expression<String> name, com.querydsl.core.types.Expression<String> username, com.querydsl.core.types.Expression<String> profileImage, com.querydsl.core.types.Expression<? extends java.util.Set<org.changppo.account.type.RoleType>> roles, com.querydsl.core.types.Expression<java.time.LocalDateTime> paymentFailureBannedAt, com.querydsl.core.types.Expression<java.time.LocalDateTime> createdAt) {
-        super(MemberDto.class, new Class<?>[]{long.class, String.class, String.class, String.class, java.util.Set.class, java.time.LocalDateTime.class, java.time.LocalDateTime.class}, id, name, username, profileImage, roles, paymentFailureBannedAt, createdAt);
+    public QMemberDto(com.querydsl.core.types.Expression<Long> id, com.querydsl.core.types.Expression<String> name, com.querydsl.core.types.Expression<String> username, com.querydsl.core.types.Expression<String> profileImage, com.querydsl.core.types.Expression<org.changppo.account.type.RoleType> role, com.querydsl.core.types.Expression<java.time.LocalDateTime> paymentFailureBannedAt, com.querydsl.core.types.Expression<java.time.LocalDateTime> createdAt) {
+        super(MemberDto.class, new Class<?>[]{long.class, String.class, String.class, String.class, org.changppo.account.type.RoleType.class, java.time.LocalDateTime.class, java.time.LocalDateTime.class}, id, name, username, profileImage, role, paymentFailureBannedAt, createdAt);
     }
 
 }

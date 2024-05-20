@@ -244,7 +244,7 @@ public class CardControllerIntegrationTest {
         // then
         assertTrue(cardRepository.findById(kakaopayCard.getId()).isEmpty());
         Member member = memberRepository.findById(normalMember.getId()).orElseThrow(MemberNotFoundException::new);
-        assertTrue(member.getMemberRoles().stream().allMatch(role -> role.getRole().getRoleType() == RoleType.ROLE_FREE));
+        assertTrue(member.getRole().getRoleType() == RoleType.ROLE_FREE);
     }
 
     @Test
@@ -264,7 +264,7 @@ public class CardControllerIntegrationTest {
         // then
         assertTrue(cardRepository.findById(kakaopayCard.getId()).isEmpty());
         Member member = memberRepository.findById(normalMember.getId()).orElseThrow(MemberNotFoundException::new);
-        assertTrue(member.getMemberRoles().stream().allMatch(role -> role.getRole().getRoleType() == RoleType.ROLE_FREE));
+        assertTrue(member.getRole().getRoleType() == RoleType.ROLE_FREE);
     }
 
     @Test

@@ -202,7 +202,7 @@ public class KakaopayCardControllerIntegrationTest {
 
         // then
         assertEquals(id, card.getId());
-        assertTrue(card.getMember().getMemberRoles().stream().allMatch(role -> role.getRole().getRoleType() == RoleType.ROLE_NORMAL));
+        assertTrue(card.getMember().getRole().getRoleType() == RoleType.ROLE_NORMAL);
     }
 
     @Test

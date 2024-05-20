@@ -65,7 +65,7 @@ public class QApiKey extends EntityPathBase<ApiKey> {
     public QApiKey(Class<? extends ApiKey> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.grade = inits.isInitialized("grade") ? new QGrade(forProperty("grade")) : null;
-        this.member = inits.isInitialized("member") ? new org.changppo.account.entity.member.QMember(forProperty("member")) : null;
+        this.member = inits.isInitialized("member") ? new org.changppo.account.entity.member.QMember(forProperty("member"), inits.get("member")) : null;
     }
 
 }
