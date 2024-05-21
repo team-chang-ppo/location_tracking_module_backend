@@ -91,4 +91,30 @@ class MemberControllerTest {
 
         verify(memberService).cancelDelete(id);
     }
+
+    @Test
+    void banTest() throws Exception {
+        // given
+        Long id = 1L;
+
+        // when, then
+        mockMvc.perform(
+                        put("/api/members/v1/ban/{id}", id))
+                .andExpect(status().isOk());
+
+        verify(memberService).ban(eq(id));
+    }
+
+    @Test
+    void unbanTest() throws Exception {
+        // given
+        Long id = 1L;
+
+        // when, then
+        mockMvc.perform(
+                        put("/api/members/v1/unban/{id}", id))
+                .andExpect(status().isOk());
+
+        verify(memberService).unban(id);
+    }
 }
