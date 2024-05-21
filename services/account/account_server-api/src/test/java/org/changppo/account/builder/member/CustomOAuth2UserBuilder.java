@@ -1,24 +1,19 @@
 package org.changppo.account.builder.member;
 
 import org.changppo.account.entity.member.Member;
+import org.changppo.account.security.sign.CustomOAuth2UserDetails;
 import org.changppo.account.type.RoleType;
-import org.changppo.account.security.oauth2.CustomOAuth2User;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Collections;
 
 public class CustomOAuth2UserBuilder {
 
-    public static CustomOAuth2User buildCustomOAuth2User(Member member) {
-        return new CustomOAuth2User(member.getId(), member.getName(), member.getMemberRoles().stream()
-                                                                        .map(memberRole -> new SimpleGrantedAuthority(memberRole.getRole().getRoleType().name()))
-                                                                        .collect(Collectors.toSet()));
+    public static CustomOAuth2UserDetails buildCustomOAuth2User(Member member) {
+        return new CustomOAuth2UserDetails(member.getId(), member.getName(), member.getPassword(), Collections.singleton(new SimpleGrantedAuthority(member.getRole().getRoleType().name())));
     }
 
-    public static CustomOAuth2User buildCustomOAuth2User(Long id, String name, Set<RoleType> roles) {
-        return new CustomOAuth2User(id, name, roles.stream()
-                                            .map(roleType -> new SimpleGrantedAuthority(roleType.name()))
-                                            .collect(Collectors.toSet()));
+    public static CustomOAuth2UserDetails buildCustomOAuth2User(Long id, String name, RoleType role) {
+        return new CustomOAuth2UserDetails(id, name, null, Collections.singleton(new SimpleGrantedAuthority(role.name())));
     }
 }

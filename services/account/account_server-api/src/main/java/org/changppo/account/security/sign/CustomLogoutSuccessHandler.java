@@ -1,4 +1,4 @@
-package org.changppo.account.security.oauth2;
+package org.changppo.account.security.sign;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;

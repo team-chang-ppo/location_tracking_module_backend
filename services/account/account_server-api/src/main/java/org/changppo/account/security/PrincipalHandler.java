@@ -4,7 +4,7 @@ package org.changppo.account.security;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.changppo.account.type.RoleType;
-import org.changppo.account.security.oauth2.CustomOAuth2User;
+import org.changppo.account.security.sign.CustomOAuth2UserDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -29,8 +29,8 @@ public class PrincipalHandler {
                 .collect(Collectors.toSet());
     }
 
-    private static CustomOAuth2User getUserDetails() {
-        return (CustomOAuth2User) getAuthentication().getPrincipal();
+    private static CustomOAuth2UserDetails getUserDetails() {
+        return (CustomOAuth2UserDetails) getAuthentication().getPrincipal();
     }
 
     private static Authentication getAuthentication() {

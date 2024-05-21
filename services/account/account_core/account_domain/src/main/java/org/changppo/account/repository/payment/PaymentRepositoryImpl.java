@@ -1,14 +1,18 @@
 package org.changppo.account.repository.payment;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.changppo.account.entity.payment.Payment;
 import org.changppo.account.service.dto.payment.PaymentDto;
 import org.changppo.account.service.dto.payment.QPaymentDto;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
+import org.springframework.data.support.PageableExecutionUtils;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -36,7 +40,7 @@ public class PaymentRepositoryImpl implements QuerydslPaymentRepository {
     }
 
     @Override
-    public Slice<PaymentDto> findAllByMemberIdAndStatusNotCompletedFree(Long memberId, Long lastPaymentId, Pageable pageable) {
+    public Slice<PaymentDto> findAllDtosByMemberIdAndStatusNotCompletedFree(Long memberId, Long lastPaymentId, Pageable pageable) {
         List<PaymentDto> results = queryFactory.select(
                 new QPaymentDto(
                         payment.id,
@@ -60,6 +64,30 @@ public class PaymentRepositoryImpl implements QuerydslPaymentRepository {
         }
 
         return new SliceImpl<>(results, pageable, hasNext);
+    }
+
+    @Override
+    public Page<PaymentDto> findAllDtos(Pageable pageable) {
+        List<PaymentDto> content = queryFactory
+                .select(
+                    new QPaymentDto(
+                            payment.id,
+                            payment.amount,
+                            payment.status,
+                            payment.startedAt,
+                            payment.endedAt,
+                            payment.cardInfo,
+                            payment.createdAt))
+                .from(payment)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        JPAQuery<Long> countQuery = queryFactory
+                .select(payment.count())
+                .from(payment);
+
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
 
     private BooleanExpression memberIdEquals(Long memberId) {

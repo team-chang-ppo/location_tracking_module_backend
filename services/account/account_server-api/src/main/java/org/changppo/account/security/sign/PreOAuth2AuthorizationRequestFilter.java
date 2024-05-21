@@ -1,4 +1,4 @@
-package org.changppo.account.security.oauth2;
+package org.changppo.account.security.sign;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

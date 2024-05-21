@@ -4,12 +4,15 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.changppo.account.aop.AssignMemberId;
 import org.changppo.account.dto.apikey.ApiKeyCreateRequest;
-import org.changppo.account.dto.apikey.ApiKeyValidationResponse;
-import org.changppo.account.service.dto.apikey.ApiKeyDto;
+import org.changppo.account.dto.apikey.ApiKeyListDto;
 import org.changppo.account.dto.apikey.ApiKeyReadAllRequest;
-import org.changppo.utils.response.body.Response;
+import org.changppo.account.dto.apikey.ApiKeyValidationResponse;
 import org.changppo.account.security.PrincipalHandler;
 import org.changppo.account.service.apikey.ApiKeyService;
+import org.changppo.account.service.dto.apikey.ApiKeyDto;
+import org.changppo.utils.response.body.Response;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,16 +52,26 @@ public class ApiKeyController {
 
     @GetMapping("/member/me")
     public ResponseEntity<Response> readAll(@Valid @ModelAttribute ApiKeyReadAllRequest req) {
+         ApiKeyListDto apiKeyListDto = apiKeyService.readAll(PrincipalHandler.extractId(), req);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(Response.success(apiKeyService.readAll(PrincipalHandler.extractId(), req)));
+                .body(Response.success(apiKeyListDto));
     }
 
     @GetMapping("/member/{id}")
     public ResponseEntity<Response> readAll(@PathVariable(name = "id") Long id, @Valid @ModelAttribute ApiKeyReadAllRequest req) {
+        ApiKeyListDto apiKeyListDto = apiKeyService.readAll(id, req);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(Response.success(apiKeyService.readAll(id, req)));
+                .body(Response.success(apiKeyListDto));
+    }
+
+    @GetMapping("/list")  // 사용자에게 제공 X
+    public ResponseEntity<Response> readList(Pageable pageable) {
+        Page<ApiKeyDto> apiKeyDtos = apiKeyService.readList(pageable);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(Response.success(apiKeyDtos));
     }
 
     @DeleteMapping("/{id}")

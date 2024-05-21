@@ -16,6 +16,7 @@ import org.changppo.account.response.exception.payment.PaymentNotFoundException;
 import org.changppo.account.service.dto.payment.PaymentDto;
 import org.changppo.account.service.event.payment.PaymentEventPublisher;
 import org.changppo.account.type.PaymentStatus;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.repository.query.Param;
@@ -63,7 +64,11 @@ public class PaymentService {
 
     @PreAuthorize("@memberAccessEvaluator.check(#memberId)")
     public PaymentListDto readAll(@Param("memberId")Long memberId, PaymentReadAllRequest req){
-        Slice<PaymentDto> slice = paymentRepository.findAllByMemberIdAndStatusNotCompletedFree(memberId, req.getLastPaymentId(), Pageable.ofSize(req.getSize()));
+        Slice<PaymentDto> slice = paymentRepository.findAllDtosByMemberIdAndStatusNotCompletedFree(memberId, req.getLastPaymentId(), Pageable.ofSize(req.getSize()));
         return new PaymentListDto(slice.getNumberOfElements(), slice.hasNext(), slice.getContent());
+    }
+
+    public Page<PaymentDto> readList(Pageable pageable) {
+        return paymentRepository.findAllDtos(pageable);
     }
 }

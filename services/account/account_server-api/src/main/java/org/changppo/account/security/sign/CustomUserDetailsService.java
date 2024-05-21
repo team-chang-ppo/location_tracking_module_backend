@@ -1,0 +1,33 @@
+package org.changppo.account.security.sign;
+
+import lombok.RequiredArgsConstructor;
+import org.changppo.account.entity.member.Member;
+import org.changppo.account.repository.member.MemberRepository;
+import org.changppo.account.response.exception.member.MemberNotFoundException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collections;
+
+@Service
+@RequiredArgsConstructor
+public class CustomUserDetailsService implements UserDetailsService {
+
+    private final MemberRepository memberRepository;
+
+    @Override
+    @Transactional(readOnly = true)
+    public CustomOAuth2UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Member member = memberRepository.findByNameWithRoles(username).orElseThrow(MemberNotFoundException::new);
+
+        return new CustomOAuth2UserDetails(
+                member.getId(),
+                member.getName(),
+                member.getPassword(),
+                Collections.singleton(new SimpleGrantedAuthority(member.getRole().getRoleType().name()))
+        );
+    }
+}
