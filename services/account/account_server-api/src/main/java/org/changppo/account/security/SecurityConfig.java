@@ -2,6 +2,7 @@ package org.changppo.account.security;
 
 import lombok.RequiredArgsConstructor;
 import org.changppo.account.security.oauth2.*;
+import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -29,9 +30,13 @@ import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepo
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.session.*;
 import org.springframework.security.web.context.DelegatingSecurityContextRepository;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -49,7 +54,9 @@ public class SecurityConfig {
     private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authenticationManager, DelegatingSecurityContextRepository delegatingSecurityContextRepository, OAuth2AuthorizedClientService oAuth2AuthorizedClientService) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, SessionRegistry sessionRegistry,
+                                           AuthenticationManager authenticationManager, DelegatingSecurityContextRepository delegatingSecurityContextRepository,
+                                           OAuth2AuthorizedClientService oAuth2AuthorizedClientService) throws Exception {
         http
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
@@ -59,6 +66,7 @@ public class SecurityConfig {
                         .sessionFixation().changeSessionId()
                         .maximumSessions(1)
                         .maxSessionsPreventsLogin(false)
+                        .sessionRegistry(sessionRegistry)
                         .expiredUrl("/login?error=expired-session")
                 )
 
@@ -118,18 +126,36 @@ public class SecurityConfig {
         return http.build();
     }
 
-    private UsernamePasswordAuthenticationFilter usernamePasswordAuthenticationFilter(AuthenticationManager authenticationManager, DelegatingSecurityContextRepository delegatingSecurityContextRepository) {
+    private UsernamePasswordAuthenticationFilter usernamePasswordAuthenticationFilter(AuthenticationManager authenticationManager,
+                                                                                      DelegatingSecurityContextRepository delegatingSecurityContextRepository) {
         UsernamePasswordAuthenticationFilter usernamePasswordAuthenticationFilter = new UsernamePasswordAuthenticationFilter();
-        usernamePasswordAuthenticationFilter.setSecurityContextRepository(delegatingSecurityContextRepository);
+        usernamePasswordAuthenticationFilter.setSessionAuthenticationStrategy(sessionAuthenticationStrategy());
         usernamePasswordAuthenticationFilter.setAuthenticationManager(authenticationManager);
+        usernamePasswordAuthenticationFilter.setSecurityContextRepository(delegatingSecurityContextRepository);
         usernamePasswordAuthenticationFilter.setAuthenticationSuccessHandler(customLoginSuccessHandler);
         usernamePasswordAuthenticationFilter.setAuthenticationFailureHandler(customLoginFailureHandler);
         return usernamePasswordAuthenticationFilter;
     }
 
+    public CompositeSessionAuthenticationStrategy sessionAuthenticationStrategy(){
+        ConcurrentSessionControlAuthenticationStrategy concurrentSessionControlAuthenticationStrategy= new ConcurrentSessionControlAuthenticationStrategy(sessionRegistry());
+        concurrentSessionControlAuthenticationStrategy.setMaximumSessions(1);
+        concurrentSessionControlAuthenticationStrategy.setExceptionIfMaximumExceeded(false);
+        ChangeSessionIdAuthenticationStrategy changeSessionIdAuthenticationStrategy = new ChangeSessionIdAuthenticationStrategy();
+        SessionFixationProtectionStrategy sessionFixationProtectionStrategy=new SessionFixationProtectionStrategy();
+        RegisterSessionAuthenticationStrategy registerSessionStrategy = new RegisterSessionAuthenticationStrategy(sessionRegistry());
+        return new CompositeSessionAuthenticationStrategy(
+                Arrays.asList(concurrentSessionControlAuthenticationStrategy,changeSessionIdAuthenticationStrategy,sessionFixationProtectionStrategy, registerSessionStrategy));
+    }
+
     @Bean
-    SessionRegistry sessionRegistry() {
+    SessionRegistry sessionRegistry() {  // TODO.추후 Redis Session 전환시 변경
         return new SessionRegistryImpl();
+    }
+
+    @Bean
+    public static ServletListenerRegistrationBean<HttpSessionEventPublisher> httpSessionEventPublisher() {  // httpSession 변화 시 sessionRegistry 연동
+        return new ServletListenerRegistrationBean<>(new HttpSessionEventPublisher());
     }
 
     @Bean

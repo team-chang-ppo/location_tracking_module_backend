@@ -76,6 +76,10 @@ public class ApiKey extends EntityDate {
         return this.deletionRequestedAt != null;
     }
 
+    public boolean isAdminBanned() {
+        return this.adminBannedAt != null;
+    }
+
     public void updateValue(String value){
         this.value = value;
     }
