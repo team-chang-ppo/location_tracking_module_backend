@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -29,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -48,10 +48,12 @@ class MemberControllerIntegrationTest {
     @Autowired
     MemberRepository memberRepository;
     @Autowired
+    SessionRegistry sessionRegistry;
+    @Autowired
     RestTemplate restTemplate;
 
     MockRestServiceServer mockServer;
-    Member freeMember, normalMember, banForPaymentFailureMember, requestDeletionMember, adminMember;
+    Member freeMember, normalMember, banForPaymentFailureMember, requestDeletionMember, adminBannedMemberName, adminMember;
     CustomOAuth2UserDetails customOAuth2FreeMember, customOAuth2NormalMember, customOAuth2BanForPaymentFailureMember, customOAuth2RequestDeletionMember, customOAuth2AdminMember;
 
     @BeforeEach
@@ -72,6 +74,7 @@ class MemberControllerIntegrationTest {
         normalMember = memberRepository.findByName(testInitDB.getNormalMemberName()).orElseThrow(MemberNotFoundException::new);
         banForPaymentFailureMember = memberRepository.findByName(testInitDB.getBanForPaymentFailureMemberName()).orElseThrow(MemberNotFoundException::new);
         requestDeletionMember = memberRepository.findByName(testInitDB.getRequestDeletionMemberName()).orElseThrow(MemberNotFoundException::new);
+        adminBannedMemberName = memberRepository.findByName(testInitDB.getAdminBannedMemberName()).orElseThrow(MemberNotFoundException::new);
         adminMember = memberRepository.findByName(testInitDB.getAdminMemberName()).orElseThrow(MemberNotFoundException::new);
         customOAuth2FreeMember = buildCustomOAuth2User(freeMember);
         customOAuth2NormalMember = buildCustomOAuth2User(normalMember);
@@ -261,6 +264,70 @@ class MemberControllerIntegrationTest {
         mockMvc.perform(
                         put("/api/members/v1/cancel/{id}", requestDeletionMember.getId())
                                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2RequestDeletionMember)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void banMemberByAdminTest() throws Exception {
+        // given
+        sessionRegistry.registerNewSession("customOAuth2NormalMemberSession", customOAuth2NormalMember);
+        // when
+        mockMvc.perform(
+                        put("/api/members/v1/ban/{id}", normalMember.getId())
+                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2AdminMember)))
+                .andExpect(status().isOk());
+
+        // then
+        Member updatedMember = memberRepository.findById(normalMember.getId()).orElseThrow(MemberNotFoundException::new);
+        assertTrue(updatedMember.isAdminBanned());
+        boolean isSessionExpired = sessionRegistry.getAllSessions(customOAuth2NormalMember, false).isEmpty();
+        assertTrue(isSessionExpired);
+    }
+
+    @Test
+    void banMemberUnauthorizedByNoneSessionTest() throws Exception {
+        // given, when, then
+        mockMvc.perform(
+                        put("/api/members/v1/ban/{id}", normalMember.getId()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void banMemberAccessDeniedByNotAdminTest() throws Exception {
+        // given, when, then
+        mockMvc.perform(
+                        put("/api/members/v1/ban/{id}", normalMember.getId())
+                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2NormalMember)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void unbanMemberByAdminTest() throws Exception {
+        // given, when
+        mockMvc.perform(
+                        put("/api/members/v1/unban/{id}", adminBannedMemberName.getId())
+                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2AdminMember)))
+                .andExpect(status().isOk());
+
+        // then
+        Member updatedMember = memberRepository.findById(adminBannedMemberName.getId()).orElseThrow(MemberNotFoundException::new);
+        assertFalse(updatedMember.isAdminBanned());
+    }
+
+    @Test
+    void unbanMemberUnauthorizedByNoneSessionTest() throws Exception {
+        // given, when, then
+        mockMvc.perform(
+                        put("/api/members/v1/unban/{id}", adminBannedMemberName.getId()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void unbanMemberAccessDeniedByNotAdminTest() throws Exception {
+        // given, when, then
+        mockMvc.perform(
+                        put("/api/members/v1/unban/{id}", adminBannedMemberName.getId())
+                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2NormalMember)))
                 .andExpect(status().isForbidden());
     }
 }
