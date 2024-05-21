@@ -29,14 +29,10 @@ import org.springframework.security.oauth2.client.web.HttpSessionOAuth2Authorize
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.session.*;
 import org.springframework.security.web.context.DelegatingSecurityContextRepository;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
-
-import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -55,11 +51,10 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, SessionRegistry sessionRegistry,
-                                           AuthenticationManager authenticationManager, DelegatingSecurityContextRepository delegatingSecurityContextRepository,
+                                           DelegatingSecurityContextRepository delegatingSecurityContextRepository,
                                            OAuth2AuthorizedClientService oAuth2AuthorizedClientService) throws Exception {
         http
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .formLogin(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
 
                 .sessionManagement((sessionManagement) -> sessionManagement
@@ -79,7 +74,6 @@ public class SecurityConfig {
                         exceptionConfig.authenticationEntryPoint(customAuthenticationEntryPoint).accessDeniedHandler(customAccessDeniedHandler)
                 )
 
-                .addFilterBefore(usernamePasswordAuthenticationFilter(authenticationManager, delegatingSecurityContextRepository), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new PreOAuth2AuthorizationRequestFilter(clientRegistrationRepository, new HttpSessionOAuth2AuthorizationRequestRepository()), OAuth2LoginAuthenticationFilter.class)
 
                 .oauth2Login((oauth2) -> oauth2
@@ -90,7 +84,12 @@ public class SecurityConfig {
                         .successHandler(customLoginSuccessHandler)
                         .failureHandler(customLoginFailureHandler))
 
-                .logout(logout -> logout
+                .formLogin((form) -> form
+                        .successHandler(customLoginSuccessHandler)
+                        .failureHandler(customLoginFailureHandler)
+                )
+
+                .logout((logout) -> logout
                         .logoutUrl("/logout")
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
@@ -124,28 +123,6 @@ public class SecurityConfig {
                         .anyRequest().hasRole("ADMIN"));
 
         return http.build();
-    }
-
-    private UsernamePasswordAuthenticationFilter usernamePasswordAuthenticationFilter(AuthenticationManager authenticationManager,
-                                                                                      DelegatingSecurityContextRepository delegatingSecurityContextRepository) {
-        UsernamePasswordAuthenticationFilter usernamePasswordAuthenticationFilter = new UsernamePasswordAuthenticationFilter();
-        usernamePasswordAuthenticationFilter.setSessionAuthenticationStrategy(sessionAuthenticationStrategy());
-        usernamePasswordAuthenticationFilter.setAuthenticationManager(authenticationManager);
-        usernamePasswordAuthenticationFilter.setSecurityContextRepository(delegatingSecurityContextRepository);
-        usernamePasswordAuthenticationFilter.setAuthenticationSuccessHandler(customLoginSuccessHandler);
-        usernamePasswordAuthenticationFilter.setAuthenticationFailureHandler(customLoginFailureHandler);
-        return usernamePasswordAuthenticationFilter;
-    }
-
-    public CompositeSessionAuthenticationStrategy sessionAuthenticationStrategy(){
-        ConcurrentSessionControlAuthenticationStrategy concurrentSessionControlAuthenticationStrategy= new ConcurrentSessionControlAuthenticationStrategy(sessionRegistry());
-        concurrentSessionControlAuthenticationStrategy.setMaximumSessions(1);
-        concurrentSessionControlAuthenticationStrategy.setExceptionIfMaximumExceeded(false);
-        ChangeSessionIdAuthenticationStrategy changeSessionIdAuthenticationStrategy = new ChangeSessionIdAuthenticationStrategy();
-        SessionFixationProtectionStrategy sessionFixationProtectionStrategy=new SessionFixationProtectionStrategy();
-        RegisterSessionAuthenticationStrategy registerSessionStrategy = new RegisterSessionAuthenticationStrategy(sessionRegistry());
-        return new CompositeSessionAuthenticationStrategy(
-                Arrays.asList(concurrentSessionControlAuthenticationStrategy,changeSessionIdAuthenticationStrategy,sessionFixationProtectionStrategy, registerSessionStrategy));
     }
 
     @Bean
