@@ -1,6 +1,7 @@
 package org.changppo.account.controller.member;
 
 import org.changppo.account.TestInitDB;
+import org.changppo.account.builder.pageable.PageableBuilder;
 import org.changppo.account.entity.member.Member;
 import org.changppo.account.repository.member.MemberRepository;
 import org.changppo.account.response.exception.member.MemberNotFoundException;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -27,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -126,6 +129,60 @@ class MemberControllerIntegrationTest {
         mockMvc.perform(
                         get("/api/members/v1/{id}", freeMember.getId())
                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2NormalMember)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void readListTest() throws Exception {
+        // given
+        Pageable pageable = PageableBuilder.build();
+        long totalMembers = memberRepository.count();
+        // when, then
+        mockMvc.perform(
+                    get("/api/members/v1/list")
+                        .param("page", String.valueOf(pageable.getPageNumber()))
+                        .param("size", String.valueOf(pageable.getPageSize()))
+                        .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2AdminMember)))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.code").value("0"))
+                .andExpect(jsonPath("$.result.data.content").isArray())
+                .andExpect(jsonPath("$.result.data.content.length()").value((int) totalMembers))
+                .andExpect(jsonPath("$.result.data.pageable.pageNumber").value(pageable.getPageNumber()))
+                .andExpect(jsonPath("$.result.data.pageable.pageSize").value(pageable.getPageSize()))
+                .andExpect(jsonPath("$.result.data.totalElements").value((int) totalMembers))
+                .andExpect(jsonPath("$.result.data.totalPages").value((int) Math.ceil((double) totalMembers / pageable.getPageSize())))
+                .andExpect(jsonPath("$.result.data.number").value(pageable.getPageNumber()))
+                .andExpect(jsonPath("$.result.data.size").value(pageable.getPageSize()))
+                .andExpect(jsonPath("$.result.data.last").value(true))
+                .andExpect(jsonPath("$.result.data.first").value(true))
+                .andExpect(jsonPath("$.result.data.numberOfElements").value((int) totalMembers))
+                .andExpect(jsonPath("$.result.data.empty").value(totalMembers == 0));
+    }
+
+    @Test
+    void readListUnauthorizedByNoneSessionTest() throws Exception {
+        // given
+        Pageable pageable = PageableBuilder.build();
+        // when, then
+        mockMvc.perform(
+                get("/api/members/v1/list")
+                        .param("page", String.valueOf(pageable.getPageNumber()))
+                        .param("size", String.valueOf(pageable.getPageSize())))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void readListAccessDeniedByNotAdminTest() throws Exception {
+        // given
+        Pageable pageable = PageableBuilder.build();
+        // when, then
+        mockMvc.perform(
+                        get("/api/members/v1/list")
+                                .param("page", String.valueOf(pageable.getPageNumber()))
+                                .param("size", String.valueOf(pageable.getPageSize()))
+                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2NormalMember)))
                 .andExpect(status().isForbidden());
     }
 
