@@ -20,7 +20,7 @@ import org.changppo.account.response.exception.card.UnsupportedPaymentGatewayExc
 import org.changppo.account.response.exception.member.MemberNotFoundException;
 import org.changppo.account.response.exception.member.RoleNotFoundException;
 import org.changppo.account.response.exception.member.UpdateAuthenticationFailureException;
-import org.changppo.account.security.oauth2.CustomOAuth2UserDetails;
+import org.changppo.account.security.sign.CustomOAuth2UserDetails;
 import org.changppo.account.service.dto.card.CardDto;
 import org.changppo.account.type.PaymentGatewayType;
 import org.changppo.account.type.RoleType;

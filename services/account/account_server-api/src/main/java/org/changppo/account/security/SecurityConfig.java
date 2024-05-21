@@ -1,7 +1,7 @@
 package org.changppo.account.security;
 
 import lombok.RequiredArgsConstructor;
-import org.changppo.account.security.oauth2.*;
+import org.changppo.account.security.sign.*;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -4,7 +4,7 @@ package org.changppo.account.security;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.changppo.account.type.RoleType;
-import org.changppo.account.security.oauth2.CustomOAuth2UserDetails;
+import org.changppo.account.security.sign.CustomOAuth2UserDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 

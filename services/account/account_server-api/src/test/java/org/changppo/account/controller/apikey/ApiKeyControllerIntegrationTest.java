@@ -11,7 +11,7 @@ import org.changppo.account.repository.apikey.ApiKeyRepository;
 import org.changppo.account.repository.member.MemberRepository;
 import org.changppo.account.response.exception.apikey.ApiKeyNotFoundException;
 import org.changppo.account.response.exception.member.MemberNotFoundException;
-import org.changppo.account.security.oauth2.CustomOAuth2UserDetails;
+import org.changppo.account.security.sign.CustomOAuth2UserDetails;
 import org.changppo.account.type.GradeType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

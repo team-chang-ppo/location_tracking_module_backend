@@ -13,7 +13,7 @@ import org.changppo.account.repository.member.MemberRepository;
 import org.changppo.account.response.exception.apikey.ApiKeyNotFoundException;
 import org.changppo.account.response.exception.card.CardNotFoundException;
 import org.changppo.account.response.exception.member.MemberNotFoundException;
-import org.changppo.account.security.oauth2.CustomOAuth2UserDetails;
+import org.changppo.account.security.sign.CustomOAuth2UserDetails;
 import org.changppo.account.type.RoleType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,4 +1,4 @@
-package org.changppo.account.security.oauth2;
+package org.changppo.account.security.sign;
 
 import lombok.RequiredArgsConstructor;
 import org.changppo.account.entity.member.Member;
@@ -8,8 +8,8 @@ import org.changppo.account.repository.member.RoleRepository;
 import org.changppo.account.response.exception.member.RoleNotFoundException;
 import org.changppo.account.response.exception.oauth2.AdminBannedException;
 import org.changppo.account.response.exception.oauth2.MemberDeletionRequestedException;
-import org.changppo.account.security.oauth2.response.OAuth2Response;
-import org.changppo.account.security.oauth2.response.OAuth2ResponseFactory;
+import org.changppo.account.security.sign.response.OAuth2Response;
+import org.changppo.account.security.sign.response.OAuth2ResponseFactory;
 import org.changppo.account.type.RoleType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;

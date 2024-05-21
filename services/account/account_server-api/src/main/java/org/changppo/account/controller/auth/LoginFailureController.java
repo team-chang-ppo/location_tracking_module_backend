@@ -1,9 +1,9 @@
 package org.changppo.account.controller.auth;
 
 import lombok.RequiredArgsConstructor;
-import org.changppo.utils.response.body.Response;
 import org.changppo.account.response.exception.common.ExceptionType;
 import org.changppo.account.response.exception.common.ResponseHandler;
+import org.changppo.utils.response.body.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;

@@ -9,7 +9,7 @@ import org.changppo.account.entity.member.Member;
 import org.changppo.account.repository.apikey.ApiKeyRepository;
 import org.changppo.account.repository.member.MemberRepository;
 import org.changppo.account.response.exception.member.MemberNotFoundException;
-import org.changppo.account.security.oauth2.CustomOAuth2UserDetails;
+import org.changppo.account.security.sign.CustomOAuth2UserDetails;
 import org.changppo.account.service.dto.member.MemberDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -1,4 +1,4 @@
-package org.changppo.account.security.oauth2;
+package org.changppo.account.security.sign;
 
 import lombok.RequiredArgsConstructor;
 import org.changppo.account.entity.member.Member;
