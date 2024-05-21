@@ -3,6 +3,7 @@ package org.changppo.account.controller.card;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.changppo.account.TestInitDB;
 import org.changppo.account.builder.card.paymentgateway.kakaopay.KakaopayResponseBuilder;
+import org.changppo.account.builder.pageable.PageableBuilder;
 import org.changppo.account.entity.apikey.ApiKey;
 import org.changppo.account.entity.card.Card;
 import org.changppo.account.entity.member.Member;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
@@ -224,6 +226,57 @@ public class CardControllerIntegrationTest {
         mockMvc.perform(
                         get("/api/cards/v1/member/{id}", normalMember.getId())
                                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void readListTest() throws Exception {
+        // given
+        Pageable pageable = PageableBuilder.build();
+        long totalCards = cardRepository.count();
+        // when, then
+        mockMvc.perform(
+                        get("/api/cards/v1/list")
+                                .param("page", String.valueOf(pageable.getPageNumber()))
+                                .param("size", String.valueOf(pageable.getPageSize()))
+                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2AdminMember)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.data.content").isArray())
+                .andExpect(jsonPath("$.result.data.content.length()").value((int) totalCards))
+                .andExpect(jsonPath("$.result.data.pageable.pageNumber").value(pageable.getPageNumber()))
+                .andExpect(jsonPath("$.result.data.pageable.pageSize").value(pageable.getPageSize()))
+                .andExpect(jsonPath("$.result.data.totalElements").value((int) totalCards))
+                .andExpect(jsonPath("$.result.data.totalPages").value((int) Math.ceil((double) totalCards / pageable.getPageSize())))
+                .andExpect(jsonPath("$.result.data.number").value(pageable.getPageNumber()))
+                .andExpect(jsonPath("$.result.data.size").value(pageable.getPageSize()))
+                .andExpect(jsonPath("$.result.data.last").value(true))
+                .andExpect(jsonPath("$.result.data.first").value(true))
+                .andExpect(jsonPath("$.result.data.numberOfElements").value((int) totalCards))
+                .andExpect(jsonPath("$.result.data.empty").value(totalCards == 0));
+    }
+
+    @Test
+    void readListUnauthorizedByNoneSessionTest() throws Exception {
+        // given
+        Pageable pageable = PageableBuilder.build();
+        // when, then
+        mockMvc.perform(
+                        get("/api/cards/v1/list")
+                                .param("page", String.valueOf(pageable.getPageNumber()))
+                                .param("size", String.valueOf(pageable.getPageSize())))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void readListAccessDeniedByNotAdminTest() throws Exception {
+        // given
+        Pageable pageable = PageableBuilder.build();
+        // when, then
+        mockMvc.perform(
+                        get("/api/cards/v1/list")
+                                .param("page", String.valueOf(pageable.getPageNumber()))
+                                .param("size", String.valueOf(pageable.getPageSize()))
+                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2NormalMember)))
                 .andExpect(status().isForbidden());
     }
 
