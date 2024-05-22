@@ -26,7 +26,7 @@ public class LocalTestController {
             String token = JWT.create()
                     .withClaim("MEMBER_ID", apiKey.memberId())
                     .withClaim("GRADE_TYPE", apiKey.gradeType().name())
-                    .withClaim("ID", apiKey.id())
+                    .withClaim("ID", apiKey.apiKeyId())
                     .sign(algorithm);
             return token;
         } catch (JWTCreationException exception){

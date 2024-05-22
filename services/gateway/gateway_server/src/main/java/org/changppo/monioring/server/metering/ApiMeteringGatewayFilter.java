@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.changppo.monioring.domain.ApiUsageEventPayLoad;
 import org.changppo.monioring.domain.GatewayConstant;
+import org.changppo.monioring.server.apikey.ApiKey;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.support.HasRouteId;
@@ -35,12 +36,18 @@ public class ApiMeteringGatewayFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
+        ApiKey apiKey = (ApiKey) exchange.getAttribute(ApiKey.class.getName());
         final ApiUsageEventPayLoad event = new ApiUsageEventPayLoad();
         event.setEventId(UUID.randomUUID().toString());
         event.setRequestTime(Instant.now());
         event.setRequestProtocol(request.getURI().getScheme());
         event.setRequestMethod(request.getMethod().name());
         event.setRequestUri(request.getURI().getPath());
+        if (apiKey != null){
+            event.setApiKeyId(apiKey.apiKeyId());
+            event.setMemberId(apiKey.memberId());
+            event.setMemberGrade(apiKey.gradeType().name());
+        }
         //TODO 나중에, 바꿔야함
         // 테스트를 위해 만약 localhost 면 googleIp로 바꿔서 기록 ㅋㅋ
         String clientIp = doIfNotNull(request.getRemoteAddress(), address -> address.getAddress().getHostAddress());
@@ -68,8 +75,9 @@ public class ApiMeteringGatewayFilter implements GlobalFilter, Ordered {
                     //TODO 에러 코드 파싱 로직
                     //event.setErrorCode(doIfNotNull(exchange.getResponse().getStatusCode(), ErrorCode::valueOf));
                     return apiMeteringEventPublisher.publish(event)
-                            .onErrorResume(throwable -> {
-                                log.error("Failed to publish event", throwable);
+                            .onErrorResume(e -> {
+                                log.error("Failed to publish api usage event", e);
+                                // 에러가 발생해도, 무시한다.
                                 return Mono.empty();
                             });
                 }));

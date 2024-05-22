@@ -4,7 +4,7 @@ spring:
     gateway:
       routes:
         - id: aggregation
-          uri: http://localhost:8010
+          uri: http://localhost:80
           predicates:
             - Path=/api/aggregation/**
           filters:
@@ -15,6 +15,19 @@ spring:
                 requestedTokens: 100
                 notAllowedStatus: TOO_MANY_REQUESTS
                 denyEmptyKey: true
+                emptyKeyStatus: UNAUTHORIZED
+        - id: aggregation-ping
+          uri: http://localhost:80
+          predicates:
+            - Path=/api/aggregation/ping
+          filters:
+            - name: ApiRateLimiter
+              args:
+                contextResolver: "#{@apiRateContextResolver}"
+                rateLimiter: "#{@apiKeyRateLimiter}"
+                requestedTokens: 100
+                notAllowedStatus: TOO_MANY_REQUESTS
+                denyEmptyKey: false
                 emptyKeyStatus: UNAUTHORIZED
         - id: route1
           uri: http://localhost:8000

@@ -3,9 +3,11 @@ package org.changppo.monioring.server.ratelimit;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.changppo.monioring.server.exception.ErrorCode;
 import org.changppo.monioring.server.ratelimit.context.AbsentApiRateContext;
 import org.changppo.monioring.server.ratelimit.context.InvalidApiRateContext;
 import org.changppo.monioring.server.ratelimit.context.ValidApiRateContext;
+import org.changppo.monioring.server.utils.SendErrorUtil;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
@@ -50,14 +52,12 @@ public class ApiRateLimiterGatewayFilterFactory extends AbstractGatewayFilterFac
                 if (rateContext instanceof AbsentApiRateContext) {
                     if (denyEmptyKey) {
                         log.debug("Deny because of empty key, response status: {}", emptyKeyStatus);
-                        ServerWebExchangeUtils.setResponseStatus(exchange, emptyKeyStatus);
-                        return exchange.getResponse().setComplete();
+                        return SendErrorUtil.sendError(exchange, ErrorCode.API_KEY_NOT_FOUND);
                     }
                     return chain.filter(exchange);
                 }
                 if (rateContext instanceof InvalidApiRateContext) {
-                    ServerWebExchangeUtils.setResponseStatus(exchange, invalidKeyStatus);
-                    return exchange.getResponse().setComplete();
+                    return SendErrorUtil.sendError(exchange, ErrorCode.INVALID_API_KEY);
                 }
                 // should never happen
                 log.error("Unknown ApiRateContext type: {}", rateContext.getClass().getName());
@@ -95,7 +95,7 @@ public class ApiRateLimiterGatewayFilterFactory extends AbstractGatewayFilterFac
         private ApiRateLimiter rateLimiter;
         private Long requestedTokens = 1L;
         private HttpStatus notAllowedStatus = HttpStatus.TOO_MANY_REQUESTS;
-        private Boolean denyEmptyKey;
+        private Boolean denyEmptyKey = Boolean.FALSE;
         private HttpStatus emptyKeyStatus = HttpStatus.UNAUTHORIZED;
         private HttpStatus invalidKeyStatus = HttpStatus.FORBIDDEN;
         private String routeId;
