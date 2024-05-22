@@ -220,14 +220,14 @@ class MemberRepositoryTest {
     void findByNameWithRolesTest() {
         // given
         Role role = roleRepository.save(new Role(RoleType.ROLE_NORMAL));
-        memberRepository.save(buildMember("testName", "username", "profileImage", role));
+        Member member = memberRepository.save(buildMember(role));
         clear();
 
         // when
-        Member foundMember = memberRepository.findByNameWithRoles("testName").orElseThrow(MemberNotFoundException::new);
+        Member foundMember = memberRepository.findByNameWithRoles(member.getName()).orElseThrow(MemberNotFoundException::new);
 
         // then
-        assertThat(foundMember.getName()).isEqualTo("testName");
+        assertThat(foundMember.getName()).isEqualTo(member.getName());
         assertThat(foundMember.getRole().getRoleType()).isEqualTo(RoleType.ROLE_NORMAL);
     }
 
@@ -258,7 +258,7 @@ class MemberRepositoryTest {
 
         // then
         assertThat(memberDto.getId()).isEqualTo(member.getId());
-        assertThat(memberDto.getName()).isEqualTo("testName");
+        assertThat(memberDto.getName()).isEqualTo(member.getName());
     }
 
     @Test
