@@ -1,4 +1,4 @@
-package org.changppo.account.security.oauth2.response;
+package org.changppo.account.security.sign.response;
 
 import org.changppo.account.response.exception.oauth2.Oauth2LoginFailureException;
 

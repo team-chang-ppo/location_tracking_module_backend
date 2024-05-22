@@ -1,4 +1,4 @@
-package org.changppo.account.security.oauth2.response;
+package org.changppo.account.security.sign.response;
 
 public interface OAuth2Response {
     String getProvider();

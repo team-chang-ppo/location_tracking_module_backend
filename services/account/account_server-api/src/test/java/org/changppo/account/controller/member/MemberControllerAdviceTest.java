@@ -70,4 +70,26 @@ class MemberControllerAdviceTest {
                         put("/api/members/v1/cancel/{id}", 1L))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void banMemberNotFoundExceptionTest() throws Exception {
+        // given
+        doThrow(new MemberNotFoundException()).when(memberService).ban(anyLong());
+
+        // when, then
+        mockMvc.perform(
+                        put("/api/members/v1/ban/{id}", 1L))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void unbanMemberNotFoundExceptionTest() throws Exception {
+        // given
+        doThrow(new MemberNotFoundException()).when(memberService).unban(anyLong());
+
+        // when, then
+        mockMvc.perform(
+                        put("/api/members/v1/unban/{id}", 1L))
+                .andExpect(status().isNotFound());
+    }
 }

@@ -1,9 +1,10 @@
-package org.changppo.account.security.oauth2;
+package org.changppo.account.security.sign;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.changppo.account.response.exception.oauth2.AdminBannedException;
 import org.changppo.account.response.exception.oauth2.MemberDeletionRequestedException;
 import org.changppo.account.response.exception.oauth2.Oauth2LoginFailureException;
 import org.springframework.security.core.AuthenticationException;
@@ -21,6 +22,8 @@ public class CustomLoginFailureHandler extends SimpleUrlAuthenticationFailureHan
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         if (authException instanceof MemberDeletionRequestedException) {
             setDefaultFailureUrl("/login?error=member-deletion");
+        } else if (authException instanceof AdminBannedException) {
+            setDefaultFailureUrl("/login?error=admin-banned");
         } else if (authException instanceof Oauth2LoginFailureException) {
             setDefaultFailureUrl("/login?error=oauth-failure");
         } else {

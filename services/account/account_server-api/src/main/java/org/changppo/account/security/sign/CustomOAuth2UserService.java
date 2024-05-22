@@ -1,4 +1,4 @@
-package org.changppo.account.security.oauth2;
+package org.changppo.account.security.sign;
 
 import lombok.RequiredArgsConstructor;
 import org.changppo.account.entity.member.Member;
@@ -6,9 +6,10 @@ import org.changppo.account.entity.member.Role;
 import org.changppo.account.repository.member.MemberRepository;
 import org.changppo.account.repository.member.RoleRepository;
 import org.changppo.account.response.exception.member.RoleNotFoundException;
+import org.changppo.account.response.exception.oauth2.AdminBannedException;
 import org.changppo.account.response.exception.oauth2.MemberDeletionRequestedException;
-import org.changppo.account.security.oauth2.response.OAuth2Response;
-import org.changppo.account.security.oauth2.response.OAuth2ResponseFactory;
+import org.changppo.account.security.sign.response.OAuth2Response;
+import org.changppo.account.security.sign.response.OAuth2ResponseFactory;
 import org.changppo.account.type.RoleType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -17,8 +18,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +41,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     if (existingMember.isDeletionRequested()) {
                         throw new MemberDeletionRequestedException("Member deletion requested");
                     }
+                    else if (existingMember.isAdminBanned()) {
+                        throw new AdminBannedException("Admin banned");
+                    }
                     existingMember.updateInfo(oAuth2Response.getName(), oAuth2Response.getProfileImage());
                     return existingMember;
                 })
@@ -51,12 +54,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                                 .name(name)
                                 .username(oAuth2Response.getName())
                                 .profileImage(oAuth2Response.getProfileImage())
-                                .roles(Set.of(freeRole))
+                                .role(freeRole)
                                 .build());
                 });
 
-        return new CustomOAuth2User(member.getId(), name,  member.getMemberRoles().stream()
-                                                            .map(memberRole -> new SimpleGrantedAuthority(memberRole.getRole().getRoleType().name()))
-                                                            .collect(Collectors.toSet()));
+        return new CustomOAuth2UserDetails(member.getId(), name, null, Collections.singleton(new SimpleGrantedAuthority(member.getRole().getRoleType().name())));
     }
 }

@@ -1,5 +1,6 @@
 package org.changppo.account.controller.card;
 
+import org.changppo.account.builder.pageable.PageableBuilder;
 import org.changppo.account.service.card.CardService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -7,6 +8,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -27,7 +30,9 @@ class CardControllerTest {
 
     @BeforeEach
     void beforeEach() {
-        mockMvc = MockMvcBuilders.standaloneSetup(cardController).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(cardController)
+                .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())  // Pageable 처리를 위한 설정
+                .build();
     }
 
     @Test
@@ -54,6 +59,21 @@ class CardControllerTest {
                 .andExpect(status().isOk());
 
         verify(cardService).readAll(id);
+    }
+
+    @Test
+    void readListTest() throws Exception {
+        // given
+        Pageable pageable = PageableBuilder.build();
+
+        // when, then
+        mockMvc.perform(
+                        get("/api/cards/v1/list")
+                                .param("page", String.valueOf(pageable.getPageNumber()))
+                                .param("size", String.valueOf(pageable.getPageSize())))
+                .andExpect(status().isOk());
+
+        verify(cardService).readList(pageable);
     }
 
     @Test

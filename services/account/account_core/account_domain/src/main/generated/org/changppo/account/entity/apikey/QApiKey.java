@@ -24,6 +24,8 @@ public class QApiKey extends EntityPathBase<ApiKey> {
 
     public final org.changppo.account.entity.common.QEntityDate _super = new org.changppo.account.entity.common.QEntityDate(this);
 
+    public final DateTimePath<java.time.LocalDateTime> adminBannedAt = createDateTime("adminBannedAt", java.time.LocalDateTime.class);
+
     public final DateTimePath<java.time.LocalDateTime> cardDeletionBannedAt = createDateTime("cardDeletionBannedAt", java.time.LocalDateTime.class);
 
     //inherited
@@ -65,7 +67,7 @@ public class QApiKey extends EntityPathBase<ApiKey> {
     public QApiKey(Class<? extends ApiKey> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.grade = inits.isInitialized("grade") ? new QGrade(forProperty("grade")) : null;
-        this.member = inits.isInitialized("member") ? new org.changppo.account.entity.member.QMember(forProperty("member")) : null;
+        this.member = inits.isInitialized("member") ? new org.changppo.account.entity.member.QMember(forProperty("member"), inits.get("member")) : null;
     }
 
 }

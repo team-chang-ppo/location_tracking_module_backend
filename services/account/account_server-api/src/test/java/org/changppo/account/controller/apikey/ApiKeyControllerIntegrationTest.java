@@ -2,6 +2,7 @@ package org.changppo.account.controller.apikey;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.changppo.account.TestInitDB;
+import org.changppo.account.builder.pageable.PageableBuilder;
 import org.changppo.account.dto.apikey.ApiKeyCreateRequest;
 import org.changppo.account.dto.apikey.ApiKeyReadAllRequest;
 import org.changppo.account.entity.apikey.ApiKey;
@@ -10,13 +11,14 @@ import org.changppo.account.repository.apikey.ApiKeyRepository;
 import org.changppo.account.repository.member.MemberRepository;
 import org.changppo.account.response.exception.apikey.ApiKeyNotFoundException;
 import org.changppo.account.response.exception.member.MemberNotFoundException;
-import org.changppo.account.security.oauth2.CustomOAuth2User;
+import org.changppo.account.security.sign.CustomOAuth2UserDetails;
 import org.changppo.account.type.GradeType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
@@ -55,8 +57,8 @@ public class ApiKeyControllerIntegrationTest {
 
     ObjectMapper objectMapper = new ObjectMapper();
     Member freeMember, normalMember, banForPaymentFailureMember, requestDeletionMember, adminMember;
-    CustomOAuth2User customOAuth2FreeMember, customOAuth2NormalMember, customOAuth2BanForPaymentFailureMember, customOAuth2RequestDeletionMember, customOAuth2AdminMember;
-    ApiKey freeApiKey, classicApiKey, banForPaymentFailureApiKey, banForCardDeletionApiKey, requestDeletionApiKey;
+    CustomOAuth2UserDetails customOAuth2FreeMember, customOAuth2NormalMember, customOAuth2BanForPaymentFailureMember, customOAuth2RequestDeletionMember, customOAuth2AdminMember;
+    ApiKey freeApiKey, classicApiKey, banForPaymentFailureApiKey, banForCardDeletionApiKey, requestDeletionApiKey, adminBannedApiKey;
 
     @BeforeEach
     void beforeEach() {
@@ -86,6 +88,7 @@ public class ApiKeyControllerIntegrationTest {
         banForPaymentFailureApiKey = apiKeyRepository.findByValue(testInitDB.getBanForPaymentFailureApiKeyValue()).orElseThrow(ApiKeyNotFoundException::new);
         banForCardDeletionApiKey = apiKeyRepository.findByValue(testInitDB.getBanForCardDeletionApiKeyValue()).orElseThrow(ApiKeyNotFoundException::new);
         requestDeletionApiKey = apiKeyRepository.findByValue(testInitDB.getRequestDeletionApiKeyValue()).orElseThrow(ApiKeyNotFoundException::new);
+        adminBannedApiKey = apiKeyRepository.findByValue(testInitDB.getAdminBannedApiKeyValue()).orElseThrow(ApiKeyNotFoundException::new);
     }
 
     @Test
@@ -373,6 +376,57 @@ public class ApiKeyControllerIntegrationTest {
     }
 
     @Test
+    void readListTest() throws Exception {
+        // given
+        Pageable pageable = PageableBuilder.build();
+        long totalApiKeys = apiKeyRepository.count();
+        // when, then
+        mockMvc.perform(
+                    get("/api/apikeys/v1/list")
+                            .param("page", String.valueOf(pageable.getPageNumber()))
+                            .param("size", String.valueOf(pageable.getPageSize()))
+                            .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2AdminMember)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.data.content").isArray())
+                .andExpect(jsonPath("$.result.data.content.length()").value((int) totalApiKeys))
+                .andExpect(jsonPath("$.result.data.pageable.pageNumber").value(pageable.getPageNumber()))
+                .andExpect(jsonPath("$.result.data.pageable.pageSize").value(pageable.getPageSize()))
+                .andExpect(jsonPath("$.result.data.totalElements").value((int) totalApiKeys))
+                .andExpect(jsonPath("$.result.data.totalPages").value((int) Math.ceil((double) totalApiKeys / pageable.getPageSize())))
+                .andExpect(jsonPath("$.result.data.number").value(pageable.getPageNumber()))
+                .andExpect(jsonPath("$.result.data.size").value(pageable.getPageSize()))
+                .andExpect(jsonPath("$.result.data.last").value(true))
+                .andExpect(jsonPath("$.result.data.first").value(true))
+                .andExpect(jsonPath("$.result.data.numberOfElements").value((int) totalApiKeys))
+                .andExpect(jsonPath("$.result.data.empty").value(totalApiKeys == 0));
+    }
+
+    @Test
+    void readListUnauthorizedByNoneSessionTest() throws Exception {
+        // given
+        Pageable pageable = PageableBuilder.build();
+        // when, then
+        mockMvc.perform(
+                        get("/api/apikeys/v1/list")
+                                .param("page", String.valueOf(pageable.getPageNumber()))
+                                .param("size", String.valueOf(pageable.getPageSize())))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void readListAccessDeniedByNotAdminTest() throws Exception {
+        // given
+        Pageable pageable = PageableBuilder.build();
+        // when, then
+        mockMvc.perform(
+                        get("/api/apikeys/v1/list")
+                                .param("page", String.valueOf(pageable.getPageNumber()))
+                                .param("size", String.valueOf(pageable.getPageSize()))
+                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2NormalMember)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     void deleteTest() throws Exception {
         // given, when
         mockMvc.perform(
@@ -454,6 +508,15 @@ public class ApiKeyControllerIntegrationTest {
         // given, when, then
         mockMvc.perform(
                         get("/api/apikeys/v1/validate/{id}", requestDeletionApiKey.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.data.valid").value(false));
+    }
+
+    @Test
+    void validateValidFalseByAdminBannedApiKeyTest() throws Exception {
+        // given, when, then
+        mockMvc.perform(
+                        get("/api/apikeys/v1/validate/{id}", adminBannedApiKey.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.data.valid").value(false));
     }

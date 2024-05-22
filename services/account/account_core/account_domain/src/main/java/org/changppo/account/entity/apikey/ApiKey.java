@@ -46,6 +46,9 @@ public class ApiKey extends EntityDate {
     @Column
     private LocalDateTime deletionRequestedAt;
 
+    @Column
+    private LocalDateTime adminBannedAt;
+
     @Builder
     public ApiKey(String value, Grade grade, Member member) {
         this.value = value;
@@ -54,6 +57,7 @@ public class ApiKey extends EntityDate {
         this.deletedAt = null;
         this.paymentFailureBannedAt = null;
         this.cardDeletionBannedAt = null;
+        this.adminBannedAt = null;
     }
 
     public boolean isDeleted() {
@@ -70,6 +74,10 @@ public class ApiKey extends EntityDate {
 
     public boolean isDeletionRequested() {
         return this.deletionRequestedAt != null;
+    }
+
+    public boolean isAdminBanned() {
+        return this.adminBannedAt != null;
     }
 
     public void updateValue(String value){
@@ -98,5 +106,13 @@ public class ApiKey extends EntityDate {
 
     public void cancelDeletionRequest() {
         this.deletionRequestedAt = null;
+    }
+
+    public void banByAdmin(LocalDateTime time) {
+        this.adminBannedAt = time;
+    }
+
+    public void unbanByAdmin() {
+        this.adminBannedAt = null;
     }
 }
