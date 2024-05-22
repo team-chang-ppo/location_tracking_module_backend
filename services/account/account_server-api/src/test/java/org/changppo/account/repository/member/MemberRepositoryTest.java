@@ -9,6 +9,7 @@ import org.changppo.account.entity.member.Role;
 import org.changppo.account.response.exception.member.MemberNotFoundException;
 import org.changppo.account.service.dto.member.MemberDto;
 import org.changppo.account.type.RoleType;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.changppo.account.builder.member.MemberBuilder.buildMember;
+import static org.changppo.account.builder.member.RoleBuilder.buildRole;
 
 @DataJpaTest
 @Import(QuerydslConfig.class)
@@ -34,10 +36,17 @@ class MemberRepositoryTest {
     @PersistenceContext
     EntityManager em;
 
+    Role role;
+
+    @BeforeEach
+    void beforeEach() {
+        role = roleRepository.save(buildRole(RoleType.ROLE_NORMAL));
+    }
+
+
     @Test
     void creatTest() {
         // given
-        Role role = roleRepository.save(new Role(RoleType.ROLE_NORMAL));
         Member member = buildMember(role);
         // when
         memberRepository.save(member);
@@ -51,7 +60,6 @@ class MemberRepositoryTest {
     @Test
     void uniqueNameTest() {
         // given
-        Role role = roleRepository.save(new Role(RoleType.ROLE_NORMAL));
         memberRepository.save(buildMember("name", "username", "profileImage", role));
         clear();
 
@@ -63,7 +71,6 @@ class MemberRepositoryTest {
     @Test
     void dateTest() {
         // given
-        Role role = roleRepository.save(new Role(RoleType.ROLE_NORMAL));
         Member member = buildMember(role);
 
         // when
@@ -82,7 +89,6 @@ class MemberRepositoryTest {
         // given
         String updatedUsername = "updatedUsername";
         String updatedProfileImage = "updatedProfileImage";
-        Role role = roleRepository.save(new Role(RoleType.ROLE_NORMAL));
         Member member = memberRepository.save(buildMember(role));
         clear();
 
@@ -100,7 +106,6 @@ class MemberRepositoryTest {
     @Test
     void deleteTest() {
         // given
-        Role role = roleRepository.save(new Role(RoleType.ROLE_NORMAL));
         Member member = memberRepository.save(buildMember(role));
         clear();
 
@@ -116,9 +121,8 @@ class MemberRepositoryTest {
     @Test
     void changeRoleTest() {
         // given
-        Role initialRole = roleRepository.save(new Role(RoleType.ROLE_NORMAL));
         Role newRole = roleRepository.save(new Role(RoleType.ROLE_ADMIN));
-        Member member = memberRepository.save(buildMember(initialRole));
+        Member member = memberRepository.save(buildMember(role));
         clear();
 
         // when
@@ -136,7 +140,6 @@ class MemberRepositoryTest {
     void banAndUnbanForPaymentFailureTest() {
         // given
         LocalDateTime banTime = LocalDateTime.now();
-        Role role = roleRepository.save(new Role(RoleType.ROLE_NORMAL));
         Member member = memberRepository.save(buildMember(role));
         clear();
 
@@ -164,7 +167,6 @@ class MemberRepositoryTest {
     void deletionRequestAndCancelTest() {
         // given
         LocalDateTime requestTime = LocalDateTime.now();
-        Role role = roleRepository.save(new Role(RoleType.ROLE_NORMAL));
         Member member = memberRepository.save(buildMember(role));
         clear();
 
@@ -192,7 +194,6 @@ class MemberRepositoryTest {
     void adminBanAndUnbanTest() {
         // given
         LocalDateTime banTime = LocalDateTime.now();
-        Role role = roleRepository.save(new Role(RoleType.ROLE_NORMAL));
         Member member = memberRepository.save(buildMember(role));
         clear();
 
@@ -219,7 +220,6 @@ class MemberRepositoryTest {
     @Test
     void findByNameWithRolesTest() {
         // given
-        Role role = roleRepository.save(new Role(RoleType.ROLE_NORMAL));
         Member member = memberRepository.save(buildMember(role));
         clear();
 
@@ -234,7 +234,6 @@ class MemberRepositoryTest {
     @Test
     void findByIdWithRolesTest() {
         // given
-        Role role = roleRepository.save(new Role(RoleType.ROLE_NORMAL));
         Member member = memberRepository.save(buildMember(role));
         clear();
 
@@ -249,7 +248,6 @@ class MemberRepositoryTest {
     @Test
     void findDtoByIdTest() {
         // given
-        Role role = roleRepository.save(new Role(RoleType.ROLE_NORMAL));
         Member member = memberRepository.save(buildMember(role));
         clear();
 
@@ -264,7 +262,6 @@ class MemberRepositoryTest {
     @Test
     void findAllDtosTest() {
         // given
-        Role role = roleRepository.save(new Role(RoleType.ROLE_NORMAL));
         memberRepository.save(buildMember("testName1", "username1", "profileImage1", role));
         memberRepository.save(buildMember("testName2", "username2", "profileImage2", role));
         clear();

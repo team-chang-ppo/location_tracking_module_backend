@@ -1,11 +1,10 @@
-package org.changppo.account.repository.member;
+package org.changppo.account.repository.apikey;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.changppo.account.config.QuerydslConfig;
-import org.changppo.account.entity.member.Role;
-import org.changppo.account.response.exception.member.RoleNotFoundException;
-import org.changppo.account.type.RoleType;
+import org.changppo.account.entity.apikey.Grade;
+import org.changppo.account.response.exception.apikey.GradeNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -14,52 +13,53 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.changppo.account.builder.member.RoleBuilder.buildRole;
+import static org.changppo.account.builder.apikey.GradeBuilder.buildGrade;
+import static org.changppo.account.type.GradeType.GRADE_CLASSIC;
 
 @DataJpaTest
 @Import(QuerydslConfig.class)
-class RoleRepositoryTest {
+class GradeRepositoryTest {
     @Autowired
-    RoleRepository roleRepository;
+    GradeRepository gradeRepository;
     @PersistenceContext
     EntityManager em;
 
     @Test
     void createAndReadTest() {
         // given
-        Role role = buildRole(RoleType.ROLE_NORMAL);
+        Grade grade = gradeRepository.save(buildGrade(GRADE_CLASSIC));
 
         // when
-        roleRepository.save(role);
+        gradeRepository.save(grade);
         clear();
 
         // then
-        Role foundRole = roleRepository.findById(role.getId()).orElseThrow(RoleNotFoundException::new);
-        assertThat(foundRole.getId()).isEqualTo(role.getId());
+        Grade foundGrade = gradeRepository.findById(grade.getId()).orElseThrow(GradeNotFoundException::new);
+        assertThat(foundGrade.getId()).isEqualTo(grade.getId());
     }
 
     @Test
     void deleteTest() {
         // given
-        Role role = roleRepository.save(buildRole(RoleType.ROLE_NORMAL));
+        Grade grade = gradeRepository.save(buildGrade(GRADE_CLASSIC));
         clear();
 
         // when
-        roleRepository.delete(role);
+        gradeRepository.delete(grade);
 
         // then
-        assertThatThrownBy(() -> roleRepository.findById(role.getId()).orElseThrow(RoleNotFoundException::new))
-                .isInstanceOf(RoleNotFoundException.class);
+        assertThatThrownBy(() -> gradeRepository.findById(grade.getId()).orElseThrow(GradeNotFoundException::new))
+                .isInstanceOf(GradeNotFoundException.class);
     }
 
     @Test
-    void uniqueRoleTypeTest() {
+    void uniqueGradeTypeTest() {
         // given
-        roleRepository.save(buildRole(RoleType.ROLE_NORMAL));
+        gradeRepository.save(buildGrade(GRADE_CLASSIC));
         clear();
 
         // when, then
-        assertThatThrownBy(() -> roleRepository.save(buildRole(RoleType.ROLE_NORMAL)))
+        assertThatThrownBy(() -> gradeRepository.save(buildGrade(GRADE_CLASSIC)))
                 .isInstanceOf(DataIntegrityViolationException.class);
 
     }
