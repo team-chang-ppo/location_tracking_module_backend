@@ -216,9 +216,9 @@ public class PaymentControllerIntegrationTest {
                         .param("size", req.getSize().toString())
                         .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2NormalMember)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.data.numberOfElements").value(normalMemberPaymentCount-1))
-                .andExpect(jsonPath("$.result.data.hasNext").value(false))
-                .andExpect(jsonPath("$.result.data.paymentList.length()").value(normalMemberPaymentCount-1));
+                .andExpect(jsonPath("$.result.numberOfElements").value(normalMemberPaymentCount-1))
+                .andExpect(jsonPath("$.result.hasNext").value(false))
+                .andExpect(jsonPath("$.result.paymentList.length()").value(normalMemberPaymentCount-1));
     }
 
     @Test
@@ -233,9 +233,9 @@ public class PaymentControllerIntegrationTest {
                                 .param("size", req.getSize().toString())
                                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2AdminMember)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.data.numberOfElements").value(normalMemberPaymentCount-1))
-                .andExpect(jsonPath("$.result.data.hasNext").value(false))
-                .andExpect(jsonPath("$.result.data.paymentList.length()").value(normalMemberPaymentCount-1));
+                .andExpect(jsonPath("$.result.numberOfElements").value(normalMemberPaymentCount-1))
+                .andExpect(jsonPath("$.result.hasNext").value(false))
+                .andExpect(jsonPath("$.result.paymentList.length()").value(normalMemberPaymentCount-1));
     }
 
     @Test
@@ -299,18 +299,18 @@ public class PaymentControllerIntegrationTest {
                                 .param("size", String.valueOf(pageable.getPageSize()))
                                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2AdminMember)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.data.content").isArray())
-                .andExpect(jsonPath("$.result.data.content.length()").value((int) totalPayments))
-                .andExpect(jsonPath("$.result.data.pageable.pageNumber").value(pageable.getPageNumber()))
-                .andExpect(jsonPath("$.result.data.pageable.pageSize").value(pageable.getPageSize()))
-                .andExpect(jsonPath("$.result.data.totalElements").value((int) totalPayments))
-                .andExpect(jsonPath("$.result.data.totalPages").value((int) Math.ceil((double) totalPayments / pageable.getPageSize())))
-                .andExpect(jsonPath("$.result.data.number").value(pageable.getPageNumber()))
-                .andExpect(jsonPath("$.result.data.size").value(pageable.getPageSize()))
-                .andExpect(jsonPath("$.result.data.last").value(true))
-                .andExpect(jsonPath("$.result.data.first").value(true))
-                .andExpect(jsonPath("$.result.data.numberOfElements").value((int) totalPayments))
-                .andExpect(jsonPath("$.result.data.empty").value(totalPayments == 0));
+                .andExpect(jsonPath("$.result.content").isArray())
+                .andExpect(jsonPath("$.result.content.length()").value((int) totalPayments))
+                .andExpect(jsonPath("$.result.pageable.pageNumber").value(pageable.getPageNumber()))
+                .andExpect(jsonPath("$.result.pageable.pageSize").value(pageable.getPageSize()))
+                .andExpect(jsonPath("$.result.totalElements").value((int) totalPayments))
+                .andExpect(jsonPath("$.result.totalPages").value((int) Math.ceil((double) totalPayments / pageable.getPageSize())))
+                .andExpect(jsonPath("$.result.number").value(pageable.getPageNumber()))
+                .andExpect(jsonPath("$.result.size").value(pageable.getPageSize()))
+                .andExpect(jsonPath("$.result.last").value(true))
+                .andExpect(jsonPath("$.result.first").value(true))
+                .andExpect(jsonPath("$.result.numberOfElements").value((int) totalPayments))
+                .andExpect(jsonPath("$.result.empty").value(totalPayments == 0));
     }
 
     @Test

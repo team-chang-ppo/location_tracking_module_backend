@@ -145,11 +145,11 @@ public class KakaopayCardControllerIntegrationTest {
                         .content(objectMapper.writeValueAsString(kakaopayCardRegisterReadyRequest))
                         .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.data.nextRedirectAppUrl").value(kakaopayReadyResponse.getNext_redirect_app_url()))
-                .andExpect(jsonPath("$.result.data.nextRedirectMobileUrl").value(kakaopayReadyResponse.getNext_redirect_mobile_url()))
-                .andExpect(jsonPath("$.result.data.nextRedirectPcUrl").value(kakaopayReadyResponse.getNext_redirect_pc_url()))
-                .andExpect(jsonPath("$.result.data.androidAppScheme").value(kakaopayReadyResponse.getAndroid_app_scheme()))
-                .andExpect(jsonPath("$.result.data.iosAppScheme").value(kakaopayReadyResponse.getIos_app_scheme()));
+                .andExpect(jsonPath("$.result.nextRedirectAppUrl").value(kakaopayReadyResponse.getNext_redirect_app_url()))
+                .andExpect(jsonPath("$.result.nextRedirectMobileUrl").value(kakaopayReadyResponse.getNext_redirect_mobile_url()))
+                .andExpect(jsonPath("$.result.nextRedirectPcUrl").value(kakaopayReadyResponse.getNext_redirect_pc_url()))
+                .andExpect(jsonPath("$.result.androidAppScheme").value(kakaopayReadyResponse.getAndroid_app_scheme()))
+                .andExpect(jsonPath("$.result.iosAppScheme").value(kakaopayReadyResponse.getIos_app_scheme()));
     }
 
     @Test
@@ -189,15 +189,15 @@ public class KakaopayCardControllerIntegrationTest {
                                             .param("pg_token", kakaopayCardRegisterApproveRequest.getPg_token())
                                             .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
                                     .andExpect(status().isCreated())
-                                    .andExpect(jsonPath("$.result.data.id").exists())
-                                    .andExpect(jsonPath("$.result.data.type").value(kakaopayApproveResponse.getCard_info().getCard_type()))
-                                    .andExpect(jsonPath("$.result.data.issuerCorporation").value(kakaopayApproveResponse.getCard_info().getKakaopay_issuer_corp()))
-                                    .andExpect(jsonPath("$.result.data.bin").value(kakaopayApproveResponse.getCard_info().getBin()))
-                                    .andExpect(jsonPath("$.result.data.paymentGateway").value(PaymentGatewayType.PG_KAKAOPAY.name()))
-                                    .andExpect(jsonPath("$.result.data.createdAt").exists())
+                                    .andExpect(jsonPath("$.result.id").exists())
+                                    .andExpect(jsonPath("$.result.type").value(kakaopayApproveResponse.getCard_info().getCard_type()))
+                                    .andExpect(jsonPath("$.result.issuerCorporation").value(kakaopayApproveResponse.getCard_info().getKakaopay_issuer_corp()))
+                                    .andExpect(jsonPath("$.result.bin").value(kakaopayApproveResponse.getCard_info().getBin()))
+                                    .andExpect(jsonPath("$.result.paymentGateway").value(PaymentGatewayType.PG_KAKAOPAY.name()))
+                                    .andExpect(jsonPath("$.result.createdAt").exists())
                                     .andReturn();
 
-        Long id = buildJsonNode(result, objectMapper).getLongValue("result", "data", "id");
+        Long id = buildJsonNode(result, objectMapper).getLongValue("result", "id");
         Card card = cardRepository.findById(id).orElseThrow(CardNotFoundException::new);
 
         // then

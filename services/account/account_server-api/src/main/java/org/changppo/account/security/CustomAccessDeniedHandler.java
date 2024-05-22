@@ -5,11 +5,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.changppo.account.response.exception.common.ResponseHandler;
+import org.changppo.commons.FailedResponseBody;
+import org.changppo.commons.FailedResponseBody.ErrorPayload;
+import org.changppo.commons.ResponseBody;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
-import org.changppo.utils.response.body.Response;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
@@ -29,7 +31,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         response.getWriter().write(convertToJson(responseHandler.getFailureResponse(ACCESS_DENIED_EXCEPTION)));
     }
 
-    private String convertToJson(Response response) throws IOException {
+    private String convertToJson(ResponseBody<ErrorPayload> response) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.writeValueAsString(response);
     }

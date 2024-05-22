@@ -90,8 +90,8 @@ class MemberControllerIntegrationTest {
                     get("/api/members/v1/principal")
                             .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.data.memberId").value(freeMember.getId()))
-                .andExpect(jsonPath("$.result.data.roles").value(RoleType.ROLE_FREE.name()));
+                .andExpect(jsonPath("$.result.memberId").value(freeMember.getId()))
+                .andExpect(jsonPath("$.result.roles").value(RoleType.ROLE_FREE.name()));
     }
 
     @Test
@@ -109,13 +109,13 @@ class MemberControllerIntegrationTest {
                         get("/api/members/v1/{id}", freeMember.getId())
                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.data.id").value(freeMember.getId()))
-                .andExpect(jsonPath("$.result.data.name").value(freeMember.getName()))
-                .andExpect(jsonPath("$.result.data.username").value(freeMember.getUsername()))
-                .andExpect(jsonPath("$.result.data.profileImage").value(freeMember.getProfileImage()))
-                .andExpect(jsonPath("$.result.data.role").value(RoleType.ROLE_FREE.name()))
-                .andExpect(jsonPath("$.result.data.paymentFailureBannedAt").isEmpty())
-                .andExpect(jsonPath("$.result.data.createdAt").exists());
+                .andExpect(jsonPath("$.result.id").value(freeMember.getId()))
+                .andExpect(jsonPath("$.result.name").value(freeMember.getName()))
+                .andExpect(jsonPath("$.result.username").value(freeMember.getUsername()))
+                .andExpect(jsonPath("$.result.profileImage").value(freeMember.getProfileImage()))
+                .andExpect(jsonPath("$.result.role").value(RoleType.ROLE_FREE.name()))
+                .andExpect(jsonPath("$.result.paymentFailureBannedAt").isEmpty())
+                .andExpect(jsonPath("$.result.createdAt").exists());
     }
 
     @Test
@@ -147,18 +147,18 @@ class MemberControllerIntegrationTest {
                         .param("size", String.valueOf(pageable.getPageSize()))
                         .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2AdminMember)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.data.content").isArray())
-                .andExpect(jsonPath("$.result.data.content.length()").value((int) totalMembers))
-                .andExpect(jsonPath("$.result.data.pageable.pageNumber").value(pageable.getPageNumber()))
-                .andExpect(jsonPath("$.result.data.pageable.pageSize").value(pageable.getPageSize()))
-                .andExpect(jsonPath("$.result.data.totalElements").value((int) totalMembers))
-                .andExpect(jsonPath("$.result.data.totalPages").value((int) Math.ceil((double) totalMembers / pageable.getPageSize())))
-                .andExpect(jsonPath("$.result.data.number").value(pageable.getPageNumber()))
-                .andExpect(jsonPath("$.result.data.size").value(pageable.getPageSize()))
-                .andExpect(jsonPath("$.result.data.last").value(true))
-                .andExpect(jsonPath("$.result.data.first").value(true))
-                .andExpect(jsonPath("$.result.data.numberOfElements").value((int) totalMembers))
-                .andExpect(jsonPath("$.result.data.empty").value(totalMembers == 0));
+                .andExpect(jsonPath("$.result.content").isArray())
+                .andExpect(jsonPath("$.result.content.length()").value((int) totalMembers))
+                .andExpect(jsonPath("$.result.pageable.pageNumber").value(pageable.getPageNumber()))
+                .andExpect(jsonPath("$.result.pageable.pageSize").value(pageable.getPageSize()))
+                .andExpect(jsonPath("$.result.totalElements").value((int) totalMembers))
+                .andExpect(jsonPath("$.result.totalPages").value((int) Math.ceil((double) totalMembers / pageable.getPageSize())))
+                .andExpect(jsonPath("$.result.number").value(pageable.getPageNumber()))
+                .andExpect(jsonPath("$.result.size").value(pageable.getPageSize()))
+                .andExpect(jsonPath("$.result.last").value(true))
+                .andExpect(jsonPath("$.result.first").value(true))
+                .andExpect(jsonPath("$.result.numberOfElements").value((int) totalMembers))
+                .andExpect(jsonPath("$.result.empty").value(totalMembers == 0));
     }
 
     @Test
