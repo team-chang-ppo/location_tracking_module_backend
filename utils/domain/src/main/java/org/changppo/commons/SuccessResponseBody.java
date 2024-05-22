@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 public final class SuccessResponseBody<T> extends ResponseBody<T>{
     private T result;
 
-    protected SuccessResponseBody() {
+    public SuccessResponseBody() {
         result = null;
     }
 

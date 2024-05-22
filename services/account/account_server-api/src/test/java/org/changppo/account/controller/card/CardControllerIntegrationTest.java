@@ -125,12 +125,12 @@ public class CardControllerIntegrationTest {
                         get("/api/cards/v1/{id}", kakaopayCard.getId())
                                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2NormalMember)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.data.id").value(kakaopayCard.getId()))
-                .andExpect(jsonPath("$.result.data.type").value(kakaopayCard.getType()))
-                .andExpect(jsonPath("$.result.data.issuerCorporation").value(kakaopayCard.getIssuerCorporation()))
-                .andExpect(jsonPath("$.result.data.bin").value(kakaopayCard.getBin()))
-                .andExpect(jsonPath("$.result.data.paymentGateway").value(kakaopayCard.getPaymentGateway().getPaymentGatewayType().name()))
-                .andExpect(jsonPath("$.result.data.createdAt").exists());
+                .andExpect(jsonPath("$.result.id").value(kakaopayCard.getId()))
+                .andExpect(jsonPath("$.result.type").value(kakaopayCard.getType()))
+                .andExpect(jsonPath("$.result.issuerCorporation").value(kakaopayCard.getIssuerCorporation()))
+                .andExpect(jsonPath("$.result.bin").value(kakaopayCard.getBin()))
+                .andExpect(jsonPath("$.result.paymentGateway").value(kakaopayCard.getPaymentGateway().getPaymentGatewayType().name()))
+                .andExpect(jsonPath("$.result.createdAt").exists());
     }
 
     @Test
@@ -140,12 +140,12 @@ public class CardControllerIntegrationTest {
                         get("/api/cards/v1/{id}", kakaopayCard.getId())
                                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2AdminMember)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.data.id").value(kakaopayCard.getId()))
-                .andExpect(jsonPath("$.result.data.type").value(kakaopayCard.getType()))
-                .andExpect(jsonPath("$.result.data.issuerCorporation").value(kakaopayCard.getIssuerCorporation()))
-                .andExpect(jsonPath("$.result.data.bin").value(kakaopayCard.getBin()))
-                .andExpect(jsonPath("$.result.data.paymentGateway").value(kakaopayCard.getPaymentGateway().getPaymentGatewayType().name()))
-                .andExpect(jsonPath("$.result.data.createdAt").exists());
+                .andExpect(jsonPath("$.result.id").value(kakaopayCard.getId()))
+                .andExpect(jsonPath("$.result.type").value(kakaopayCard.getType()))
+                .andExpect(jsonPath("$.result.issuerCorporation").value(kakaopayCard.getIssuerCorporation()))
+                .andExpect(jsonPath("$.result.bin").value(kakaopayCard.getBin()))
+                .andExpect(jsonPath("$.result.paymentGateway").value(kakaopayCard.getPaymentGateway().getPaymentGatewayType().name()))
+                .andExpect(jsonPath("$.result.createdAt").exists());
     }
 
     @Test
@@ -175,7 +175,7 @@ public class CardControllerIntegrationTest {
                         get("/api/cards/v1/member/me")
                                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2NormalMember)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.data.cardList.length()").value(normalMemberCardCount));
+                .andExpect(jsonPath("$.result.cardList.length()").value(normalMemberCardCount));
     }
 
     @Test
@@ -196,7 +196,7 @@ public class CardControllerIntegrationTest {
                         get("/api/cards/v1/member/{id}", normalMember.getId())
                                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2NormalMember)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.data.cardList.length()").value(normalMemberCardCount));
+                .andExpect(jsonPath("$.result.cardList.length()").value(normalMemberCardCount));
     }
 
     @Test
@@ -209,7 +209,7 @@ public class CardControllerIntegrationTest {
                         get("/api/cards/v1/member/{id}", normalMember.getId())
                                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2AdminMember)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.data.cardList.length()").value(normalMemberCardCount));
+                .andExpect(jsonPath("$.result.cardList.length()").value(normalMemberCardCount));
     }
 
     @Test
@@ -241,18 +241,18 @@ public class CardControllerIntegrationTest {
                                 .param("size", String.valueOf(pageable.getPageSize()))
                                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2AdminMember)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.data.content").isArray())
-                .andExpect(jsonPath("$.result.data.content.length()").value((int) totalCards))
-                .andExpect(jsonPath("$.result.data.pageable.pageNumber").value(pageable.getPageNumber()))
-                .andExpect(jsonPath("$.result.data.pageable.pageSize").value(pageable.getPageSize()))
-                .andExpect(jsonPath("$.result.data.totalElements").value((int) totalCards))
-                .andExpect(jsonPath("$.result.data.totalPages").value((int) Math.ceil((double) totalCards / pageable.getPageSize())))
-                .andExpect(jsonPath("$.result.data.number").value(pageable.getPageNumber()))
-                .andExpect(jsonPath("$.result.data.size").value(pageable.getPageSize()))
-                .andExpect(jsonPath("$.result.data.last").value(true))
-                .andExpect(jsonPath("$.result.data.first").value(true))
-                .andExpect(jsonPath("$.result.data.numberOfElements").value((int) totalCards))
-                .andExpect(jsonPath("$.result.data.empty").value(totalCards == 0));
+                .andExpect(jsonPath("$.result.content").isArray())
+                .andExpect(jsonPath("$.result.content.length()").value((int) totalCards))
+                .andExpect(jsonPath("$.result.pageable.pageNumber").value(pageable.getPageNumber()))
+                .andExpect(jsonPath("$.result.pageable.pageSize").value(pageable.getPageSize()))
+                .andExpect(jsonPath("$.result.totalElements").value((int) totalCards))
+                .andExpect(jsonPath("$.result.totalPages").value((int) Math.ceil((double) totalCards / pageable.getPageSize())))
+                .andExpect(jsonPath("$.result.number").value(pageable.getPageNumber()))
+                .andExpect(jsonPath("$.result.size").value(pageable.getPageSize()))
+                .andExpect(jsonPath("$.result.last").value(true))
+                .andExpect(jsonPath("$.result.first").value(true))
+                .andExpect(jsonPath("$.result.numberOfElements").value((int) totalCards))
+                .andExpect(jsonPath("$.result.empty").value(totalCards == 0));
     }
 
     @Test

@@ -3,7 +3,8 @@ package org.changppo.account.controller.auth;
 import lombok.RequiredArgsConstructor;
 import org.changppo.account.response.exception.common.ExceptionType;
 import org.changppo.account.response.exception.common.ResponseHandler;
-import org.changppo.utils.response.body.Response;
+import org.changppo.commons.FailedResponseBody.ErrorPayload;
+import org.changppo.commons.ResponseBody;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,7 +19,7 @@ public class LoginFailureController {
     private final ResponseHandler responseHandler;
 
     @GetMapping("/login")
-    public ResponseEntity<Response> loginError(@RequestParam("error") String error) {
+    public ResponseEntity<ResponseBody<ErrorPayload>> loginError(@RequestParam("error") String error) {
         ExceptionType exceptionType = getErrorType(error);
         return ResponseEntity
                 .status(exceptionType.getStatus())
