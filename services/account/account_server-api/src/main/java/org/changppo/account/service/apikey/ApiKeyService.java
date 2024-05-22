@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.changppo.account.dto.apikey.ApiKeyCreateRequest;
 import org.changppo.account.dto.apikey.ApiKeyListDto;
 import org.changppo.account.dto.apikey.ApiKeyReadAllRequest;
+import org.changppo.account.dto.apikey.ApiKeyValidationResponse;
 import org.changppo.account.entity.apikey.ApiKey;
 import org.changppo.account.entity.apikey.Grade;
 import org.changppo.account.entity.member.Member;
@@ -85,8 +86,12 @@ public class ApiKeyService {
 
     @PreAuthorize("@memberAccessEvaluator.check(#memberId)")
     public ApiKeyListDto readAll(@Param("memberId")Long memberId, ApiKeyReadAllRequest req){
-        Slice<ApiKeyDto> slice = apiKeyRepository.findAllByMemberIdOrderByAsc(memberId, req.getFirstApiKeyId(), Pageable.ofSize(req.getSize()));
+        Slice<ApiKeyDto> slice = apiKeyRepository.findAllDtosByMemberIdOrderByAsc(memberId, req.getFirstApiKeyId(), Pageable.ofSize(req.getSize()));
         return new ApiKeyListDto(slice.getNumberOfElements(), slice.hasNext(), slice.getContent());
+    }
+
+    public Page<ApiKeyDto> readList(Pageable pageable) {
+        return apiKeyRepository.findAllDtos(pageable);
     }
 
     @Transactional
@@ -94,5 +99,9 @@ public class ApiKeyService {
     public void delete(@Param("id")Long id) {
         ApiKey apiKey = apiKeyRepository.findById(id).orElseThrow(ApiKeyNotFoundException::new);
         apiKeyRepository.delete(apiKey);
+    }
+
+    public ApiKeyValidationResponse validate(Long id) {
+        return new ApiKeyValidationResponse(apiKeyRepository.isValid(id));
     }
 }

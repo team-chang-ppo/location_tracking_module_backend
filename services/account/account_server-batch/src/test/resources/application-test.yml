@@ -41,7 +41,7 @@ spring:
     show-sql: true
 
 quartz:
-  properties: security/quartz-test.properties
+  properties: quartz-test.properties
 
 #logging:
 #  level:

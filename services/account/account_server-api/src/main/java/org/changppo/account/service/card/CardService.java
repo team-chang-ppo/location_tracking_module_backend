@@ -20,10 +20,12 @@ import org.changppo.account.response.exception.card.UnsupportedPaymentGatewayExc
 import org.changppo.account.response.exception.member.MemberNotFoundException;
 import org.changppo.account.response.exception.member.RoleNotFoundException;
 import org.changppo.account.response.exception.member.UpdateAuthenticationFailureException;
-import org.changppo.account.security.oauth2.CustomOAuth2User;
+import org.changppo.account.security.sign.CustomOAuth2UserDetails;
 import org.changppo.account.service.dto.card.CardDto;
 import org.changppo.account.type.PaymentGatewayType;
 import org.changppo.account.type.RoleType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -36,10 +38,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -78,13 +80,12 @@ public class CardService {
     }
 
     private boolean hasFreeRole(Member member) {
-        return member.getMemberRoles().stream()
-                .anyMatch(memberRole -> memberRole.getRole().getRoleType() == RoleType.ROLE_FREE);
+        return member.getRole().getRoleType() == RoleType.ROLE_FREE;
     }
 
     private void upgradeRole(Member member) {
         Role normalRole = roleRepository.findByRoleType(RoleType.ROLE_NORMAL).orElseThrow(RoleNotFoundException::new);
-        member.changeRole(RoleType.ROLE_FREE, normalRole);
+        member.changeRole(normalRole);
         updateAuthentication(member);
     }
 
@@ -101,8 +102,12 @@ public class CardService {
 
     @PreAuthorize("@memberAccessEvaluator.check(#memberId)")
     public CardListDto readAll(@Param("memberId")Long memberId){
-        List<CardDto> cards = cardRepository.findAllByMemberIdOrderByAsc(memberId);
-        return new CardListDto(cards);
+        List<CardDto> cardDtos = cardRepository.findAllDtosByMemberIdOrderByAsc(memberId);
+        return new CardListDto(cardDtos);
+    }
+
+    public Page<CardDto> readList(Pageable pageable) {
+        return cardRepository.findAllDtos(pageable);
     }
 
     @Transactional
@@ -133,7 +138,7 @@ public class CardService {
 
     private void downgradeRole(Member member) {
         Role freeRole = roleRepository.findByRoleType(RoleType.ROLE_FREE).orElseThrow(RoleNotFoundException::new);
-        member.changeRole(RoleType.ROLE_NORMAL, freeRole);
+        member.changeRole(freeRole);
         updateAuthentication(member);
     }
 
@@ -166,17 +171,17 @@ public class CardService {
         );
     }
 
-    private CustomOAuth2User getPrincipal(Member member) {
-        return new CustomOAuth2User(
+    private CustomOAuth2UserDetails getPrincipal(Member member) {
+        return new CustomOAuth2UserDetails(
                 member.getId(),
                 member.getName(),
+                member.getPassword(),
                 getAuthorities(member)
         );
     }
 
     private Set<GrantedAuthority> getAuthorities(Member member) {
-        return member.getMemberRoles().stream()
-                .map(memberRole -> new SimpleGrantedAuthority(memberRole.getRole().getRoleType().name()))
-                .collect(Collectors.toSet());
+        RoleType roleType = member.getRole().getRoleType();
+        return Collections.singleton(new SimpleGrantedAuthority(roleType.name()));
     }
 }

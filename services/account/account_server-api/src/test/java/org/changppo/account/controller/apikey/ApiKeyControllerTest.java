@@ -1,6 +1,7 @@
 package org.changppo.account.controller.apikey;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.changppo.account.builder.pageable.PageableBuilder;
 import org.changppo.account.dto.apikey.ApiKeyCreateRequest;
 import org.changppo.account.dto.apikey.ApiKeyReadAllRequest;
 import org.changppo.account.service.apikey.ApiKeyService;
@@ -10,6 +11,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -34,7 +37,9 @@ class ApiKeyControllerTest {
 
     @BeforeEach
     void beforeEach() {
-        mockMvc = MockMvcBuilders.standaloneSetup(apiKeyController).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(apiKeyController)
+                .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())  // Pageable 처리를 위한 설정
+                .build();
     }
 
     @Test
@@ -97,6 +102,21 @@ class ApiKeyControllerTest {
     }
 
     @Test
+    void readListTest() throws Exception {
+        // given
+        Pageable pageable = PageableBuilder.build();
+
+        // when, then
+        mockMvc.perform(
+                        get("/api/apikeys/v1/list")
+                                .param("page", String.valueOf(pageable.getPageNumber()))
+                                .param("size", String.valueOf(pageable.getPageSize())))
+                .andExpect(status().isOk());
+
+        verify(apiKeyService).readList(pageable);
+    }
+
+    @Test
     void deleteTest() throws Exception {
         // given
         Long id = 1L;
@@ -107,5 +127,18 @@ class ApiKeyControllerTest {
                 .andExpect(status().isOk());
 
         verify(apiKeyService).delete(eq(id));
+    }
+
+    @Test
+    void validateTest() throws Exception {
+        // given
+        Long id = 1L;
+
+        // when, then
+        mockMvc.perform(
+                        get("/api/apikeys/v1/validate/{id}", id))
+                .andExpect(status().isOk());
+
+        verify(apiKeyService).validate(eq(id));
     }
 }

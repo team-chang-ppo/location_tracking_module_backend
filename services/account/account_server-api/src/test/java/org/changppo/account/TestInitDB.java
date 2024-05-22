@@ -33,9 +33,6 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -65,6 +62,8 @@ public class TestInitDB {
     @Getter
     private final String requestDeletionMemberName = "kakao_4567";
     @Getter
+    private final String adminBannedMemberName = "kakao_5678";
+    @Getter
     private final String freeApiKeyValue = "free-api-key";
     @Getter
     private final String classicApiKeyValue = "classic-api-key";
@@ -74,6 +73,8 @@ public class TestInitDB {
     private final String banForCardDeletionApiKeyValue = "ban-card-delete-api-key";
     @Getter
     private final String requestDeletionApiKeyValue = "request-delete-api-key";
+    @Getter
+    private final String adminBannedApiKeyValue = "admin-banned-api-key";
     @Getter
     private final String kakaopayCardKey = "kakaopay-card-key";
     @Getter
@@ -115,12 +116,11 @@ public class TestInitDB {
 
     private void initTestAdmin() {
         Role adminRole = roleRepository.findByRoleType(RoleType.ROLE_ADMIN).orElseThrow(RoleNotFoundException::new);
-        Role normalRole = roleRepository.findByRoleType(RoleType.ROLE_NORMAL).orElseThrow(RoleNotFoundException::new);
         Member adminMember = Member.builder()
                 .name(adminMemberName)
                 .username("admin")
                 .profileImage("adminMemberProfileImage")
-                .roles(new HashSet<>(Arrays.asList(adminRole, normalRole)))
+                .role(adminRole)
                 .build();
         memberRepository.save(adminMember);
     }
@@ -133,29 +133,36 @@ public class TestInitDB {
                 .name(freeMemberName)
                 .username("free")
                 .profileImage("freeMemberProfileImage")
-                .roles(Collections.singleton(freeRole))
+                .role(freeRole)
                 .build();
         Member normalMember = Member.builder()
                 .name(normalMemberName)
                 .username("normal")
                 .profileImage("normalMemberProfileImage")
-                .roles(Collections.singleton(normalRole))
+                .role(normalRole)
                 .build();
         Member banForPaymentFailureMember = Member.builder()
                 .name(banForPaymentFailureMemberName)
                 .username("banForPaymentFailureMember")
                 .profileImage("banForPaymentFailureMemberProfileImage")
-                .roles(Collections.singleton(normalRole))
+                .role(normalRole)
                 .build();
         banForPaymentFailureMember.banForPaymentFailure(LocalDateTime.now());
         Member requestDeletionMember = Member.builder()
                 .name(requestDeletionMemberName)
                 .username("requestDeletionMember")
                 .profileImage("requestDeletionMemberProfileImage")
-                .roles(Collections.singleton(normalRole))
+                .role(normalRole)
                 .build();
         requestDeletionMember.requestDeletion(LocalDateTime.now());
-        memberRepository.saveAll(List.of(freeMember, normalMember, banForPaymentFailureMember, requestDeletionMember));
+        Member adminBannedMember = Member.builder()
+                .name(adminBannedMemberName)
+                .username("adminBannedMember")
+                .profileImage("adminBannedMemberProfileImage")
+                .role(normalRole)
+                .build();
+        adminBannedMember.banByAdmin(LocalDateTime.now());
+        memberRepository.saveAll(List.of(freeMember, normalMember, banForPaymentFailureMember, requestDeletionMember, adminBannedMember));
     }
 
     private void initGrade() {
@@ -167,6 +174,7 @@ public class TestInitDB {
     private void initTestApiKey() {
         Member freeMember = memberRepository.findByName(freeMemberName).orElseThrow(MemberNotFoundException::new);
         Member normalMember = memberRepository.findByName(normalMemberName).orElseThrow(MemberNotFoundException::new);
+        Member adminBannedMember = memberRepository.findByName(adminBannedMemberName).orElseThrow(MemberNotFoundException::new);
         Member banForPaymentFailureMember = memberRepository.findByName(banForPaymentFailureMemberName).orElseThrow(MemberNotFoundException::new);
         Member requestDeletionMember = memberRepository.findByName(requestDeletionMemberName).orElseThrow(MemberNotFoundException::new);
         Grade freeGrade = gradeRepository.findByGradeType(GradeType.GRADE_FREE).orElseThrow(GradeNotFoundException::new);
@@ -200,7 +208,13 @@ public class TestInitDB {
                 .member(requestDeletionMember)
                 .build();
         requestDeletionApiKey.requestDeletion(LocalDateTime.now());
-        apiKeyRepository.saveAll(List.of(freeApiKey, classicApiKey, banForPaymentFailureApiKey, banForCardDeletionApiKey, requestDeletionApiKey));
+        ApiKey adminBannedApiKey = ApiKey.builder()
+                .value(adminBannedApiKeyValue)
+                .grade(classicGrade)
+                .member(adminBannedMember)
+                .build();
+        adminBannedApiKey.banByAdmin(LocalDateTime.now());
+        apiKeyRepository.saveAll(List.of(freeApiKey, classicApiKey, banForPaymentFailureApiKey, banForCardDeletionApiKey, requestDeletionApiKey, adminBannedApiKey));
     }
 
     private void initPaymentGateway() {

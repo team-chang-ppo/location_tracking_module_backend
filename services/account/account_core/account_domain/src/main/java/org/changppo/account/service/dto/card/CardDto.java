@@ -14,7 +14,7 @@ public class CardDto {
     private String issuerCorporation;
     private String bin;
     private PaymentGatewayType paymentGateway;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
 
     @QueryProjection

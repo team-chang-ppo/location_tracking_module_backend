@@ -13,32 +13,42 @@ import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
 public class JwtBasedApiKeyResolver implements ApiKeyResolver {
-    private final static String MEMBER_ID_CLAIM = "MEMBER_ID";
-    private final static String GRADE_TYPE_CLAIM = "GRADE_TYPE";
-    private final static String ID_CLAIM = "ID";
+    private static final String APIKEY_ID = "APIKEY_ID";
+    private static final String MEMBER_ID = "MEMBER_ID";
+    private static final String GRADE_TYPE = "GRADE_TYPE";
     private final JwtConfigurationProperty jwtConfigurationProperty;
 
     @Override
     public Mono<ApiKey> resolve(ServerWebExchange exchange) {
 
-        String token = exchange.getRequest().getHeaders().getFirst(GatewayConstant.API_KEY_HEADER);
+        final String token = exchange.getRequest().getHeaders().getFirst(GatewayConstant.API_KEY_HEADER);
         if (token == null) {
             return Mono.empty();
         }
 
-        DecodedJWT decodedJWT = decode(token);
-        ApiKey apiKey;
-        try {
-            Long memberId = decodedJWT.getClaim(MEMBER_ID_CLAIM).asLong();
-            String gradeTypeString = decodedJWT.getClaim(GRADE_TYPE_CLAIM).asString();
-            GradeType gradeType = GradeType.valueOf(gradeTypeString);
-            Long id = decodedJWT.getClaim(ID_CLAIM).asLong();
-            apiKey = new ApiKey(id, gradeType, memberId);
-        } catch (Exception e) {
-            throw new InvalidApiKeyException();
-        }
-        // TODO redis bitmap Check
-        return Mono.just(apiKey);
+        return Mono.defer(() -> {
+            final DecodedJWT decodedJWT;
+            try {
+                decodedJWT = decode(token);
+            } catch (InvalidApiKeyException e) {
+                if (jwtConfigurationProperty.isDenyInvalidToken()) {
+                    return Mono.error(e);
+                } else {
+                    return Mono.empty();
+                }
+            }
+            ApiKey apiKey;
+            try {
+                Long memberId = decodedJWT.getClaim(MEMBER_ID).asLong();
+                String gradeTypeString = decodedJWT.getClaim(GRADE_TYPE).asString();
+                GradeType gradeType = GradeType.valueOf(gradeTypeString);
+                Long id = decodedJWT.getClaim(APIKEY_ID).asLong();
+                apiKey = new ApiKey(id, gradeType, memberId);
+            } catch (Exception e) {
+                throw new InvalidApiKeyException();
+            }
+            return Mono.just(apiKey);
+        });
     }
 
     protected DecodedJWT decode(String token) throws InvalidApiKeyException {
@@ -49,8 +59,7 @@ public class JwtBasedApiKeyResolver implements ApiKeyResolver {
                     // reusable verifier instance
                     .build();
 
-            DecodedJWT decodedJWT = verifier.verify(token);
-            return decodedJWT;
+            return verifier.verify(token);
         } catch (JWTVerificationException exception){
             // Invalid signature/claims
             throw new InvalidApiKeyException();

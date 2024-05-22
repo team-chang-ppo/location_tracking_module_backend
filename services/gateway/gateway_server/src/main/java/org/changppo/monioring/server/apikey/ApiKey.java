@@ -1,7 +1,7 @@
 package org.changppo.monioring.server.apikey;
 
 public record ApiKey(
-        Long id,
+        Long apiKeyId,
         GradeType gradeType,
         Long memberId
 ) {

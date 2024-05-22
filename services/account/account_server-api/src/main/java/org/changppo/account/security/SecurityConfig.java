@@ -1,7 +1,8 @@
 package org.changppo.account.security;
 
 import lombok.RequiredArgsConstructor;
-import org.changppo.account.security.oauth2.*;
+import org.changppo.account.security.sign.*;
+import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -10,10 +11,16 @@ import org.springframework.security.access.expression.method.DefaultMethodSecuri
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.JdbcOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -25,6 +32,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.DelegatingSecurityContextRepository;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 @Configuration
 @EnableWebSecurity
@@ -35,21 +43,30 @@ public class SecurityConfig {
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final ClientRegistrationRepository clientRegistrationRepository;
-    private final JdbcTemplate jdbcTemplate;
     private final CustomOAuth2UserService customOAuth2UserService;
+    private final CustomUserDetailsService customUserDetailsService;
     private final CustomLoginSuccessHandler customLoginSuccessHandler;
     private final CustomLoginFailureHandler customLoginFailureHandler;
     private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {  // TODO. 동시 세션 처리 및 세션 만료 반환 값 설정
+    public SecurityFilterChain filterChain(HttpSecurity http, SessionRegistry sessionRegistry,
+                                           DelegatingSecurityContextRepository delegatingSecurityContextRepository,
+                                           OAuth2AuthorizedClientService oAuth2AuthorizedClientService) throws Exception {
         http
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .formLogin(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
 
+                .sessionManagement((sessionManagement) -> sessionManagement
+                        .sessionFixation().changeSessionId()
+                        .maximumSessions(1)
+                        .maxSessionsPreventsLogin(false)
+                        .sessionRegistry(sessionRegistry)
+                        .expiredUrl("/login?error=expired-session")
+                )
+
                 .securityContext((securityContext) -> {
-                    securityContext.securityContextRepository(delegatingSecurityContextRepository());
+                    securityContext.securityContextRepository(delegatingSecurityContextRepository);
                     securityContext.requireExplicitSave(true);
                 })
 
@@ -57,20 +74,23 @@ public class SecurityConfig {
                         exceptionConfig.authenticationEntryPoint(customAuthenticationEntryPoint).accessDeniedHandler(customAccessDeniedHandler)
                 )
 
-                .addFilterBefore(
-                        new PreOAuth2AuthorizationRequestFilter(clientRegistrationRepository, new HttpSessionOAuth2AuthorizationRequestRepository()),
-                        OAuth2LoginAuthenticationFilter.class)
+                .addFilterBefore(new PreOAuth2AuthorizationRequestFilter(clientRegistrationRepository, new HttpSessionOAuth2AuthorizationRequestRepository()), OAuth2LoginAuthenticationFilter.class)
 
                 .oauth2Login((oauth2) -> oauth2
                         .authorizedClientRepository(authorizedClientRepository())
-                        .authorizedClientService(oAuth2AuthorizedClientService(jdbcTemplate, clientRegistrationRepository))
+                        .authorizedClientService(oAuth2AuthorizedClientService)
                         .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
                                             .userService(customOAuth2UserService))
                         .successHandler(customLoginSuccessHandler)
                         .failureHandler(customLoginFailureHandler))
 
-                .logout(logout -> logout
-                        .logoutUrl("/logout/oauth2")
+                .formLogin((form) -> form
+                        .successHandler(customLoginSuccessHandler)
+                        .failureHandler(customLoginFailureHandler)
+                )
+
+                .logout((logout) -> logout
+                        .logoutUrl("/logout")
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
                         .deleteCookies("JSESSIONID")
@@ -78,25 +98,53 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/oauth2/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/login/success").hasRole("FREE")
+                        .requestMatchers(HttpMethod.GET, "/api/members/v1/list").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/members/**").hasRole("FREE")
                         .requestMatchers(HttpMethod.PUT, "/api/members/v1/request/**").hasRole("FREE")
-                        .requestMatchers(HttpMethod.PUT, "/api/members/v1/cancel/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/members/v1/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/members/**").hasRole("FREE")
                         .requestMatchers(HttpMethod.POST, "/api/apikeys/v1/createFreeKey").hasRole("FREE")
                         .requestMatchers(HttpMethod.POST, "/api/apikeys/v1/createClassicKey").hasRole("NORMAL")
+                        .requestMatchers(HttpMethod.GET, "/api/apikeys/v1/validate/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/apikeys/v1/list").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/apikeys/**").hasRole("FREE")
                         .requestMatchers(HttpMethod.DELETE, "/api/apikeys/**").hasRole("FREE")
                         .requestMatchers(HttpMethod.POST, "/api/cards/v1/kakaopay/**").hasRole("FREE")
                         .requestMatchers(HttpMethod.GET, "/api/cards/v1/kakaopay/**").hasRole("FREE")
+                        .requestMatchers(HttpMethod.GET, "/api/cards/v1/list").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/cards/**").hasRole("NORMAL")
                         .requestMatchers(HttpMethod.DELETE, "/api/cards/**").hasRole("NORMAL")
                         .requestMatchers(HttpMethod.POST, "/api/payments/**").hasRole("FREE")
+                        .requestMatchers(HttpMethod.GET, "/api/payments/v1/list").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/payments/**").hasRole("FREE")
                         .requestMatchers(HttpMethod.GET).permitAll()
                         .anyRequest().hasRole("ADMIN"));
 
         return http.build();
+    }
+
+    @Bean
+    SessionRegistry sessionRegistry() {  // TODO.추후 Redis Session 전환시 변경
+        return new SessionRegistryImpl();
+    }
+
+    @Bean
+    public static ServletListenerRegistrationBean<HttpSessionEventPublisher> httpSessionEventPublisher() {  // httpSession 변화 시 sessionRegistry 연동
+        return new ServletListenerRegistrationBean<>(new HttpSessionEventPublisher());
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http, PasswordEncoder passwordEncoder) throws Exception {
+        AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        authenticationManagerBuilder.userDetailsService(customUserDetailsService).passwordEncoder(passwordEncoder);
+        return authenticationManagerBuilder.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
     @Bean

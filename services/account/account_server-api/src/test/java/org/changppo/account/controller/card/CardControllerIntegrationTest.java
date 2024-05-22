@@ -3,6 +3,7 @@ package org.changppo.account.controller.card;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.changppo.account.TestInitDB;
 import org.changppo.account.builder.card.paymentgateway.kakaopay.KakaopayResponseBuilder;
+import org.changppo.account.builder.pageable.PageableBuilder;
 import org.changppo.account.entity.apikey.ApiKey;
 import org.changppo.account.entity.card.Card;
 import org.changppo.account.entity.member.Member;
@@ -12,7 +13,7 @@ import org.changppo.account.repository.member.MemberRepository;
 import org.changppo.account.response.exception.apikey.ApiKeyNotFoundException;
 import org.changppo.account.response.exception.card.CardNotFoundException;
 import org.changppo.account.response.exception.member.MemberNotFoundException;
-import org.changppo.account.security.oauth2.CustomOAuth2User;
+import org.changppo.account.security.sign.CustomOAuth2UserDetails;
 import org.changppo.account.type.RoleType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
@@ -70,7 +72,7 @@ public class CardControllerIntegrationTest {
     MockRestServiceServer mockServer;
     ObjectMapper objectMapper = new ObjectMapper();
     Member freeMember, normalMember, banForPaymentFailureMember, requestDeletionMember, adminMember;
-    CustomOAuth2User customOAuth2FreeMember, customOAuth2NormalMember, customOAuth2BanForPaymentFailureMember, customOAuth2RequestDeletionMember, customOAuth2AdminMember;
+    CustomOAuth2UserDetails customOAuth2FreeMember, customOAuth2NormalMember, customOAuth2BanForPaymentFailureMember, customOAuth2RequestDeletionMember, customOAuth2AdminMember;
     ApiKey freeApiKey, classicApiKey, banForPaymentFailureApiKey, banForCardDeletionApiKey, requestDeletionApiKey;
     Card kakaopayCard;
 
@@ -228,6 +230,57 @@ public class CardControllerIntegrationTest {
     }
 
     @Test
+    void readListTest() throws Exception {
+        // given
+        Pageable pageable = PageableBuilder.build();
+        long totalCards = cardRepository.count();
+        // when, then
+        mockMvc.perform(
+                        get("/api/cards/v1/list")
+                                .param("page", String.valueOf(pageable.getPageNumber()))
+                                .param("size", String.valueOf(pageable.getPageSize()))
+                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2AdminMember)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.data.content").isArray())
+                .andExpect(jsonPath("$.result.data.content.length()").value((int) totalCards))
+                .andExpect(jsonPath("$.result.data.pageable.pageNumber").value(pageable.getPageNumber()))
+                .andExpect(jsonPath("$.result.data.pageable.pageSize").value(pageable.getPageSize()))
+                .andExpect(jsonPath("$.result.data.totalElements").value((int) totalCards))
+                .andExpect(jsonPath("$.result.data.totalPages").value((int) Math.ceil((double) totalCards / pageable.getPageSize())))
+                .andExpect(jsonPath("$.result.data.number").value(pageable.getPageNumber()))
+                .andExpect(jsonPath("$.result.data.size").value(pageable.getPageSize()))
+                .andExpect(jsonPath("$.result.data.last").value(true))
+                .andExpect(jsonPath("$.result.data.first").value(true))
+                .andExpect(jsonPath("$.result.data.numberOfElements").value((int) totalCards))
+                .andExpect(jsonPath("$.result.data.empty").value(totalCards == 0));
+    }
+
+    @Test
+    void readListUnauthorizedByNoneSessionTest() throws Exception {
+        // given
+        Pageable pageable = PageableBuilder.build();
+        // when, then
+        mockMvc.perform(
+                        get("/api/cards/v1/list")
+                                .param("page", String.valueOf(pageable.getPageNumber()))
+                                .param("size", String.valueOf(pageable.getPageSize())))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void readListAccessDeniedByNotAdminTest() throws Exception {
+        // given
+        Pageable pageable = PageableBuilder.build();
+        // when, then
+        mockMvc.perform(
+                        get("/api/cards/v1/list")
+                                .param("page", String.valueOf(pageable.getPageNumber()))
+                                .param("size", String.valueOf(pageable.getPageSize()))
+                                .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2NormalMember)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     void deleteTest() throws Exception {
         // given
         String kakaopaySubscriptionInactiveResponseJson = convertToJson(KakaopayResponseBuilder.buildKakaopaySubscriptionInactiveResponse(LocalDateTime.now()));
@@ -244,7 +297,7 @@ public class CardControllerIntegrationTest {
         // then
         assertTrue(cardRepository.findById(kakaopayCard.getId()).isEmpty());
         Member member = memberRepository.findById(normalMember.getId()).orElseThrow(MemberNotFoundException::new);
-        assertTrue(member.getMemberRoles().stream().allMatch(role -> role.getRole().getRoleType() == RoleType.ROLE_FREE));
+        assertTrue(member.getRole().getRoleType() == RoleType.ROLE_FREE);
     }
 
     @Test
@@ -264,7 +317,7 @@ public class CardControllerIntegrationTest {
         // then
         assertTrue(cardRepository.findById(kakaopayCard.getId()).isEmpty());
         Member member = memberRepository.findById(normalMember.getId()).orElseThrow(MemberNotFoundException::new);
-        assertTrue(member.getMemberRoles().stream().allMatch(role -> role.getRole().getRoleType() == RoleType.ROLE_FREE));
+        assertTrue(member.getRole().getRoleType() == RoleType.ROLE_FREE);
     }
 
     @Test

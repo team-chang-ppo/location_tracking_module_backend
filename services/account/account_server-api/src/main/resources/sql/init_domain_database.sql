@@ -1,4 +1,6 @@
+-- 테이블 생성
 create table api_key (
+                         admin_banned_at timestamp(6),
                          api_key_id bigserial not null,
                          card_deletion_banned_at timestamp(6),
                          created_at timestamp(6) not null,
@@ -29,31 +31,28 @@ create table card (
 
 create table grade (
                        grade_id bigserial not null,
-                       grade_type varchar(255) not null unique check (grade_type in ('GRADE_FREE','GRADE_CLASSIC')),
+                       grade_type varchar(255) not null unique check (grade_type in ('GRADE_FREE', 'GRADE_CLASSIC')),
                        primary key (grade_id)
 );
 
 create table member (
+                        admin_banned_at timestamp(6),
                         created_at timestamp(6) not null,
                         deleted_at timestamp(6),
                         deletion_requested_at timestamp(6),
                         member_id bigserial not null,
                         modified_at timestamp(6) not null,
                         payment_failure_banned_at timestamp(6),
+                        role_id bigint not null,
                         name varchar(255) not null unique,
+                        password varchar(255),
                         profile_image varchar(255) not null,
                         username varchar(255) not null,
                         primary key (member_id)
 );
 
-create table member_role (
-                             member_id bigint not null,
-                             role_id bigint not null,
-                             primary key (member_id, role_id)
-);
-
 create table payment (
-                         amount numeric(38,2) not null,
+                         amount numeric(38, 2) not null,
                          created_at timestamp(6) not null,
                          deleted_at timestamp(6),
                          ended_at timestamp(6) not null,
@@ -64,7 +63,7 @@ create table payment (
                          bin varchar(255),
                          issuer_corporation varchar(255),
                          "key" varchar(255) unique,
-                         status varchar(255) not null check (status in ('COMPLETED_PAID','COMPLETED_FREE','FAILED')),
+                         status varchar(255) not null check (status in ('COMPLETED_PAID', 'COMPLETED_FREE', 'FAILED')),
                          type varchar(255),
                          primary key (payment_id)
 );
@@ -77,7 +76,7 @@ create table payment_gateway (
 
 create table role (
                       role_id bigserial not null,
-                      role_type varchar(255) not null unique check (role_type in ('ROLE_FREE','ROLE_NORMAL','ROLE_ADMIN')),
+                      role_type varchar(255) not null unique check (role_type in ('ROLE_FREE', 'ROLE_NORMAL', 'ROLE_ADMIN')),
                       primary key (role_id)
 );
 
@@ -94,6 +93,7 @@ create table oauth2_authorized_client (
                                           primary key (client_registration_id, principal_name)
 );
 
+-- 외래 키 제약조건 추가
 ALTER TABLE api_key
     ADD CONSTRAINT fk_api_key_grade
         FOREIGN KEY (grade_id)
@@ -114,13 +114,8 @@ ALTER TABLE card
         FOREIGN KEY (payment_gateway_id)
             REFERENCES payment_gateway (payment_gateway_id);
 
-ALTER TABLE member_role
-    ADD CONSTRAINT fk_member_role_member
-        FOREIGN KEY (member_id)
-            REFERENCES member (member_id);
-
-ALTER TABLE member_role
-    ADD CONSTRAINT fk_member_role_role
+ALTER TABLE member
+    ADD CONSTRAINT fk_member_role
         FOREIGN KEY (role_id)
             REFERENCES role (role_id);
 
@@ -129,6 +124,7 @@ ALTER TABLE payment
         FOREIGN KEY (member_id)
             REFERENCES member (member_id);
 
+-- 초기 데이터 삽입
 INSERT INTO role (role_type) VALUES ('ROLE_FREE');
 INSERT INTO role (role_type) VALUES ('ROLE_NORMAL');
 INSERT INTO role (role_type) VALUES ('ROLE_ADMIN');
