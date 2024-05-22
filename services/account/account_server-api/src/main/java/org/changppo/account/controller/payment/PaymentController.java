@@ -4,11 +4,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.changppo.account.dto.payment.PaymentListDto;
 import org.changppo.account.dto.payment.PaymentReadAllRequest;
-import org.changppo.account.service.dto.apikey.ApiKeyDto;
-import org.changppo.utils.response.body.Response;
 import org.changppo.account.security.PrincipalHandler;
 import org.changppo.account.service.dto.payment.PaymentDto;
 import org.changppo.account.service.payment.PaymentService;
+import org.changppo.commons.ResponseBody;
+import org.changppo.commons.SuccessResponseBody;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -23,34 +23,34 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PostMapping("/repayment/{id}")
-    public ResponseEntity<Response> repayment(@PathVariable(name = "id") Long id) {
+    public ResponseEntity<ResponseBody<PaymentDto>> repayment(@PathVariable(name = "id") Long id) {
         PaymentDto paymentDto = paymentService.repayment(id);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(Response.success(paymentDto));
+                .body(new SuccessResponseBody<>(paymentDto));
     }
 
     @GetMapping("/member/me")
-    public ResponseEntity<Response> readAll(@Valid @ModelAttribute PaymentReadAllRequest req) {
+    public ResponseEntity<ResponseBody<PaymentListDto>> readAll(@Valid @ModelAttribute PaymentReadAllRequest req) {
         PaymentListDto paymentListDto = paymentService.readAll(PrincipalHandler.extractId(), req);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(Response.success(paymentListDto));
+                .body(new SuccessResponseBody<>(paymentListDto));
     }
 
     @GetMapping("/member/{id}")
-    public ResponseEntity<Response> readAll(@PathVariable(name = "id") Long id, @Valid @ModelAttribute PaymentReadAllRequest req) {
+    public ResponseEntity<ResponseBody<PaymentListDto>> readAll(@PathVariable(name = "id") Long id, @Valid @ModelAttribute PaymentReadAllRequest req) {
         PaymentListDto paymentListDto = paymentService.readAll(id, req);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(Response.success(paymentListDto));
+                .body(new SuccessResponseBody<>(paymentListDto));
     }
 
     @GetMapping("/list")  // 사용자에게 제공 X
-    public ResponseEntity<Response> readList(Pageable pageable) {
+    public ResponseEntity<ResponseBody<Page<PaymentDto>>> readList(Pageable pageable) {
         Page<PaymentDto> paymentDtos = paymentService.readList(pageable);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(Response.success(paymentDtos));
+                .body(new SuccessResponseBody<>(paymentDtos));
     }
 }

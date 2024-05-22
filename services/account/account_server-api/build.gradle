@@ -20,7 +20,7 @@ repositories {
 dependencies {
     // Util
     implementation project(':services:account:account_utils')
-    implementation project(':utils:response')
+    implementation project(':utils:domain')
     implementation project(':utils:jwt')
     // Domain
     implementation project(':services:account:account_core:account_domain')

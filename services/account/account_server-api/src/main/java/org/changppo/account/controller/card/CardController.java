@@ -5,7 +5,8 @@ import org.changppo.account.dto.card.CardListDto;
 import org.changppo.account.security.PrincipalHandler;
 import org.changppo.account.service.card.CardService;
 import org.changppo.account.service.dto.card.CardDto;
-import org.changppo.utils.response.body.Response;
+import org.changppo.commons.ResponseBody;
+import org.changppo.commons.SuccessResponseBody;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -20,43 +21,43 @@ public class CardController {
     private final CardService cardService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<Response> read(@PathVariable(name = "id") Long id) {
+    public ResponseEntity<ResponseBody<CardDto>> read(@PathVariable(name = "id") Long id) {
         CardDto cardDto = cardService.read(id);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(Response.success(cardDto));
+                .body(new SuccessResponseBody<>(cardDto));
     }
 
     @GetMapping("/member/me")
-    public ResponseEntity<Response> readAllMe() {
+    public ResponseEntity<ResponseBody<CardListDto>> readAllMe() {
         CardListDto cardListDto = cardService.readAll(PrincipalHandler.extractId());
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(Response.success(cardListDto));
+                .body(new SuccessResponseBody<>(cardListDto));
     }
 
     @GetMapping("/member/{id}")
-    public ResponseEntity<Response> readAll(@PathVariable(name = "id") Long id) {
+    public ResponseEntity<ResponseBody<CardListDto>> readAll(@PathVariable(name = "id") Long id) {
         CardListDto cardListDto = cardService.readAll(id);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(Response.success(cardListDto));
+                .body(new SuccessResponseBody<>(cardListDto));
     }
 
     @GetMapping("/list")  // 사용자에게 제공 X
-    public ResponseEntity<Response> readList(Pageable pageable) {
+    public ResponseEntity<ResponseBody<Page<CardDto>>> readList(Pageable pageable) {
         Page<CardDto> cardDtos = cardService.readList(pageable);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(Response.success(cardDtos));
+                .body(new SuccessResponseBody<>(cardDtos));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Response> delete(@PathVariable(name = "id") Long id) {
+    public ResponseEntity<ResponseBody<Void>> delete(@PathVariable(name = "id") Long id) {
         cardService.delete(id);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(Response.success());
+                .body(new SuccessResponseBody<>());
     }
 
 }

@@ -103,15 +103,15 @@ public class ApiKeyControllerIntegrationTest {
                                     .content(objectMapper.writeValueAsString(req))
                                     .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
                             .andExpect(status().isCreated())
-                            .andExpect(jsonPath("$.result.data.id").exists())
-                            .andExpect(jsonPath("$.result.data.value").exists())
-                            .andExpect(jsonPath("$.result.data.grade").value(GradeType.GRADE_FREE.name()))
-                            .andExpect(jsonPath("$.result.data.paymentFailureBannedAt").isEmpty())
-                            .andExpect(jsonPath("$.result.data.cardDeletionBannedAt").isEmpty())
-                            .andExpect(jsonPath("$.result.data.createdAt").exists())
+                            .andExpect(jsonPath("$.result.id").exists())
+                            .andExpect(jsonPath("$.result.value").exists())
+                            .andExpect(jsonPath("$.result.grade").value(GradeType.GRADE_FREE.name()))
+                            .andExpect(jsonPath("$.result.paymentFailureBannedAt").isEmpty())
+                            .andExpect(jsonPath("$.result.cardDeletionBannedAt").isEmpty())
+                            .andExpect(jsonPath("$.result.createdAt").exists())
                             .andReturn();
 
-        Long id =  buildJsonNode(result, objectMapper).getLongValue("result", "data", "id");
+        Long id =  buildJsonNode(result, objectMapper).getLongValue("result", "id");
         ApiKey apiKey = apiKeyRepository.findById(id).orElseThrow(ApiKeyNotFoundException::new);
 
         // then
@@ -172,15 +172,15 @@ public class ApiKeyControllerIntegrationTest {
                                     .content(objectMapper.writeValueAsString(req))
                                     .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2NormalMember)))
                             .andExpect(status().isCreated())
-                            .andExpect(jsonPath("$.result.data.id").exists())
-                            .andExpect(jsonPath("$.result.data.value").exists())
-                            .andExpect(jsonPath("$.result.data.grade").value(GradeType.GRADE_CLASSIC.name()))
-                            .andExpect(jsonPath("$.result.data.paymentFailureBannedAt").isEmpty())
-                            .andExpect(jsonPath("$.result.data.cardDeletionBannedAt").isEmpty())
-                            .andExpect(jsonPath("$.result.data.createdAt").exists())
+                            .andExpect(jsonPath("$.result.id").exists())
+                            .andExpect(jsonPath("$.result.value").exists())
+                            .andExpect(jsonPath("$.result.grade").value(GradeType.GRADE_CLASSIC.name()))
+                            .andExpect(jsonPath("$.result.paymentFailureBannedAt").isEmpty())
+                            .andExpect(jsonPath("$.result.cardDeletionBannedAt").isEmpty())
+                            .andExpect(jsonPath("$.result.createdAt").exists())
                             .andReturn();
 
-        Long id =  buildJsonNode(result, objectMapper).getLongValue("result", "data", "id");
+        Long id =  buildJsonNode(result, objectMapper).getLongValue("result", "id");
         ApiKey apiKey = apiKeyRepository.findById(id).orElseThrow(ApiKeyNotFoundException::new);
 
         // then
@@ -251,12 +251,12 @@ public class ApiKeyControllerIntegrationTest {
                 get("/api/apikeys/v1/{id}", freeApiKey.getId())
                         .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.data.id").value(freeApiKey.getId()))
-                .andExpect(jsonPath("$.result.data.value").value(freeApiKey.getValue()))
-                .andExpect(jsonPath("$.result.data.grade").value(freeApiKey.getGrade().getGradeType().name()))
-                .andExpect(jsonPath("$.result.data.paymentFailureBannedAt").isEmpty())
-                .andExpect(jsonPath("$.result.data.cardDeletionBannedAt").isEmpty())
-                .andExpect(jsonPath("$.result.data.createdAt").exists());
+                .andExpect(jsonPath("$.result.id").value(freeApiKey.getId()))
+                .andExpect(jsonPath("$.result.value").value(freeApiKey.getValue()))
+                .andExpect(jsonPath("$.result.grade").value(freeApiKey.getGrade().getGradeType().name()))
+                .andExpect(jsonPath("$.result.paymentFailureBannedAt").isEmpty())
+                .andExpect(jsonPath("$.result.cardDeletionBannedAt").isEmpty())
+                .andExpect(jsonPath("$.result.createdAt").exists());
     }
 
     @Test
@@ -266,12 +266,12 @@ public class ApiKeyControllerIntegrationTest {
                 get("/api/apikeys/v1/{id}", freeApiKey.getId())
                         .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2AdminMember)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.data.id").value(freeApiKey.getId()))
-                .andExpect(jsonPath("$.result.data.value").value(freeApiKey.getValue()))
-                .andExpect(jsonPath("$.result.data.grade").value(freeApiKey.getGrade().getGradeType().name()))
-                .andExpect(jsonPath("$.result.data.paymentFailureBannedAt").isEmpty())
-                .andExpect(jsonPath("$.result.data.cardDeletionBannedAt").isEmpty())
-                .andExpect(jsonPath("$.result.data.createdAt").exists());
+                .andExpect(jsonPath("$.result.id").value(freeApiKey.getId()))
+                .andExpect(jsonPath("$.result.value").value(freeApiKey.getValue()))
+                .andExpect(jsonPath("$.result.grade").value(freeApiKey.getGrade().getGradeType().name()))
+                .andExpect(jsonPath("$.result.paymentFailureBannedAt").isEmpty())
+                .andExpect(jsonPath("$.result.cardDeletionBannedAt").isEmpty())
+                .andExpect(jsonPath("$.result.createdAt").exists());
     }
 
     @Test
@@ -304,9 +304,9 @@ public class ApiKeyControllerIntegrationTest {
                         .param("size", req.getSize().toString())
                         .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2FreeMember)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.data.numberOfElements").value(freeMemberApiKeyCount))
-                .andExpect(jsonPath("$.result.data.hasNext").value(false))
-                .andExpect(jsonPath("$.result.data.apiKeyList.length()").value(freeMemberApiKeyCount));
+                .andExpect(jsonPath("$.result.numberOfElements").value(freeMemberApiKeyCount))
+                .andExpect(jsonPath("$.result.hasNext").value(false))
+                .andExpect(jsonPath("$.result.apiKeyList.length()").value(freeMemberApiKeyCount));
     }
 
     @Test
@@ -387,18 +387,18 @@ public class ApiKeyControllerIntegrationTest {
                             .param("size", String.valueOf(pageable.getPageSize()))
                             .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2AdminMember)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.data.content").isArray())
-                .andExpect(jsonPath("$.result.data.content.length()").value((int) totalApiKeys))
-                .andExpect(jsonPath("$.result.data.pageable.pageNumber").value(pageable.getPageNumber()))
-                .andExpect(jsonPath("$.result.data.pageable.pageSize").value(pageable.getPageSize()))
-                .andExpect(jsonPath("$.result.data.totalElements").value((int) totalApiKeys))
-                .andExpect(jsonPath("$.result.data.totalPages").value((int) Math.ceil((double) totalApiKeys / pageable.getPageSize())))
-                .andExpect(jsonPath("$.result.data.number").value(pageable.getPageNumber()))
-                .andExpect(jsonPath("$.result.data.size").value(pageable.getPageSize()))
-                .andExpect(jsonPath("$.result.data.last").value(true))
-                .andExpect(jsonPath("$.result.data.first").value(true))
-                .andExpect(jsonPath("$.result.data.numberOfElements").value((int) totalApiKeys))
-                .andExpect(jsonPath("$.result.data.empty").value(totalApiKeys == 0));
+                .andExpect(jsonPath("$.result.content").isArray())
+                .andExpect(jsonPath("$.result.content.length()").value((int) totalApiKeys))
+                .andExpect(jsonPath("$.result.pageable.pageNumber").value(pageable.getPageNumber()))
+                .andExpect(jsonPath("$.result.pageable.pageSize").value(pageable.getPageSize()))
+                .andExpect(jsonPath("$.result.totalElements").value((int) totalApiKeys))
+                .andExpect(jsonPath("$.result.totalPages").value((int) Math.ceil((double) totalApiKeys / pageable.getPageSize())))
+                .andExpect(jsonPath("$.result.number").value(pageable.getPageNumber()))
+                .andExpect(jsonPath("$.result.size").value(pageable.getPageSize()))
+                .andExpect(jsonPath("$.result.last").value(true))
+                .andExpect(jsonPath("$.result.first").value(true))
+                .andExpect(jsonPath("$.result.numberOfElements").value((int) totalApiKeys))
+                .andExpect(jsonPath("$.result.empty").value(totalApiKeys == 0));
     }
 
     @Test
@@ -482,7 +482,7 @@ public class ApiKeyControllerIntegrationTest {
         mockMvc.perform(
                         get("/api/apikeys/v1/validate/{id}", freeApiKey.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.data.valid").value(true));
+                .andExpect(jsonPath("$.result.valid").value(true));
     }
 
     @Test
@@ -491,7 +491,7 @@ public class ApiKeyControllerIntegrationTest {
         mockMvc.perform(
                         get("/api/apikeys/v1/validate/{id}", banForCardDeletionApiKey.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.data.valid").value(false));
+                .andExpect(jsonPath("$.result.valid").value(false));
     }
 
     @Test
@@ -500,7 +500,7 @@ public class ApiKeyControllerIntegrationTest {
         mockMvc.perform(
                         get("/api/apikeys/v1/validate/{id}", banForPaymentFailureApiKey.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.data.valid").value(false));
+                .andExpect(jsonPath("$.result.valid").value(false));
     }
 
     @Test
@@ -509,7 +509,7 @@ public class ApiKeyControllerIntegrationTest {
         mockMvc.perform(
                         get("/api/apikeys/v1/validate/{id}", requestDeletionApiKey.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.data.valid").value(false));
+                .andExpect(jsonPath("$.result.valid").value(false));
     }
 
     @Test
@@ -518,6 +518,6 @@ public class ApiKeyControllerIntegrationTest {
         mockMvc.perform(
                         get("/api/apikeys/v1/validate/{id}", adminBannedApiKey.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.data.valid").value(false));
+                .andExpect(jsonPath("$.result.valid").value(false));
     }
 }
