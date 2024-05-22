@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    implementation project(':utils:response')
+    implementation project(':utils:domain')
     implementation project(':utils:jwt')
 
     // web

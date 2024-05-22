@@ -3,6 +3,8 @@ package org.changppo.tracking.api;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.changppo.commons.ResponseBody;
+import org.changppo.commons.SuccessResponseBody;
 import org.changppo.tracking.aop.TrackingContextParam;
 import org.changppo.tracking.api.request.GenerateTokenRequest;
 import org.changppo.tracking.api.request.StartTrackingRequest;
@@ -11,7 +13,6 @@ import org.changppo.tracking.api.response.GenerateTokenResponse;
 import org.changppo.tracking.api.response.TrackingResponse;
 import org.changppo.tracking.domain.TrackingContext;
 import org.changppo.tracking.service.TrackingService;
-import org.changppo.utils.response.body.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,11 +31,11 @@ public class TrackingController {
      * TODO : 토큰 헤더의 키 값은 상의 필요
      */
     @PostMapping("/generate-token")
-    public ResponseEntity<Response> generateToken(@RequestHeader("APIKEY") String apiKeyToken,
-                                                  @RequestBody @Valid GenerateTokenRequest request) {
+    public ResponseEntity<ResponseBody<GenerateTokenResponse>> generateToken(@RequestHeader("APIKEY") String apiKeyToken,
+                                                                             @RequestBody @Valid GenerateTokenRequest request) {
         GenerateTokenResponse response = trackingService.generateToken(apiKeyToken, request);
 
-        return ResponseEntity.ok().body(Response.success(response));
+        return ResponseEntity.ok().body(new SuccessResponseBody<>(response));
     }
 
     /**
@@ -47,11 +48,11 @@ public class TrackingController {
      */
     @TrackingContextParam
     @PostMapping("/start")
-    public ResponseEntity<Response> startTracking(@RequestBody @Valid StartTrackingRequest request,
+    public ResponseEntity<ResponseBody<Void>> startTracking(@RequestBody @Valid StartTrackingRequest request,
                                                   TrackingContext context) {
         trackingService.startTracking(request, context);
 
-        return ResponseEntity.ok().body(Response.success());
+        return ResponseEntity.ok().body(new SuccessResponseBody<>());
     }
 
     /**
@@ -65,11 +66,11 @@ public class TrackingController {
      */
     @TrackingContextParam
     @PostMapping("/tracking")
-    public ResponseEntity<Response> tracking(@RequestBody @Valid TrackingRequest request,
+    public ResponseEntity<ResponseBody<Void>> tracking(@RequestBody @Valid TrackingRequest request,
                                              TrackingContext context) {
         trackingService.tracking(request, context);
 
-        return ResponseEntity.ok().body(Response.success());
+        return ResponseEntity.ok().body(new SuccessResponseBody<>());
     }
 
     /**
@@ -81,10 +82,10 @@ public class TrackingController {
      */
     @TrackingContextParam
     @GetMapping("/end")
-    public ResponseEntity<Void> end(TrackingContext context) {
+    public ResponseEntity<ResponseBody<Void>> end(TrackingContext context) {
         trackingService.endTracking(context);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(new SuccessResponseBody<>());
     }
 
     /**
@@ -96,10 +97,10 @@ public class TrackingController {
      */
     @TrackingContextParam
     @GetMapping("/tracking")
-    public ResponseEntity<Response> getTracking(TrackingContext context) {
+    public ResponseEntity<ResponseBody<TrackingResponse>> getTracking(TrackingContext context) {
         TrackingResponse response = trackingService.getTracking(context);
 
-        return ResponseEntity.ok().body(Response.success(response));
+        return ResponseEntity.ok().body(new SuccessResponseBody<>(response));
     }
 
 

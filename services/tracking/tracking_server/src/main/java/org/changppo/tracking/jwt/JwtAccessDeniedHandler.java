@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.changppo.commons.FailedResponseBody;
 import org.changppo.tracking.exception.common.ErrorCode;
-import org.changppo.utils.response.body.Response;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -27,7 +27,8 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         ObjectMapper objectMapper = new ObjectMapper();
-        String errorResponse = objectMapper.writeValueAsString(Response.failure(ErrorCode.ACCESS_DENIED.getCode(), ErrorCode.ACCESS_DENIED.getMessage()));
+        String errorResponse = objectMapper.writeValueAsString(
+                new FailedResponseBody<>(ErrorCode.ACCESS_DENIED.getCode(), ErrorCode.ACCESS_DENIED.getMessage()));
         response.getWriter().write(errorResponse);
         response.flushBuffer();
         response.getWriter().close();
