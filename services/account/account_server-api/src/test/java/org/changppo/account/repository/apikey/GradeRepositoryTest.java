@@ -25,7 +25,7 @@ class GradeRepositoryTest {
     EntityManager em;
 
     @Test
-    void createAndReadTest() {
+    void createTest() {
         // given
         Grade grade = gradeRepository.save(buildGrade(GRADE_CLASSIC));
 

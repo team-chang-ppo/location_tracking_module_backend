@@ -25,7 +25,7 @@ class RoleRepositoryTest {
     EntityManager em;
 
     @Test
-    void createAndReadTest() {
+    void createTest() {
         // given
         Role role = buildRole(RoleType.ROLE_NORMAL);
 
