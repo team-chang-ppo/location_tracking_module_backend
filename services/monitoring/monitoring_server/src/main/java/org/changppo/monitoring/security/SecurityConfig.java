@@ -1,10 +1,13 @@
 package org.changppo.monitoring.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.DispatcherType;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.Ordered;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -36,7 +39,7 @@ public class SecurityConfig {
                 .requestCache(AbstractHttpConfigurer::disable)
                 .exceptionHandling(config -> {
                     config.accessDeniedHandler(new CustomAccessDeniedHandler());
-//                    config.authenticationEntryPoint()
+                    config.authenticationEntryPoint(new CustomAuthenticationEntryPoint());
                 })
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
@@ -64,6 +67,16 @@ public class SecurityConfig {
                 sessionQueryProperties,
                 restTemplateBuilder.build()
         );
+    }
+
+    @Bean
+    public FilterRegistrationBean<ErrorStateDebugFilter> errorStateDebugFilter() {
+        FilterRegistrationBean<ErrorStateDebugFilter> registrationBean = new FilterRegistrationBean<>();
+        registrationBean.setFilter(new ErrorStateDebugFilter());
+        registrationBean.addUrlPatterns("/*");
+        registrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        registrationBean.setDispatcherTypes(DispatcherType.REQUEST);
+        return registrationBean;
     }
 
 }

@@ -27,7 +27,16 @@ public class JwtBasedApiKeyResolver implements ApiKeyResolver {
         }
 
         return Mono.defer(() -> {
-            DecodedJWT decodedJWT = decode(token);
+            final DecodedJWT decodedJWT;
+            try {
+                decodedJWT = decode(token);
+            } catch (InvalidApiKeyException e) {
+                if (jwtConfigurationProperty.isDenyInvalidToken()) {
+                    return Mono.error(e);
+                } else {
+                    return Mono.empty();
+                }
+            }
             ApiKey apiKey;
             try {
                 Long memberId = decodedJWT.getClaim(MEMBER_ID).asLong();

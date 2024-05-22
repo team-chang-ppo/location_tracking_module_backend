@@ -1,9 +1,9 @@
 package org.changppo.monitoring.security;
 
 import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.changppo.commons.FailedResponseBody;
 import org.changppo.commons.ResponseBody;
 import org.changppo.commons.SuccessResponseBody;
 import org.changppo.monioring.domain.error.RemoteSessionFetchFailedException;
@@ -12,8 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.*;
 
 import java.util.List;
 
@@ -25,7 +24,7 @@ public class RestRemoteSessionRetrieveStrategy implements RemoteSessionRetrieveS
     private final RestTemplate restTemplate;
     @Nullable
     @Override
-    public RemoteSessionAuthentication retrieve(String sessionId) {
+    public RemoteSessionAuthentication retrieve(@NotNull String sessionId) {
         String sessionQueryEndpoint = sessionQueryProperties.getSessionQueryEndpoint();
         // 쿠키값 설정
 
@@ -40,20 +39,16 @@ public class RestRemoteSessionRetrieveStrategy implements RemoteSessionRetrieveS
         final ResponseEntity<ResponseBody<SessionResponsePayload>> response;
         try {
             response = restTemplate.exchange(requestEntity, SESSION_API_RESPONSE_TYPE);
-        } catch (RestClientException e) {
+        } catch (HttpServerErrorException | UnknownHttpStatusCodeException | UnknownContentTypeException | ResourceAccessException e) {
             throw new RemoteSessionFetchFailedException();
-        }
-        HttpStatusCode statusCode = response.getStatusCode();
-        ResponseBody<SessionResponsePayload> payload = response.getBody();
-        // 500
-        if (statusCode.is5xxServerError() || payload == null) {
-            throw new RemoteSessionFetchFailedException();
-        }
-        // 4xx
-        if (statusCode.is4xxClientError() || payload instanceof FailedResponseBody<?>) {
+        } catch (HttpClientErrorException e) {
+            HttpStatusCode statusCode = e.getStatusCode();
+            String payload = e.getResponseBodyAsString();
             log.debug("Failed to fetch session info. status: {}, payload: {}", statusCode, payload);
             return null;
         }
+        ResponseBody<SessionResponsePayload> payload = response.getBody();
+
         if (!(payload instanceof SuccessResponseBody<SessionResponsePayload> successResponseBody)) {
             throw new IllegalStateException("Unexpected response body type: " + payload.getClass());
         }

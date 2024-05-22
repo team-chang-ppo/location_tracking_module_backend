@@ -6,8 +6,10 @@ import org.changppo.commons.FailedResponseBody;
 import org.changppo.monioring.domain.error.ErrorCode;
 import org.springframework.boot.autoconfigure.web.servlet.error.AbstractErrorController;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorViewResolver;
+import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
@@ -15,11 +17,20 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Controller
 @RequestMapping({"${server.error.path:${error.path:/error}}"})
 public class UnhandledErrorEndpoint extends AbstractErrorController {
+    private final static ErrorAttributeOptions ERROR_ATTRIBUTE_OPTIONS;
+    private final static String ERROR_CODE = ErrorCode.INTERNAL_SERVER_ERROR.getCode();
+
+    static {
+        ERROR_ATTRIBUTE_OPTIONS = ErrorAttributeOptions.defaults();
+        ERROR_ATTRIBUTE_OPTIONS.including(ErrorAttributeOptions.Include.MESSAGE);
+        ERROR_ATTRIBUTE_OPTIONS.including(ErrorAttributeOptions.Include.EXCEPTION);
+    }
 
 
     public UnhandledErrorEndpoint(ErrorAttributes errorAttributes, List<ErrorViewResolver> errorViewResolvers) {
@@ -30,13 +41,14 @@ public class UnhandledErrorEndpoint extends AbstractErrorController {
     @RequestMapping
     public ResponseEntity<FailedResponseBody<?>> error(HttpServletRequest request) {
         log.error("Unhandled error occurred");
-        HttpStatus status = this.getStatus(request);
-        if (status == HttpStatus.NO_CONTENT) {
-            return new ResponseEntity(status);
-        } else {
-            var body = ErrorCode.INTERNAL_SERVER_ERROR.toResponse();
-            return new ResponseEntity(body, status);
-        }
+        Map<String, Object> errorAttributes = this.getErrorAttributes(request, ERROR_ATTRIBUTE_OPTIONS);
+        String message = errorAttributes.getOrDefault("message","").toString();
+        String exception = errorAttributes.getOrDefault("exception","").toString();
+        log.error("Unhandled Error Occurred and forwarded to {} with message: {} and exception: {}", request.getRequestURI(), message, exception);
+        String responseMessage = "Unexpected Server Error, message: %s, exception: %s".formatted(message, exception);
+
+        FailedResponseBody<?> responseBody = new FailedResponseBody<>(ERROR_CODE, responseMessage);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body(responseBody);
     }
 
     @ExceptionHandler({HttpMediaTypeNotAcceptableException.class})

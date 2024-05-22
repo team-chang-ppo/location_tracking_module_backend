@@ -46,6 +46,7 @@ public class RemoteSessionAuthenticationFilter extends OncePerRequestFilter {
             ErrorCode errorCode = e.getErrorCode();
             FailedResponseBody<?> failedResponseBody = errorCode.toResponse();
             response.setStatus(errorCode.getResponseStatus());
+            response.setContentType("application/json");
             response.getWriter().write(objectMapper.writeValueAsString(failedResponseBody));
         }
 

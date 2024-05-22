@@ -75,8 +75,9 @@ public class ApiMeteringGatewayFilter implements GlobalFilter, Ordered {
                     //TODO 에러 코드 파싱 로직
                     //event.setErrorCode(doIfNotNull(exchange.getResponse().getStatusCode(), ErrorCode::valueOf));
                     return apiMeteringEventPublisher.publish(event)
-                            .onErrorResume(throwable -> {
-                                log.error("Failed to publish event", throwable);
+                            .onErrorResume(e -> {
+                                log.error("Failed to publish api usage event", e);
+                                // 에러가 발생해도, 무시한다.
                                 return Mono.empty();
                             });
                 }));

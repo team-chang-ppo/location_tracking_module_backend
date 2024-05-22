@@ -1,0 +1,32 @@
+#spring.application.name=gateway
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: aggregation-ping
+          uri: ${AGGREGATION_URI}
+          predicates:
+            - Path=/api/aggregation/v1/ping
+        - id: aggregation-cost
+          uri: ${AGGREGATION_URI}
+          predicates:
+            - Path=/api/aggregation/v1/member/**
+#        - id: aggregation
+#          uri: http://localhost:8010
+#          predicates:
+#            - Path=/api/aggregation/**
+#          filters:
+#            - name: ApiRateLimiter
+#              args:
+#                contextResolver: "#{@apiRateContextResolver}"
+#                rateLimiter: "#{@apiKeyRateLimiter}"
+#                requestedTokens: 100
+#                notAllowedStatus: TOO_MANY_REQUESTS
+#                denyEmptyKey: true
+#                emptyKeyStatus: UNAUTHORIZED
+  kafka:
+    producer:
+      bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}

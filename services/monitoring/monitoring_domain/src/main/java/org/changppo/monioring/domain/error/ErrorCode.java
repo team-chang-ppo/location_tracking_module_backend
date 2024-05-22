@@ -10,6 +10,7 @@ public enum ErrorCode {
     INTERNAL_SERVER_ERROR("M0003", "Internal Server Error", 500),
     HTTP_MEDIA_TYPE_NOT_ACCEPTABLE("M0004", "Http Media Type Not Acceptable", 406),
     REMOTE_SESSION_FETCH_FAILED("M0005", "Remote Session Fetch Failed", 500),
+    VALID_AUTHENTICATION_REQUIRED("M0006", "Valid Authentication Required", 401),
     ;
     private final String code;
     private final String message;

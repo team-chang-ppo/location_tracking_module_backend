@@ -43,7 +43,8 @@ public class RateLimiterConfig {
 
     @Bean
     public ApiRateLimiterGatewayFilterFactory requestRateLimiterGatewayFilterFactory(ApiRateLimiter rateLimiter,
-                                                                                     ApiRateContextResolver resolver) {
+                                                                                     ApiRateContextResolver resolver
+    ) {
         return new ApiRateLimiterGatewayFilterFactory(rateLimiter, resolver);
     }
 
