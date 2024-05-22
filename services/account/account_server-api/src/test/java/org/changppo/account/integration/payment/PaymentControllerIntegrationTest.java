@@ -1,7 +1,7 @@
-package org.changppo.account.controller.payment;
+package org.changppo.account.integration.payment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.changppo.account.TestInitDB;
+import org.changppo.account.integration.TestInitDB;
 import org.changppo.account.builder.pageable.PageableBuilder;
 import org.changppo.account.dto.payment.PaymentReadAllRequest;
 import org.changppo.account.entity.apikey.ApiKey;

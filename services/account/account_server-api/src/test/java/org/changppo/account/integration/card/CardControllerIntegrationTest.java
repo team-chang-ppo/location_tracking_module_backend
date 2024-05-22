@@ -1,7 +1,7 @@
-package org.changppo.account.controller.card;
+package org.changppo.account.integration.card;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.changppo.account.TestInitDB;
+import org.changppo.account.integration.TestInitDB;
 import org.changppo.account.builder.card.paymentgateway.kakaopay.KakaopayResponseBuilder;
 import org.changppo.account.builder.pageable.PageableBuilder;
 import org.changppo.account.entity.apikey.ApiKey;

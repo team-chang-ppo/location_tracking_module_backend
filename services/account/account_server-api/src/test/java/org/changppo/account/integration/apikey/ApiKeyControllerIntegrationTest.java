@@ -1,7 +1,7 @@
-package org.changppo.account.controller.apikey;
+package org.changppo.account.integration.apikey;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.changppo.account.TestInitDB;
+import org.changppo.account.integration.TestInitDB;
 import org.changppo.account.builder.pageable.PageableBuilder;
 import org.changppo.account.dto.apikey.ApiKeyCreateRequest;
 import org.changppo.account.dto.apikey.ApiKeyReadAllRequest;

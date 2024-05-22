@@ -1,6 +1,6 @@
-package org.changppo.account.controller.member;
+package org.changppo.account.integration.member;
 
-import org.changppo.account.TestInitDB;
+import org.changppo.account.integration.TestInitDB;
 import org.changppo.account.builder.pageable.PageableBuilder;
 import org.changppo.account.entity.member.Member;
 import org.changppo.account.repository.member.MemberRepository;

@@ -1,4 +1,4 @@
-package org.changppo.account;
+package org.changppo.account.integration;
 
 import jakarta.transaction.Transactional;
 import lombok.Getter;
