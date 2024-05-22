@@ -43,6 +43,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-configuration-processor:3.2.0'
     // aop
     implementation 'org.springframework.boot:spring-boot-starter-aop'
+    // feign client
+    implementation platform("org.springframework.cloud:spring-cloud-dependencies:2023.0.1")
+    implementation "org.springframework.cloud:spring-cloud-starter-openfeign"
     // test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
