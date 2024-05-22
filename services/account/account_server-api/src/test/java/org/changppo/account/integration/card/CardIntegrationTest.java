@@ -52,7 +52,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles(value = "test")
 @Transactional
-public class CardControllerIntegrationTest {
+public class CardIntegrationTest {
 
     @Autowired
     WebApplicationContext context;
