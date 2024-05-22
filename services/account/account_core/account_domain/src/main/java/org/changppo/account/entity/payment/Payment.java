@@ -69,8 +69,4 @@ public class Payment extends EntityDate {
         this.key = key;
         this.cardInfo = cardInfo;
     }
-
-    public void delete(LocalDateTime time) {
-        this.deletedAt = time;
-    }
 }
