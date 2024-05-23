@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 public record TrackingRedisEntity(
         String trackingId,
-        String apiKeyId,
+        Long apiKeyId,
         @JsonSerialize(using = LocalDateTimeSerializer.class)
         @JsonDeserialize(using = LocalDateTimeDeserializer.class)
         LocalDateTime endedAt

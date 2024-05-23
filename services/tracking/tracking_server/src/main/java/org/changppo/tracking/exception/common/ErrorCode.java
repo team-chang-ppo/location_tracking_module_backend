@@ -9,7 +9,9 @@ public enum ErrorCode {
     // Common
     INVALID_INPUT_VALUE(400, "COMMON_0001", "요청한 값이 올바르지 않습니다."),
     RESOURCE_NOT_FOUND(400, "COMMON_0002", "해당 리소스를 찾을 수 없습니다."),
-    UNEXPECTED_SERVER_ERROR(500, "COMMON_0003", "예상치 못한 서버 에러가 발생했습니다."),
+    HEADER_NOT_FOUND(400, "COMMON_0003", "헤더의 값이 올바르지 않습니다."),
+    APIKEY_INVALID(401, "COMMON_0004","APIKEY의 상태가 올바르지 않습니다."),
+    UNEXPECTED_SERVER_ERROR(500, "COMMON_0005", "예상치 못한 서버 에러가 발생했습니다."),
 
     // tracking - coordinates
     TRACKING_DUPLICATE(409,"TRACKING_0001","TRACKING 중복되는 정보가 있습니다."),

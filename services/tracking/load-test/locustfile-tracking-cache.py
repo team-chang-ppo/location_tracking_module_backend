@@ -6,8 +6,8 @@ import json
 
 class TrackingCacheV1(FastHttpUser):
     wait_time = between(1, 3)
-    connection_timeout = 10.0
-    network_timeout = 10.0
+    connection_timeout = 2.0
+    network_timeout = 5.0
 
     def on_start(self):
         # 토큰 발급 로직
@@ -56,4 +56,8 @@ class TrackingCacheV1(FastHttpUser):
             "/api/tracking/v1/tracking",
             headers=headers)
 
-
+    def on_stop(self):
+        headers = {'Authorization': f'Bearer {self.token}'}
+        self.client.get(
+                    "/api/tracking/v1/end",
+                    headers=headers)
