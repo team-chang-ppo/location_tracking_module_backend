@@ -69,4 +69,8 @@ public class Payment extends EntityDate {
         this.key = key;
         this.cardInfo = cardInfo;
     }
+
+    public boolean isDeleted() {
+        return this.deletedAt != null;
+    }
 }
