@@ -1,6 +1,7 @@
 package org.changppo.tracking.jwt;
 
 import org.changppo.tracking.domain.TrackingContext;
+import org.changppo.utils.jwt.tracking.TrackingJwtClaims;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -8,13 +9,21 @@ import java.util.Collection;
 import java.util.List;
 
 public record JwtAuthentication(
+        Long memberId,
+        String gradeType,
         String trackingId,
-        String apiKeyId,
+        Long apiKeyId,
         List<String> scopes
 ) implements Authentication {
 
-    public JwtAuthentication(TrackingContext principal) {
-        this(principal.trackingId(), principal.apiKeyId(), principal.scopes());
+    public JwtAuthentication(TrackingJwtClaims claims) {
+        this(
+                claims.getMemberId(),
+                claims.getGradeType(),
+                claims.getTrackingId(),
+                claims.getApikeyId(),
+                claims.getScopes()
+        );
     }
 
     @Override

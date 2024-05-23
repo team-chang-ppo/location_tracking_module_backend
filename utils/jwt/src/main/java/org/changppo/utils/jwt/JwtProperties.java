@@ -22,5 +22,6 @@ public class JwtProperties {  // TODO. 건우가 trackingToken에 맞게 구현
     public static class TrackingToken {
         private String secretKey;
         private String issuer;
+        private int expireIn;
     }
 }

@@ -7,6 +7,8 @@ import org.changppo.tracking.jwt.JwtAccessDeniedHandler;
 import org.changppo.tracking.jwt.JwtAuthenticationEntryPoint;
 import org.changppo.tracking.jwt.TokenProvider;
 import org.changppo.tracking.jwt.filter.JwtAuthenticationFilter;
+import org.changppo.tracking.service.TrackingService;
+import org.changppo.utils.jwt.tracking.TrackingJwtHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -31,7 +33,10 @@ public class SecurityConfig {
     private final AccessDeniedHandler accessDeniedHandler;
 
     @Bean
-    public SecurityFilterChain httpSecurity(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
+    public SecurityFilterChain httpSecurity(HttpSecurity http,
+                                            AuthenticationManager authenticationManager,
+                                            TrackingJwtHandler trackingJwtHandler,
+                                            TrackingService trackingService) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
@@ -45,11 +50,11 @@ public class SecurityConfig {
                         .requestMatchers("/api/tracking/*/generate-token").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/tracking/*/start").hasAuthority("WRITE_TRACKING_COORDINATE")
                         .requestMatchers(HttpMethod.POST, "/api/tracking/*/tracking").hasAuthority("WRITE_TRACKING_COORDINATE")
-                        .requestMatchers(HttpMethod.DELETE, "api/tracking/*/finish").hasAuthority("WRITE_TRACKING_COORDINATE")
+                        .requestMatchers(HttpMethod.GET, "api/tracking/*/end").hasAuthority("WRITE_TRACKING_COORDINATE")
                         .requestMatchers(HttpMethod.GET, "/api/tracking/*/tracking").hasAuthority("READ_TRACKING_COORDINATE")
                         .anyRequest().authenticated())
 
-                .addFilterAfter(new JwtAuthenticationFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(new JwtAuthenticationFilter(authenticationManager, trackingJwtHandler,trackingService), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
                         .accessDeniedHandler(accessDeniedHandler));

@@ -18,7 +18,7 @@ public class Tracking {
     @Id
     private String id;
 
-    private String apiKeyId;
+    private Long apiKeyId;
 
     private List<String> scope;
 
@@ -41,7 +41,7 @@ public class Tracking {
     private List<Coordinates> coordinatesList;
 
     @Builder
-    public Tracking(String id, String apiKeyId, List<String> scope, double startLatitude, double startLongitude, double endLatitude, double endLongitude, Long estimatedArrivalTime, LocalDateTime startedAt) {
+    public Tracking(String id, Long apiKeyId, List<String> scope, double startLatitude, double startLongitude, double endLatitude, double endLongitude, Long estimatedArrivalTime, LocalDateTime startedAt) {
         this.id = id;
         this.apiKeyId = apiKeyId;
         this.scope = scope;

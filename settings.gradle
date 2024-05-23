@@ -1,4 +1,4 @@
-rootProject.name = 'location_tracking_model'
+rootProject.name = 'location_tracking_module'
 
 include(':services:gateway:gateway_server')
 include('services:gateway:gateway_domain')
@@ -14,6 +14,7 @@ include('services:account:account_core:account_infra')
 include('services:account:account_utils')
 findProject(':services:account:account_utils')?.name = 'account_utils'
 
-include(':utils:response')
+include(':services:tracking:tracking_server')
+
 include(':utils:jwt')
 include(':utils:domain')

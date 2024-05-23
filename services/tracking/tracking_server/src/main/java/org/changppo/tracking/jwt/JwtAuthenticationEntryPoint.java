@@ -5,9 +5,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.changppo.commons.FailedResponseBody;
 import org.changppo.tracking.exception.common.ErrorCode;
-import org.changppo.tracking.exception.common.ErrorResponse;
-import org.changppo.tracking.jwt.exception.JwtAuthenticationException;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -33,7 +32,8 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         ObjectMapper objectMapper = new ObjectMapper();
-        String errorResponse = objectMapper.writeValueAsString(ErrorResponse.of(ErrorCode.REQUIRED_AUTHENTICATION, null));
+        String errorResponse = objectMapper.writeValueAsString(
+                new FailedResponseBody<>(ErrorCode.REQUIRED_AUTHENTICATION.getCode(), ErrorCode.REQUIRED_AUTHENTICATION.getMessage()));
         response.getWriter().write(errorResponse);
         response.flushBuffer();
         response.getWriter().close();

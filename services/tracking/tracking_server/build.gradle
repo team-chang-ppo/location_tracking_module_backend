@@ -1,57 +1,61 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.2.4'
-	id 'io.spring.dependency-management' version '1.1.4'
+    id 'java'
+    id 'org.springframework.boot' version '3.2.5'
+    id 'io.spring.dependency-management' version '1.1.4'
 }
 
 group = 'org.changppo'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	sourceCompatibility = '17'
-}
-
-configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    sourceCompatibility = '17'
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	// web
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	// valid
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	// security
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-	// mongodb
-	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
-	// redis
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-	// jackson
-	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
-	implementation 'com.fasterxml.jackson.core:jackson-databind'
-	// lombok
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
-	// jwt
-	implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
-	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
-	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
-	// ConfigurationProperties
-	implementation 'org.springframework.boot:spring-boot-configuration-processor:3.2.0'
-	// aop
-	implementation 'org.springframework.boot:spring-boot-starter-aop'
-	// test
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.security:spring-security-test'
-	testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:4.12.2'
+    implementation project(':utils:domain')
+    implementation project(':utils:jwt')
+
+    // web
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    // valid
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    // security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    // mongodb
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    // redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    // jpa
+    // implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    // jackson
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    // lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    // jwt
+    implementation 'io.jsonwebtoken:jjwt:0.12.3'
+    // ConfigurationProperties
+    implementation 'org.springframework.boot:spring-boot-configuration-processor:3.2.0'
+    // aop
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    // feign client
+    implementation platform("org.springframework.cloud:spring-cloud-dependencies:2023.0.1")
+    implementation "org.springframework.cloud:spring-cloud-starter-openfeign"
+    // test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:4.12.2'
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
+}
+
+task prepareKotlinBuildScriptModel {
+
 }

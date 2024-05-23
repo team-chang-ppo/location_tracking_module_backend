@@ -4,7 +4,7 @@ import java.util.List;
 
 public record TrackingContext(
         String trackingId,
-        String apiKeyId,
+        Long apiKeyId,
         List<String> scopes
 ) {
 }
