@@ -41,7 +41,7 @@ public class MemberDomainService {
         return memberRepository.findByIdWithRoles(memberId).orElseThrow(MemberNotFoundException::new);
     }
 
-    public Optional<Member> getMemberByNameWithRoles(String name) {
+    public Optional<Member> getOptionalMemberByNameWithRoles(String name) {
         return memberRepository.findByNameWithRoles(name);
     }
 

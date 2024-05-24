@@ -1,5 +1,6 @@
 package org.changppo.account.service.domain.member;
 
+import org.assertj.core.api.AssertionsForClassTypes;
 import org.changppo.account.entity.member.Member;
 import org.changppo.account.entity.member.Role;
 import org.changppo.account.repository.member.RoleRepository;
@@ -37,6 +38,18 @@ public class RoleDomainServiceTest {
         freeRole = new Role(RoleType.ROLE_FREE);
         normalRole = new Role(RoleType.ROLE_NORMAL);
         member = buildMember(freeRole);
+    }
+
+    @Test
+    void getRoleByTypeTest() {
+        // given
+        given(roleRepository.findByRoleType(RoleType.ROLE_FREE)).willReturn(Optional.of(freeRole));
+
+        // when
+        Role result = roleDomainService.getRoleByType(RoleType.ROLE_FREE);
+
+        // then
+        AssertionsForClassTypes.assertThat(result).isEqualTo(freeRole);
     }
 
     @Test

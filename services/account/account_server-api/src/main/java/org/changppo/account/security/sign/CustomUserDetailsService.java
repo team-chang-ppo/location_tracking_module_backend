@@ -21,7 +21,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public CustomOAuth2UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Member member = memberDomainService.getMemberByNameWithRoles(username).orElseThrow(MemberNotFoundException::new);
+        Member member = memberDomainService.getOptionalMemberByNameWithRoles(username).orElseThrow(MemberNotFoundException::new);
 
         return new CustomOAuth2UserDetails(
                 member.getId(),

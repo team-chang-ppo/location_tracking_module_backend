@@ -74,7 +74,7 @@ public class ApiKeyDomainServiceTest {
         ApiKey createdApiKey = apiKeyDomainService.createKey(member, grade);
 
         // then
-        assertThat(createdApiKey.getValue()).isEqualTo(tokenValue);
+        assertThat(createdApiKey).isEqualTo(apiKey);
     }
 
     @Test

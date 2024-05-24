@@ -1,5 +1,6 @@
 package org.changppo.account.service.domain.member;
 
+import org.assertj.core.api.Assertions;
 import org.changppo.account.builder.member.MemberDtoBuilder;
 import org.changppo.account.entity.member.Member;
 import org.changppo.account.entity.member.Role;
@@ -46,6 +47,19 @@ public class MemberDomainServiceTest {
     }
 
     @Test
+    void createMemberTest() {
+        // given
+        Member member = buildMember(role);
+        given(memberRepository.save(any(Member.class))).willReturn(member);
+
+        // when
+        Member createdMember = memberDomainService.createMember(member.getName(), member.getUsername(), member.getProfileImage(), member.getRole());
+
+        // then
+        Assertions.assertThat(createdMember).isEqualTo(member);
+    }
+
+    @Test
     void getMemberTest() {
         // given
         Member member = buildMember(role);
@@ -87,6 +101,19 @@ public class MemberDomainServiceTest {
 
         // when, then
         assertThatThrownBy(() -> memberDomainService.getMemberWithRoles(1L)).isInstanceOf(MemberNotFoundException.class);
+    }
+
+    @Test
+    void getOptionalMemberByNameWithRolesTest() {
+        // given
+        Member member = buildMember(role);
+        given(memberRepository.findByNameWithRoles(member.getName())).willReturn(Optional.of(member));
+
+        // when
+        Optional<Member> result = memberDomainService.getOptionalMemberByNameWithRoles(member.getName());
+
+        // then
+        assertThat(result.get()).isEqualTo(member);
     }
 
     @Test

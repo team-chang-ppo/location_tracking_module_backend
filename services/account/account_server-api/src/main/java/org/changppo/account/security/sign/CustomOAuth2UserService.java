@@ -35,7 +35,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         OAuth2Response oAuth2Response = OAuth2ResponseFactory.getOAuth2Response(registrationId, oAuth2User.getAttributes());
         String name = oAuth2Response.getProvider() + "_" + oAuth2Response.getProviderId();
 
-        Member member = memberDomainService.getMemberByNameWithRoles(name)
+        Member member = memberDomainService.getOptionalMemberByNameWithRoles(name)
                 .map(existingMember -> {
                     if (existingMember.isDeletionRequested()) {
                         throw new MemberDeletionRequestedException("Member deletion requested");
