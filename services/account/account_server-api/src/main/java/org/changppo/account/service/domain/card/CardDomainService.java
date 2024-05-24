@@ -44,7 +44,7 @@ public class CardDomainService {
         return cardRepository.findAllDtosByMemberIdOrderByAsc(memberId);
     }
 
-    public boolean isLastCard(Long memberId) {
+    public boolean isLastCard(Long memberId) {  // TODO. 동시성 문제 확인
         return cardRepository.countByMemberId(memberId) == 0;
     }
 

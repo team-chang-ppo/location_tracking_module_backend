@@ -17,7 +17,6 @@ public class GradeDomainService {
     private final GradeRepository gradeRepository;
 
     public Grade getGradeByType(GradeType gradeType) {
-        return gradeRepository.findByGradeType(gradeType)
-                .orElseThrow(GradeNotFoundException::new);
+        return gradeRepository.findByGradeType(gradeType).orElseThrow(GradeNotFoundException::new);
     }
 }
