@@ -73,7 +73,7 @@ public class MemberServiceTest {
         Pageable pageable = buildPage();
         MemberDto memberDto = buildMemberDto(role);
         List<MemberDto> memberDtos = List.of(memberDto, memberDto);
-        Page<MemberDto> page = new PageImpl<>(memberDtos, pageable, 2);
+        Page<MemberDto> page = new PageImpl<>(memberDtos, pageable, memberDtos.size());
         given(memberDomainService.getMemberDtoPage(any(Pageable.class))).willReturn(page);
 
         // when

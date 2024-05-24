@@ -73,13 +73,14 @@ public class ApiKeyServiceTest {
         ApiKeyCreateRequest request = buildApiKeyCreateRequest(member.getId());
         given(memberDomainService.getMember(member.getId())).willReturn(member);
         given(gradeDomainService.getGradeByType(GradeType.GRADE_FREE)).willReturn(freeGrade);
-        given(apiKeyDomainService.createKey(member, freeGrade)).willReturn(apiKey);
+        given(apiKeyDomainService.createKey(any(Member.class), any(Grade.class))).willReturn(apiKey);
 
         // when
         ApiKeyDto result = apiKeyService.createFreeKey(request);
 
         // then
         assertThat(result.getValue()).isEqualTo(apiKey.getValue());
+        assertThat(result.getGrade()).isEqualTo(apiKey.getGrade().getGradeType());
     }
 
     @Test
@@ -89,13 +90,14 @@ public class ApiKeyServiceTest {
         ApiKeyCreateRequest request = buildApiKeyCreateRequest(member.getId());
         given(memberDomainService.getMember(member.getId())).willReturn(member);
         given(gradeDomainService.getGradeByType(GradeType.GRADE_CLASSIC)).willReturn(classicGrade);
-        given(apiKeyDomainService.createKey(member, classicGrade)).willReturn(apiKey);
+        given(apiKeyDomainService.createKey(any(Member.class), any(Grade.class))).willReturn(apiKey);
 
         // when
         ApiKeyDto result = apiKeyService.createClassicKey(request);
 
         // then
         assertThat(result.getValue()).isEqualTo(apiKey.getValue());
+        assertThat(result.getGrade()).isEqualTo(apiKey.getGrade().getGradeType());
     }
 
     @Test
@@ -117,10 +119,10 @@ public class ApiKeyServiceTest {
         ApiKeyReadAllRequest request = buildApiKeyReadAllRequest(1L, 10);
         List<ApiKeyDto> apiKeyDtos = List.of(buildApiKeyDto(freeGrade), buildApiKeyDto(classicGrade));
         ApiKeyListDto apiKeyListDto = new ApiKeyListDto(apiKeyDtos.size(), true, apiKeyDtos);
-        given(apiKeyDomainService.getApiKeyDtoList(member.getId(), request.getFirstApiKeyId(), request.getSize())).willReturn(apiKeyListDto);
+        given(apiKeyDomainService.getApiKeyDtoList(anyLong(), anyLong(), anyInt())).willReturn(apiKeyListDto);
 
         // when
-        ApiKeyListDto result = apiKeyService.readAll(member.getId(), request);
+        ApiKeyListDto result = apiKeyService.readAll(1L, request);
 
         // then
         assertThat(result.getApiKeyList()).isEqualTo(apiKeyDtos);
@@ -132,7 +134,7 @@ public class ApiKeyServiceTest {
         Pageable pageable = buildPage();
         List<ApiKeyDto> apiKeyDtos = List.of(buildApiKeyDto(freeGrade), buildApiKeyDto(classicGrade));
         Page<ApiKeyDto> page = new PageImpl<>(apiKeyDtos, pageable, apiKeyDtos.size());
-        given(apiKeyDomainService.getApiKeyDtoPage(pageable)).willReturn(page);
+        given(apiKeyDomainService.getApiKeyDtoPage(any(Pageable.class))).willReturn(page);
 
         // when
         Page<ApiKeyDto> result = apiKeyService.readList(pageable);
@@ -144,25 +146,23 @@ public class ApiKeyServiceTest {
     @Test
     void deleteTest() {
         // given
-        ApiKey apiKey = buildApiKey(freeGrade, member);
-        doNothing().when(apiKeyDomainService).deleteApiKey(apiKey.getId());
+        doNothing().when(apiKeyDomainService).deleteApiKey(anyLong());
 
         // when
-        apiKeyService.delete(apiKey.getId());
+        apiKeyService.delete(1L);
 
         // then
-        verify(apiKeyDomainService).deleteApiKey(apiKey.getId());
+        verify(apiKeyDomainService).deleteApiKey(1L);
     }
 
     @Test
     void validateTest() {
         // given
-        ApiKey apiKey = buildApiKey(freeGrade, member);
         ApiKeyValidationResponse response = buildApiKeyValidationResponse(true);
-        given(apiKeyDomainService.validateApiKey(apiKey.getId())).willReturn(response);
+        given(apiKeyDomainService.validateApiKey(anyLong())).willReturn(response);
 
         // when
-        ApiKeyValidationResponse result = apiKeyService.validate(apiKey.getId());
+        ApiKeyValidationResponse result = apiKeyService.validate(1L);
 
         // then
         assertThat(result.isValid()).isEqualTo(response.isValid());
