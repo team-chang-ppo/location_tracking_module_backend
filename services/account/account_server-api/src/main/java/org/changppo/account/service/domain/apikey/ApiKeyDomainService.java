@@ -1,11 +1,29 @@
 package org.changppo.account.service.domain.apikey;
 
 import lombok.RequiredArgsConstructor;
+import org.changppo.account.dto.apikey.ApiKeyListDto;
+import org.changppo.account.dto.apikey.ApiKeyReadAllRequest;
+import org.changppo.account.dto.apikey.ApiKeyValidationResponse;
+import org.changppo.account.entity.apikey.ApiKey;
+import org.changppo.account.entity.apikey.Grade;
+import org.changppo.account.entity.member.Member;
 import org.changppo.account.repository.apikey.ApiKeyRepository;
+import org.changppo.account.repository.apikey.GradeRepository;
+import org.changppo.account.response.exception.apikey.ApiKeyNotFoundException;
+import org.changppo.account.response.exception.apikey.GradeNotFoundException;
+import org.changppo.account.service.dto.apikey.ApiKeyDto;
+import org.changppo.account.type.GradeType;
+import org.changppo.utils.jwt.apikey.ApiKeyJwtClaims;
+import org.changppo.utils.jwt.apikey.ApiKeyJwtHandler;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -13,6 +31,55 @@ import java.time.LocalDateTime;
 public class ApiKeyDomainService {
 
     private final ApiKeyRepository apiKeyRepository;
+    private final GradeRepository gradeRepository;
+    private final ApiKeyJwtHandler apiKeyJwtHandler;
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public ApiKeyDto createKey(Member member, GradeType gradeType) {
+        Grade grade = gradeRepository.findByGradeType(gradeType).orElseThrow(GradeNotFoundException::new);
+        ApiKey apiKey = ApiKey.builder()
+                .value(generateTemporaryValue())
+                .grade(grade)
+                .member(member)
+                .build();
+        apiKey = apiKeyRepository.save(apiKey);
+        apiKey.updateValue(generateTokenValue(apiKey));
+        return new ApiKeyDto(apiKey.getId(), apiKey.getValue(), apiKey.getGrade().getGradeType(),
+                apiKey.getPaymentFailureBannedAt(), apiKey.getCardDeletionBannedAt(), apiKey.getCreatedAt());
+    }
+
+    public ApiKeyDto getApiKeyDto(Long id) {
+        ApiKey apiKey = apiKeyRepository.findById(id).orElseThrow(ApiKeyNotFoundException::new);
+        return new ApiKeyDto(apiKey.getId(), apiKey.getValue(), apiKey.getGrade().getGradeType(),
+                apiKey.getPaymentFailureBannedAt(), apiKey.getCardDeletionBannedAt(), apiKey.getCreatedAt());
+    }
+
+    public ApiKeyListDto getApiKeyList(Long memberId, ApiKeyReadAllRequest req) {
+        Slice<ApiKeyDto> slice = apiKeyRepository.findAllDtosByMemberIdOrderByAsc(memberId, req.getFirstApiKeyId(), Pageable.ofSize(req.getSize()));
+        return new ApiKeyListDto(slice.getNumberOfElements(), slice.hasNext(), slice.getContent());
+    }
+
+    public Page<ApiKeyDto> getApiKeyDtos(Pageable pageable) {
+        return apiKeyRepository.findAllDtos(pageable);
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void deleteApiKey(Long id) {
+        ApiKey apiKey = apiKeyRepository.findById(id).orElseThrow(ApiKeyNotFoundException::new);
+        apiKeyRepository.delete(apiKey);
+    }
+
+    public ApiKeyValidationResponse validateApiKey(Long id) {
+        return new ApiKeyValidationResponse(apiKeyRepository.isValid(id));
+    }
+
+    private String generateTemporaryValue() {
+        return UUID.randomUUID().toString();
+    }
+
+    private String generateTokenValue(ApiKey apiKey) {
+        return apiKeyJwtHandler.createToken(new ApiKeyJwtClaims(apiKey.getId(), apiKey.getMember().getId(), apiKey.getGrade().getGradeType().name()));
+    }
 
     @Transactional(propagation = Propagation.MANDATORY)
     public void requestApiKeyDeletion(Long memberId) {
