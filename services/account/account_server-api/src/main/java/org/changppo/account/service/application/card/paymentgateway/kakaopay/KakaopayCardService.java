@@ -27,8 +27,8 @@ import static org.changppo.account.paymentgateway.kakaopay.KakaopayConstants.*;
 public class KakaopayCardService {
 
     private final KakaopayPaymentGatewayClient kakaopayPaymentGatewayClient;
-    private final CardService cardService;
     private final ApiServerUrlProperties apiServerUrlProperties;
+    private final CardService cardService;  // Card와 동일한 타입이므로 사용 가능
 
     public KakaopayCardRegisterRedirectResponse registerReady(KakaopayCardRegisterReadyRequest req) {
         KakaopayReadyResponse kakaopayReadyResponse = kakaopayPaymentGatewayClient.Ready(createKakaopayReadyRequest(req)).getData().orElseThrow(KakaopayPaymentGatewayReadyFailureException::new);
@@ -36,7 +36,7 @@ public class KakaopayCardService {
                 kakaopayReadyResponse.getNext_redirect_pc_url(), kakaopayReadyResponse.getAndroid_app_scheme(), kakaopayReadyResponse.getIos_app_scheme());
     }
 
-    private KakaopayReadyRequest createKakaopayReadyRequest(KakaopayCardRegisterReadyRequest req) { // TODO. 실행 환경 별로 redirect url 변경
+    private KakaopayReadyRequest createKakaopayReadyRequest(KakaopayCardRegisterReadyRequest req) {
         String partnerOrderId = generateTemporaryValue();
         return new KakaopayReadyRequest(
                 CCID,
@@ -61,8 +61,8 @@ public class KakaopayCardService {
         try {
             CardCreateRequest cardCreateRequest = createCardCreateRequest(kakaopayApproveResponse);
             return cardService.create(cardCreateRequest);
-        } catch (Exception e) {
-            kakaopayPaymentGatewayClient.inactive(kakaopayApproveResponse.getSid());
+        } catch (Exception e) {  // 카카오페이 카드 등록 API는 성공 했으나 저장을 실패
+            kakaopayPaymentGatewayClient.inactive(kakaopayApproveResponse.getSid());  // 카카오페이 카드 연결 해제
             throw new CardCreateFailureException(e);
         }
     }

@@ -23,6 +23,10 @@ public class MemberDomainService {
         return memberRepository.findById(id).orElseThrow(MemberNotFoundException::new);
     }
 
+    public Member getMemberWithRoles(Long memberId) {
+        return memberRepository.findByIdWithRoles(memberId).orElseThrow(MemberNotFoundException::new);
+    }
+
     public MemberDto getMemberDto(Long id) {
         return memberRepository.findDtoById(id).orElseThrow(MemberNotFoundException::new);
     }

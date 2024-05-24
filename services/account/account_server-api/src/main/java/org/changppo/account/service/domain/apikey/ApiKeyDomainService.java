@@ -8,11 +8,8 @@ import org.changppo.account.entity.apikey.ApiKey;
 import org.changppo.account.entity.apikey.Grade;
 import org.changppo.account.entity.member.Member;
 import org.changppo.account.repository.apikey.ApiKeyRepository;
-import org.changppo.account.repository.apikey.GradeRepository;
 import org.changppo.account.response.exception.apikey.ApiKeyNotFoundException;
-import org.changppo.account.response.exception.apikey.GradeNotFoundException;
 import org.changppo.account.service.dto.apikey.ApiKeyDto;
-import org.changppo.account.type.GradeType;
 import org.changppo.utils.jwt.apikey.ApiKeyJwtClaims;
 import org.changppo.utils.jwt.apikey.ApiKeyJwtHandler;
 import org.springframework.data.domain.Page;
@@ -31,12 +28,10 @@ import java.util.UUID;
 public class ApiKeyDomainService {
 
     private final ApiKeyRepository apiKeyRepository;
-    private final GradeRepository gradeRepository;
     private final ApiKeyJwtHandler apiKeyJwtHandler;
 
     @Transactional(propagation = Propagation.MANDATORY)
-    public ApiKeyDto createKey(Member member, GradeType gradeType) {
-        Grade grade = gradeRepository.findByGradeType(gradeType).orElseThrow(GradeNotFoundException::new);
+    public ApiKeyDto createKey(Member member, Grade grade) {
         ApiKey apiKey = ApiKey.builder()
                 .value(generateTemporaryValue())
                 .grade(grade)
@@ -79,6 +74,16 @@ public class ApiKeyDomainService {
 
     private String generateTokenValue(ApiKey apiKey) {
         return apiKeyJwtHandler.createToken(new ApiKeyJwtClaims(apiKey.getId(), apiKey.getMember().getId(), apiKey.getGrade().getGradeType().name()));
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void unbanForCardDeletion(Long memberId) {
+        apiKeyRepository.unbanForCardDeletionByMemberId(memberId);
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void banForCardDeletion(Long memberId) {
+        apiKeyRepository.banForCardDeletionByMemberId(memberId, LocalDateTime.now());
     }
 
     @Transactional(propagation = Propagation.MANDATORY)

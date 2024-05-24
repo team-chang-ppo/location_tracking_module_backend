@@ -5,8 +5,10 @@ import org.changppo.account.dto.apikey.ApiKeyCreateRequest;
 import org.changppo.account.dto.apikey.ApiKeyListDto;
 import org.changppo.account.dto.apikey.ApiKeyReadAllRequest;
 import org.changppo.account.dto.apikey.ApiKeyValidationResponse;
+import org.changppo.account.entity.apikey.Grade;
 import org.changppo.account.entity.member.Member;
 import org.changppo.account.service.domain.apikey.ApiKeyDomainService;
+import org.changppo.account.service.domain.apikey.GradeDomainService;
 import org.changppo.account.service.domain.member.MemberDomainService;
 import org.changppo.account.service.dto.apikey.ApiKeyDto;
 import org.changppo.account.type.GradeType;
@@ -23,20 +25,23 @@ import org.springframework.transaction.annotation.Transactional;
 public class ApiKeyService {
 
     private final ApiKeyDomainService apiKeyDomainService;
+    private final GradeDomainService gradeDomainService;
     private final MemberDomainService memberDomainService;
 
     @Transactional
     @PreAuthorize("@memberNotPaymentFailureStatusEvaluator.check(#req.memberId)")
     public ApiKeyDto createFreeKey(@Param("req") ApiKeyCreateRequest req) {
         Member member = memberDomainService.getMember(req.getMemberId());
-        return apiKeyDomainService.createKey(member, GradeType.GRADE_FREE);
+        Grade grade = gradeDomainService.getGradeByType(GradeType.GRADE_FREE);
+        return apiKeyDomainService.createKey(member, grade);
     }
 
     @Transactional
     @PreAuthorize("@memberNotPaymentFailureStatusEvaluator.check(#req.memberId)")
     public ApiKeyDto createClassicKey(@Param("req") ApiKeyCreateRequest req) {
         Member member = memberDomainService.getMember(req.getMemberId());
-        return apiKeyDomainService.createKey(member, GradeType.GRADE_CLASSIC);
+        Grade grade = gradeDomainService.getGradeByType(GradeType.GRADE_CLASSIC);
+        return apiKeyDomainService.createKey(member, grade);
     }
 
     @PreAuthorize("@apiKeyAccessEvaluator.check(#id)")
