@@ -18,6 +18,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.changppo.account.builder.member.MemberBuilder.buildMember;
+import static org.changppo.account.builder.member.RoleBuilder.buildRole;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,8 +36,8 @@ public class RoleDomainServiceTest {
 
     @BeforeEach
     void beforeEach() {
-        freeRole = new Role(RoleType.ROLE_FREE);
-        normalRole = new Role(RoleType.ROLE_NORMAL);
+        freeRole = buildRole(RoleType.ROLE_FREE);
+        normalRole = buildRole(RoleType.ROLE_NORMAL);
         member = buildMember(freeRole);
     }
 
