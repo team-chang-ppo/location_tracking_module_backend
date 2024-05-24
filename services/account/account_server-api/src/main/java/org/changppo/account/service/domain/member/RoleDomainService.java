@@ -17,6 +17,10 @@ public class RoleDomainService {
 
     private final RoleRepository roleRepository;
 
+    public Role getRoleByType(RoleType roleType) {
+        return roleRepository.findByRoleType(roleType).orElseThrow(RoleNotFoundException::new);
+    }
+
     public boolean hasFreeRole(RoleType roleType) {
         return roleType == RoleType.ROLE_FREE;
     }
