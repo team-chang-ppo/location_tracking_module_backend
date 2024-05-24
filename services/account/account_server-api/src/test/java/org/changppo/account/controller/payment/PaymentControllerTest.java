@@ -70,7 +70,7 @@ class PaymentControllerTest {
     @Test
     void readListTest() throws Exception {
         // given
-        Pageable pageable = PageableBuilder.build();
+        Pageable pageable = PageableBuilder.buildPage();
 
         // when, then
         mockMvc.perform(

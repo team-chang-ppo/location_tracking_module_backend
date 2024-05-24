@@ -30,7 +30,7 @@ public class ApiKeyDomainService {
     private final ApiKeyJwtHandler apiKeyJwtHandler;
 
     @Transactional(propagation = Propagation.MANDATORY)
-    public ApiKeyDto createKey(Member member, Grade grade) {
+    public ApiKey createKey(Member member, Grade grade) {
         ApiKey apiKey = ApiKey.builder()
                 .value(generateTemporaryValue())
                 .grade(grade)
@@ -38,8 +38,7 @@ public class ApiKeyDomainService {
                 .build();
         apiKey = apiKeyRepository.save(apiKey);
         apiKey.updateValue(generateTokenValue(apiKey));
-        return new ApiKeyDto(apiKey.getId(), apiKey.getValue(), apiKey.getGrade().getGradeType(),
-                apiKey.getPaymentFailureBannedAt(), apiKey.getCardDeletionBannedAt(), apiKey.getCreatedAt());
+        return apiKey;
     }
 
     private String generateTemporaryValue() {
@@ -50,18 +49,16 @@ public class ApiKeyDomainService {
         return apiKeyJwtHandler.createToken(new ApiKeyJwtClaims(apiKey.getId(), apiKey.getMember().getId(), apiKey.getGrade().getGradeType().name()));
     }
 
-    public ApiKeyDto getApiKeyDto(Long id) {
-        ApiKey apiKey = apiKeyRepository.findById(id).orElseThrow(ApiKeyNotFoundException::new);
-        return new ApiKeyDto(apiKey.getId(), apiKey.getValue(), apiKey.getGrade().getGradeType(),
-                apiKey.getPaymentFailureBannedAt(), apiKey.getCardDeletionBannedAt(), apiKey.getCreatedAt());
+    public ApiKey getApiKey(Long id) {
+        return apiKeyRepository.findById(id).orElseThrow(ApiKeyNotFoundException::new);
     }
 
-    public ApiKeyListDto getApiKeyList(Long memberId, Long firstApiKeyId, Integer size) {
+    public ApiKeyListDto getApiKeyDtoList(Long memberId, Long firstApiKeyId, Integer size) {
         Slice<ApiKeyDto> slice = apiKeyRepository.findAllDtosByMemberIdOrderByAsc(memberId, firstApiKeyId, Pageable.ofSize(size));
         return new ApiKeyListDto(slice.getNumberOfElements(), slice.hasNext(), slice.getContent());
     }
 
-    public Page<ApiKeyDto> getApiKeyDtos(Pageable pageable) {
+    public Page<ApiKeyDto> getApiKeyDtoPage(Pageable pageable) {
         return apiKeyRepository.findAllDtos(pageable);
     }
 

@@ -290,7 +290,7 @@ public class PaymentIntegrationTest {
     @Test
     void readListTest() throws Exception {
         // given
-        Pageable pageable = PageableBuilder.build();
+        Pageable pageable = PageableBuilder.buildPage();
         long totalPayments = paymentRepository.count();
         // when, then
         mockMvc.perform(
@@ -316,7 +316,7 @@ public class PaymentIntegrationTest {
     @Test
     void readListUnauthorizedByNoneSessionTest() throws Exception {
         // given
-        Pageable pageable = PageableBuilder.build();
+        Pageable pageable = PageableBuilder.buildPage();
         // when, then
         mockMvc.perform(
                         get("/api/payments/v1/list")
@@ -328,7 +328,7 @@ public class PaymentIntegrationTest {
     @Test
     void readListAccessDeniedByNotAdminTest() throws Exception {
         // given
-        Pageable pageable = PageableBuilder.build();
+        Pageable pageable = PageableBuilder.buildPage();
         // when, then
         mockMvc.perform(
                         get("/api/payments/v1/list")

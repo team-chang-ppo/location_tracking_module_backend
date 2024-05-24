@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +25,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.changppo.account.builder.member.MemberBuilder.buildMember;
 import static org.changppo.account.builder.member.RoleBuilder.buildRole;
+import static org.changppo.account.builder.pageable.PageableBuilder.buildPage;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -110,15 +112,15 @@ public class MemberDomainServiceTest {
     }
 
     @Test
-    void getMemberDtosTest() {
+    void getMemberDtoPageTest() {
         // given
-        PageRequest pageRequest = PageRequest.of(0, 10);
+        Pageable pageable = buildPage();
         List<MemberDto> memberDtoList = List.of(MemberDtoBuilder.buildMemberDto(role), MemberDtoBuilder.buildMemberDto(role));
-        Page<MemberDto> memberDtoPage = new PageImpl<>(memberDtoList, pageRequest, memberDtoList.size());
+        Page<MemberDto> memberDtoPage = new PageImpl<>(memberDtoList, pageable, memberDtoList.size());
         given(memberRepository.findAllDtos(any(PageRequest.class))).willReturn(memberDtoPage);
 
         // when
-        Page<MemberDto> result = memberDomainService.getMemberDtos(pageRequest);
+        Page<MemberDto> result = memberDomainService.getMemberDtoPage(pageable);
 
         // then
         assertThat(result.getContent()).isEqualTo(memberDtoList);

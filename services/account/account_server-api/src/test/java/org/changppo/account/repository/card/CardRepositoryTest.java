@@ -186,7 +186,7 @@ class CardRepositoryTest {
         clear();
 
         // when
-        Page<CardDto> cardDtos = cardRepository.findAllDtos(PageableBuilder.build());
+        Page<CardDto> cardDtos = cardRepository.findAllDtos(PageableBuilder.buildPage());
 
         // then
         assertThat(cardDtos.getTotalElements()).isEqualTo(2);

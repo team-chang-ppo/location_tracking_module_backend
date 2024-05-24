@@ -31,7 +31,7 @@ public class MemberDomainService {
         return memberRepository.findDtoById(id).orElseThrow(MemberNotFoundException::new);
     }
 
-    public Page<MemberDto> getMemberDtos(Pageable pageable) {
+    public Page<MemberDto> getMemberDtoPage(Pageable pageable) {
         return memberRepository.findAllDtos(pageable);
     }
 

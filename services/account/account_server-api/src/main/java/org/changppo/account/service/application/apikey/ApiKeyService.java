@@ -5,6 +5,7 @@ import org.changppo.account.dto.apikey.ApiKeyCreateRequest;
 import org.changppo.account.dto.apikey.ApiKeyListDto;
 import org.changppo.account.dto.apikey.ApiKeyReadAllRequest;
 import org.changppo.account.dto.apikey.ApiKeyValidationResponse;
+import org.changppo.account.entity.apikey.ApiKey;
 import org.changppo.account.entity.apikey.Grade;
 import org.changppo.account.entity.member.Member;
 import org.changppo.account.service.domain.apikey.ApiKeyDomainService;
@@ -33,7 +34,9 @@ public class ApiKeyService {
     public ApiKeyDto createFreeKey(@Param("req") ApiKeyCreateRequest req) {
         Member member = memberDomainService.getMember(req.getMemberId());
         Grade grade = gradeDomainService.getGradeByType(GradeType.GRADE_FREE);
-        return apiKeyDomainService.createKey(member, grade);
+        ApiKey apiKey = apiKeyDomainService.createKey(member, grade);
+        return new ApiKeyDto(apiKey.getId(), apiKey.getValue(), apiKey.getGrade().getGradeType(),
+                apiKey.getPaymentFailureBannedAt(), apiKey.getCardDeletionBannedAt(), apiKey.getCreatedAt());
     }
 
     @Transactional
@@ -41,21 +44,25 @@ public class ApiKeyService {
     public ApiKeyDto createClassicKey(@Param("req") ApiKeyCreateRequest req) {
         Member member = memberDomainService.getMember(req.getMemberId());
         Grade grade = gradeDomainService.getGradeByType(GradeType.GRADE_CLASSIC);
-        return apiKeyDomainService.createKey(member, grade);
+        ApiKey apiKey = apiKeyDomainService.createKey(member, grade);
+        return new ApiKeyDto(apiKey.getId(), apiKey.getValue(), apiKey.getGrade().getGradeType(),
+                apiKey.getPaymentFailureBannedAt(), apiKey.getCardDeletionBannedAt(), apiKey.getCreatedAt());
     }
 
     @PreAuthorize("@apiKeyAccessEvaluator.check(#id)")
     public ApiKeyDto read(@Param("id")Long id) {
-        return apiKeyDomainService.getApiKeyDto(id);
+        ApiKey apiKey = apiKeyDomainService.getApiKey(id);  // 영속성 컨텍스트에서 들고와 불필요한 Query 최소화
+        return new ApiKeyDto(apiKey.getId(), apiKey.getValue(), apiKey.getGrade().getGradeType(),
+                apiKey.getPaymentFailureBannedAt(), apiKey.getCardDeletionBannedAt(), apiKey.getCreatedAt());
     }
 
     @PreAuthorize("@memberAccessEvaluator.check(#memberId)")
     public ApiKeyListDto readAll(@Param("memberId")Long memberId, ApiKeyReadAllRequest req){
-        return apiKeyDomainService.getApiKeyList(memberId, req.getFirstApiKeyId(), req.getSize());
+        return apiKeyDomainService.getApiKeyDtoList(memberId, req.getFirstApiKeyId(), req.getSize());
     }
 
     public Page<ApiKeyDto> readList(Pageable pageable) {
-        return apiKeyDomainService.getApiKeyDtos(pageable);
+        return apiKeyDomainService.getApiKeyDtoPage(pageable);
     }
 
     @Transactional

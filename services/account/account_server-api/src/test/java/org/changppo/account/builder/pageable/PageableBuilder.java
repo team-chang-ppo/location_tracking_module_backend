@@ -29,7 +29,7 @@ public class PageableBuilder {
         return PageRequest.of(page, size, sort);
     }
 
-    public static Pageable build() {
+    public static Pageable buildPage() {
         return new PageableBuilder().builder();
     }
 }

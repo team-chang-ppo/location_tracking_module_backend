@@ -240,7 +240,7 @@ class ApiKeyRepositoryTest {
         clear();
 
         // when
-        Slice<ApiKeyDto> apiKeyDtos = apiKeyRepository.findAllDtosByMemberIdOrderByAsc(member.getId(), null, PageableBuilder.build());
+        Slice<ApiKeyDto> apiKeyDtos = apiKeyRepository.findAllDtosByMemberIdOrderByAsc(member.getId(), null, PageableBuilder.buildPage());
 
         // then
         assertThat(apiKeyDtos.getNumberOfElements()).isEqualTo(2);
@@ -426,7 +426,7 @@ class ApiKeyRepositoryTest {
         clear();
 
         // when
-        Page<ApiKeyDto> apiKeyDtos = apiKeyRepository.findAllDtos(PageableBuilder.build());
+        Page<ApiKeyDto> apiKeyDtos = apiKeyRepository.findAllDtos(PageableBuilder.buildPage());
 
         // then
         assertThat(apiKeyDtos.getTotalElements()).isEqualTo(2);

@@ -267,7 +267,7 @@ class MemberRepositoryTest {
         clear();
 
         // when
-        Pageable pageable = PageableBuilder.build();
+        Pageable pageable = PageableBuilder.buildPage();
         Page<MemberDto> memberDtos = memberRepository.findAllDtos(pageable);
 
         // then

@@ -173,7 +173,7 @@ class PaymentRepositoryTest {
         clear();
 
         // when
-        Slice<PaymentDto> paymentDtos = paymentRepository.findAllDtosByMemberIdAndStatusNotCompletedFree(member.getId(), null, PageableBuilder.build());
+        Slice<PaymentDto> paymentDtos = paymentRepository.findAllDtosByMemberIdAndStatusNotCompletedFree(member.getId(), null, PageableBuilder.buildPage());
 
         // then
         assertThat(paymentDtos.getNumberOfElements()).isEqualTo(1);
@@ -188,7 +188,7 @@ class PaymentRepositoryTest {
         clear();
 
         // when
-        Page<PaymentDto> paymentDtos = paymentRepository.findAllDtos(PageableBuilder.build());
+        Page<PaymentDto> paymentDtos = paymentRepository.findAllDtos(PageableBuilder.buildPage());
 
         // then
         assertThat(paymentDtos.getTotalElements()).isEqualTo(2);

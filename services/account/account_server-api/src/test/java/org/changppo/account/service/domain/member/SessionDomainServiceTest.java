@@ -62,7 +62,7 @@ public class SessionDomainServiceTest {
     Role role;
 
     @BeforeEach
-    void setup() {
+    void beforeEach() {
         role = buildRole(RoleType.ROLE_NORMAL);
         member = buildMember(role);
     }

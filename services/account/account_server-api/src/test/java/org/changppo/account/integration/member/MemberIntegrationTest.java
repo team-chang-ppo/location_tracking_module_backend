@@ -138,7 +138,7 @@ class MemberIntegrationTest {
     @Test
     void readListTest() throws Exception {
         // given
-        Pageable pageable = PageableBuilder.build();
+        Pageable pageable = PageableBuilder.buildPage();
         long totalMembers = memberRepository.count();
         // when, then
         mockMvc.perform(
@@ -164,7 +164,7 @@ class MemberIntegrationTest {
     @Test
     void readListUnauthorizedByNoneSessionTest() throws Exception {
         // given
-        Pageable pageable = PageableBuilder.build();
+        Pageable pageable = PageableBuilder.buildPage();
         // when, then
         mockMvc.perform(
                 get("/api/members/v1/list")
@@ -176,7 +176,7 @@ class MemberIntegrationTest {
     @Test
     void readListAccessDeniedByNotAdminTest() throws Exception {
         // given
-        Pageable pageable = PageableBuilder.build();
+        Pageable pageable = PageableBuilder.buildPage();
         // when, then
         mockMvc.perform(
                         get("/api/members/v1/list")

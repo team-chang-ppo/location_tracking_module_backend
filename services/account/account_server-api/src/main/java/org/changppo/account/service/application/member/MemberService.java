@@ -30,7 +30,7 @@ public class MemberService {
     }
 
     public Page<MemberDto> readList(Pageable pageable) {
-        return memberDomainService.getMemberDtos(pageable);
+        return memberDomainService.getMemberDtoPage(pageable);
     }
 
     @Transactional

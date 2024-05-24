@@ -232,7 +232,7 @@ public class CardIntegrationTest {
     @Test
     void readListTest() throws Exception {
         // given
-        Pageable pageable = PageableBuilder.build();
+        Pageable pageable = PageableBuilder.buildPage();
         long totalCards = cardRepository.count();
         // when, then
         mockMvc.perform(
@@ -258,7 +258,7 @@ public class CardIntegrationTest {
     @Test
     void readListUnauthorizedByNoneSessionTest() throws Exception {
         // given
-        Pageable pageable = PageableBuilder.build();
+        Pageable pageable = PageableBuilder.buildPage();
         // when, then
         mockMvc.perform(
                         get("/api/cards/v1/list")
@@ -270,7 +270,7 @@ public class CardIntegrationTest {
     @Test
     void readListAccessDeniedByNotAdminTest() throws Exception {
         // given
-        Pageable pageable = PageableBuilder.build();
+        Pageable pageable = PageableBuilder.buildPage();
         // when, then
         mockMvc.perform(
                         get("/api/cards/v1/list")
