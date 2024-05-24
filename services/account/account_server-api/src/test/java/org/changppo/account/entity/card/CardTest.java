@@ -1,7 +1,7 @@
 package org.changppo.account.entity.card;
 
-import org.changppo.account.builder.card.paymentgateway.CardBuilder;
-import org.changppo.account.builder.card.paymentgateway.PaymentGatewayBuilder;
+import org.changppo.account.builder.card.CardBuilder;
+import org.changppo.account.builder.card.PaymentGatewayBuilder;
 import org.changppo.account.builder.member.MemberBuilder;
 import org.changppo.account.builder.member.RoleBuilder;
 import org.changppo.account.entity.member.Member;
@@ -60,4 +60,3 @@ class CardTest {
         assertTrue(card.isDeleted());
     }
 }
-

@@ -1,4 +1,4 @@
-package org.changppo.account.builder.card.paymentgateway;
+package org.changppo.account.builder.card;
 
 import org.changppo.account.entity.card.PaymentGateway;
 import org.changppo.account.type.PaymentGatewayType;

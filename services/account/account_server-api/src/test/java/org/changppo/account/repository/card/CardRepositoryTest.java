@@ -26,8 +26,8 @@ import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.changppo.account.builder.card.paymentgateway.CardBuilder.buildCard;
-import static org.changppo.account.builder.card.paymentgateway.PaymentGatewayBuilder.buildPaymentGateway;
+import static org.changppo.account.builder.card.CardBuilder.buildCard;
+import static org.changppo.account.builder.card.PaymentGatewayBuilder.buildPaymentGateway;
 import static org.changppo.account.builder.member.RoleBuilder.buildRole;
 import static org.changppo.account.type.PaymentGatewayType.PG_KAKAOPAY;
 
