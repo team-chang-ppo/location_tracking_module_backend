@@ -26,8 +26,7 @@ public class SecurityConfig {
     public SecurityFilterChain httpSecurity(
             HttpSecurity security,
             RemoteSessionRetrieveStrategy remoteSessionRetrieveStrategy,
-            ObjectMapper objectMapper,
-            SessionQueryProperties sessionQueryProperties
+            ObjectMapper objectMapper
     ) throws Exception {
         return security
                 .sessionManagement(SessionManagementConfigurer::disable)
@@ -43,11 +42,9 @@ public class SecurityConfig {
                 })
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/api/aggregation/v1/ping").permitAll()
-                                .requestMatchers("/error").permitAll()
-                                .anyRequest().authenticated()
+                                .anyRequest().permitAll() // use method security instead
                 )
-                .addFilterAfter(new RemoteSessionAuthenticationFilter(remoteSessionRetrieveStrategy, sessionQueryProperties, objectMapper), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(new RemoteSessionAuthenticationFilter(remoteSessionRetrieveStrategy, objectMapper), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

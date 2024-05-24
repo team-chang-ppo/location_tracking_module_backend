@@ -3,30 +3,73 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: aggregation-ping
+        - id: tracking_actuator
+          uri: ${TRACKING_URI}
+          predicates:
+            - Path=/api/tracking/actuator/**
+          filters:
+            - RewritePath=/api/tracking/actuator/(?<remaining>.*), /actuator/$\{remaining}
+        - id: tracking
+          uri: ${TRACKING_URI}
+          predicates:
+            - Path=/api/tracking/**
+          filters:
+            - name: ApiRateLimiter
+              args:
+                contextResolver: "#{@apiRateContextResolver}"
+                rateLimiter: "#{@apiKeyRateLimiter}"
+                requestedTokens: 100
+                notAllowedStatus: TOO_MANY_REQUESTS
+                emptyKeyStatus: UNAUTHORIZED
+        - id: aggregation_actuator
           uri: ${AGGREGATION_URI}
           predicates:
-            - Path=/api/aggregation/v1/ping
-        - id: aggregation-cost
+            - Path=/api/aggregation/actuator/**
+          filters:
+            - RewritePath=/api/aggregation/actuator/(?<remaining>.*), /actuator/$\{remaining}
+        - id: aggregation
           uri: ${AGGREGATION_URI}
           predicates:
-            - Path=/api/aggregation/v1/member/**
-#        - id: aggregation
-#          uri: http://localhost:8010
-#          predicates:
-#            - Path=/api/aggregation/**
-#          filters:
-#            - name: ApiRateLimiter
-#              args:
-#                contextResolver: "#{@apiRateContextResolver}"
-#                rateLimiter: "#{@apiKeyRateLimiter}"
-#                requestedTokens: 100
-#                notAllowedStatus: TOO_MANY_REQUESTS
-#                denyEmptyKey: true
-#                emptyKeyStatus: UNAUTHORIZED
+            - Path=/api/aggregation/**
+        - id: member_actuator
+          uri: ${MEMBER_URI}
+          predicates:
+            - Path=/api/members/actuator/**
+          filters:
+            - RewritePath=/api/members/actuator/(?<remaining>.*), /actuator/$\{remaining}
+        - id: member
+          uri: ${MEMBER_URI}
+          predicates:
+            - Path=/api/members/**
+        - id: oauth
+          uri: ${MEMBER_URI}
+          predicates:
+            - Path=/oauth2/**
+        - id: logout
+          uri: ${MEMBER_URI}
+          predicates:
+            - Path=/logout
+        - id: login
+          uri: ${MEMBER_URI}
+          predicates:
+            - Path=/login
+        - id: apikey
+          uri: ${MEMBER_URI}
+          predicates:
+            - Path=/api/apikeys/**
+        - id: card
+          uri: ${MEMBER_URI}
+          predicates:
+            - Path=/api/cards/**
+        - id: payment
+          uri: ${MEMBER_URI}
+          predicates:
+            - Path=/api/payments/**
   kafka:
     producer:
       bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+server:
+  port: 80

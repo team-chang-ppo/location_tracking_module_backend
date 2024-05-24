@@ -14,7 +14,7 @@ spring:
                 rateLimiter: "#{@apiKeyRateLimiter}"
                 requestedTokens: 100
                 notAllowedStatus: TOO_MANY_REQUESTS
-                denyEmptyKey: true
+#                denyEmptyKey: true
                 emptyKeyStatus: UNAUTHORIZED
         - id: aggregation-ping
           uri: http://localhost:80
@@ -44,7 +44,10 @@ spring:
                 emptyKeyStatus: UNAUTHORIZED
   kafka:
     producer:
-      bootstrap-servers: localhost:29092
+      bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
-    bootstrap-servers: localhost:29092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+logging:
+  level:
+    root: debug

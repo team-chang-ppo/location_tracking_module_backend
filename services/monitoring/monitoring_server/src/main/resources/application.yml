@@ -1,10 +1,4 @@
-spring:
-  profiles:
-    active: local
 server:
   error:
     whitelabel:
       enabled: false
-cost:
-  query:
-    maxDurationDays: 140

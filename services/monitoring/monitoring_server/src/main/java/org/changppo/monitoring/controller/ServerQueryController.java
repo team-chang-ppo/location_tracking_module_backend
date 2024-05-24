@@ -6,32 +6,24 @@ import org.changppo.monioring.domain.error.QueryDurationExceededException;
 import org.changppo.monioring.domain.view.MemberChargeGraphView;
 import org.changppo.monitoring.config.CostQueryProperties;
 import org.changppo.monitoring.service.CostQueryService;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
 import java.time.LocalDate;
 
-@RequestMapping("/api/aggregation/v1")
+@RequestMapping("/private/aggregation/v1")
 @RestController
 @RequiredArgsConstructor
-public class CostQueryController {
+public class ServerQueryController {
     private final CostQueryService costQueryService;
     private final CostQueryProperties costQueryProperties;
 
-    @GetMapping("/ping")
-    public String ping() {
-        return "pong";
-    }
-
-    @PreAuthorize("isAuthenticated() and #memberId == authentication.principal")
     @GetMapping("/member/{memberId}/charge")
     public MemberChargeGraphView getMemberChargeGraph(@PathVariable Long memberId,
                                                       @RequestParam(required = false) Long apiKeyId,
                                                       @RequestParam LocalDate startDate,
                                                       @RequestParam LocalDate endDate
-                                                      ) {
+    ) {
         if (startDate.isAfter(endDate)) {
             throw new InvalidInputValueException();
         }
