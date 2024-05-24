@@ -51,20 +51,19 @@ public class PaymentDomainServiceTest {
 
     Member member;
     Role role;
-    Payment payment;
     PaymentExecutionJobResponse paymentExecutionJobResponse;
 
     @BeforeEach
     void beforeEach() {
         role = buildRole(RoleType.ROLE_NORMAL);
         member = buildMember(role);
-        payment = buildPayment(member);
         paymentExecutionJobResponse = buildPaymentExecutionJobResponse();
     }
 
     @Test
     void processRepaymentTest() {
         // given
+        Payment payment = buildPayment(member);
         given(paymentRepository.findById(anyLong())).willReturn(Optional.of(payment));
         given(paymentExecutionJobClient.PaymentExecutionJob(any(PaymentExecutionJobRequest.class))).willReturn(ClientResponse.success(paymentExecutionJobResponse));
 
@@ -91,6 +90,7 @@ public class PaymentDomainServiceTest {
     @Test
     void processRepaymentExecutionFailureTest() {
         // given
+        Payment payment = buildPayment(member);
         given(paymentRepository.findById(anyLong())).willReturn(Optional.of(payment));
         given(paymentExecutionJobClient.PaymentExecutionJob(any(PaymentExecutionJobRequest.class))).willReturn(ClientResponse.failure());
 
