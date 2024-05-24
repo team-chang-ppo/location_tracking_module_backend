@@ -7,6 +7,7 @@ import org.changppo.account.paymentgateway.kakaopay.KakaopayPaymentGatewayClient
 import org.changppo.account.paymentgateway.kakaopay.dto.payment.*;
 import org.changppo.account.response.exception.paymentgateway.KakaopayPaymentGatewayApproveFailureException;
 import org.changppo.account.response.exception.paymentgateway.KakaopayPaymentGatewayReadyFailureException;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
 import java.util.UUID;
 
@@ -14,6 +15,7 @@ import static org.changppo.account.paymentgateway.kakaopay.KakaopayConstants.*;
 
 @RequiredArgsConstructor
 @Service
+@EnableConfigurationProperties(ApiServerUrlProperties.class)
 public class KakaopayCardDomainService {
 
     private final KakaopayPaymentGatewayClient kakaopayPaymentGatewayClient;

@@ -1,7 +1,6 @@
 package org.changppo.account.service.application.card.paymentgateway.kakaopay;
 
 import lombok.RequiredArgsConstructor;
-import org.changppo.account.config.ApiServerUrlProperties;
 import org.changppo.account.dto.card.CardCreateRequest;
 import org.changppo.account.dto.card.kakaopay.*;
 import org.changppo.account.paymentgateway.kakaopay.dto.payment.KakaopayApproveResponse;
@@ -11,7 +10,6 @@ import org.changppo.account.service.application.card.CardService;
 import org.changppo.account.service.domain.card.paymentgateway.KakaopayCardDomainService;
 import org.changppo.account.service.dto.card.CardDto;
 import org.changppo.account.type.PaymentGatewayType;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -20,7 +18,6 @@ import static org.changppo.account.paymentgateway.kakaopay.KakaopayConstants.*;
 
 @RequiredArgsConstructor
 @Service
-@EnableConfigurationProperties(ApiServerUrlProperties.class)
 public class KakaopayCardService {
 
     private final KakaopayCardDomainService kakaopayCardDomainService;

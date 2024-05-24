@@ -10,13 +10,25 @@ public class KakaopayRequestBuilder {
     public static KakaopayCardRegisterReadyRequest buildKakaopayCardRegisterReadyRequest(Long memberId) {
         return new KakaopayCardRegisterReadyRequest(memberId);
     }
+
     public static KakaopayCardRegisterApproveRequest buildKakaopayCardRegisterApproveRequest() {
         return new KakaopayCardRegisterApproveRequest("partner_order_id_value", "pg_token_value", null);
     }
+    public static KakaopayCardRegisterApproveRequest buildKakaopayCardRegisterApproveRequest(Long memberId) {
+        return new KakaopayCardRegisterApproveRequest("partner_order_id_value", "pg_token_value", memberId);
+    }
+
     public static KakaopayCardRegisterCancelRequest buildKakaopayCardRegisterCancelRequest() {
         return new KakaopayCardRegisterCancelRequest("partner_order_id_value",null);
     }
+    public static KakaopayCardRegisterCancelRequest buildKakaopayCardRegisterCancelRequest(Long memberId) {
+        return new KakaopayCardRegisterCancelRequest("partner_order_id_value",memberId);
+    }
+
     public static KakaopayCardRegisterFailRequest buildKakaopayCardRegisterFailRequest() {
         return new KakaopayCardRegisterFailRequest("partner_order_id_value", null);
+    }
+    public static KakaopayCardRegisterFailRequest buildKakaopayCardRegisterFailRequest(Long memberId) {
+        return new KakaopayCardRegisterFailRequest("partner_order_id_value", memberId);
     }
 }
