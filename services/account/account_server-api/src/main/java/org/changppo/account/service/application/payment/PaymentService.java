@@ -3,7 +3,6 @@ package org.changppo.account.service.application.payment;
 import lombok.RequiredArgsConstructor;
 import org.changppo.account.dto.payment.PaymentListDto;
 import org.changppo.account.dto.payment.PaymentReadAllRequest;
-import org.changppo.account.entity.member.Member;
 import org.changppo.account.entity.payment.Payment;
 import org.changppo.account.service.domain.apikey.ApiKeyDomainService;
 import org.changppo.account.service.domain.member.MemberDomainService;
@@ -31,14 +30,10 @@ public class PaymentService {
     @PreAuthorize("@paymentAccessEvaluator.check(#id) and @paymentFailedStatusEvaluator.check(#id)")
     public PaymentDto repayment(@Param("id") Long id) {
         Payment payment = paymentDomainService.processRepayment(id);
-        completePaymentHandling(payment.getMember());
+        memberDomainService.unbanMemberPaymentFailure(payment.getMember());
+        apiKeyDomainService.unbanApiKeysForPaymentFailure(payment.getMember().getId());
         paymentEventPublisher.publishEvent(payment);
         return new PaymentDto(payment.getId(), payment.getAmount(), payment.getStatus(), payment.getStartedAt(), payment.getEndedAt(), payment.getCardInfo(), payment.getCreatedAt());
-    }
-
-    private void completePaymentHandling(Member member) {
-        memberDomainService.unbanMemberPaymentFailure(member);
-        apiKeyDomainService.unbanApiKeysForPaymentFailure(member.getId());
     }
 
     @PreAuthorize("@memberAccessEvaluator.check(#memberId)")
