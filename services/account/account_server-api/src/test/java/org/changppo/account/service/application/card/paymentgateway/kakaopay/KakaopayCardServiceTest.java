@@ -109,7 +109,6 @@ public class KakaopayCardServiceTest {
 
         // when, then
         assertThatThrownBy(() -> kakaopayCardService.registerApprove(request)).isInstanceOf(CardCreateFailureException.class);
-
         verify(kakaopayCardDomainService).deactivateCard(response.getSid());
     }
 
@@ -134,7 +133,6 @@ public class KakaopayCardServiceTest {
 
         // when, then
         assertThatThrownBy(() -> kakaopayCardService.registerFail(request)).isInstanceOf(KakaopayPaymentGatewayFailException.class);
-
         verify(kakaopayCardDomainService).registerFail(request.getPartner_order_id(), request.getMemberId());
     }
 }
