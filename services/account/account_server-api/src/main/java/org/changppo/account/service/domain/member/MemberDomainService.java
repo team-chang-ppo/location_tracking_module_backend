@@ -36,22 +36,32 @@ public class MemberDomainService {
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
-    public void requestDelete(Member member) {
+    public void banMemberPaymentFailure(Member member) {
+        member.banForPaymentFailure(LocalDateTime.now());
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void unbanMemberPaymentFailure(Member member) {
+        member.unbanForPaymentFailure();
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void requestMemberDeletion(Member member) {
         member.requestDeletion(LocalDateTime.now());
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
-    public void cancelDelete(Member member) {
+    public void cancelMemberDeletionRequest(Member member) {
         member.cancelDeletionRequest();
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
-    public void ban(Member member) {
+    public void banMemberByAdmin(Member member) {
         member.banByAdmin(LocalDateTime.now());
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
-    public void unban(Member member) {
+    public void unbanMemberByAdmin(Member member) {
         member.unbanByAdmin();
     }
 }

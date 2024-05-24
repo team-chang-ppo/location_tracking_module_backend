@@ -37,7 +37,7 @@ public class MemberService {
     @PreAuthorize("@memberAccessEvaluator.check(#id) and @memberNotPaymentFailureStatusEvaluator.check(#id)")
     public void requestDelete(@Param("id")Long id, HttpServletRequest request, HttpServletResponse response) {
         Member member = memberDomainService.getMember(id);
-        memberDomainService.requestDelete(member);
+        memberDomainService.requestMemberDeletion(member);
         apiKeyDomainService.requestApiKeyDeletion(id);
         sessionDomainService.invalidateSessionAndClearCookies(request, response);
     }
@@ -45,14 +45,14 @@ public class MemberService {
     @Transactional
     public void cancelDelete(@Param("id")Long id) {
         Member member = memberDomainService.getMember(id);
-        memberDomainService.cancelDelete(member);
+        memberDomainService.cancelMemberDeletionRequest(member);
         apiKeyDomainService.cancelApiKeyDeletionRequest(id);
     }
 
     @Transactional
     public void ban(@Param("id")Long id) {
         Member member = memberDomainService.getMember(id);
-        memberDomainService.ban(member);
+        memberDomainService.banMemberByAdmin(member);
         apiKeyDomainService.banApiKeysByAdmin(id);
         sessionDomainService.expireSessions(member.getName());
     }
@@ -60,7 +60,7 @@ public class MemberService {
     @Transactional
     public void unban(@Param("id")Long id) {
         Member member = memberDomainService.getMember(id);
-        memberDomainService.unban(member);
+        memberDomainService.unbanMemberByAdmin(member);
         apiKeyDomainService.unbanApiKeysByAdmin(id);
     }
 }

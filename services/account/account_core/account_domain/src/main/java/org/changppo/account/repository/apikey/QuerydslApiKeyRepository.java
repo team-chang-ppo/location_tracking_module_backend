@@ -12,12 +12,12 @@ public interface QuerydslApiKeyRepository {
     void deleteAllByMemberId(Long memberId);
     void banForCardDeletionByMemberId(Long memberId, LocalDateTime time);
     void unbanForCardDeletionByMemberId(Long memberId);
-    void banApiKeysForPaymentFailure(Long memberId, LocalDateTime time);
-    void unbanApiKeysForPaymentFailure(Long memberId);
-    void requestApiKeyDeletion(Long memberId, LocalDateTime time);
-    void cancelApiKeyDeletionRequest(Long memberId);
-    void banApiKeysByAdmin(Long memberId, LocalDateTime time);
-    void unbanApiKeysByAdmin(Long memberId);
+    void banApiKeysForPaymentFailureByMemberId(Long memberId, LocalDateTime time);
+    void unbanApiKeysForPaymentFailureByMemberId(Long memberId);
+    void requestApiKeyDeletionByMemberId(Long memberId, LocalDateTime time);
+    void cancelApiKeyDeletionRequestByMemberId(Long memberId);
+    void banApiKeysByAdminByMemberId(Long memberId, LocalDateTime time);
+    void unbanApiKeysByAdminByMemberId(Long memberId);
     boolean isValid(Long Id);
     Page<ApiKeyDto> findAllDtos(Pageable pageable);
 }

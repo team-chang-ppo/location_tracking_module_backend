@@ -51,7 +51,7 @@ public class ApiKeyService {
 
     @PreAuthorize("@memberAccessEvaluator.check(#memberId)")
     public ApiKeyListDto readAll(@Param("memberId")Long memberId, ApiKeyReadAllRequest req){
-        return apiKeyDomainService.getApiKeyList(memberId, req);
+        return apiKeyDomainService.getApiKeyList(memberId, req.getFirstApiKeyId(), req.getSize());
     }
 
     public Page<ApiKeyDto> readList(Pageable pageable) {

@@ -75,7 +75,7 @@ public class ApiKeyRepositoryImpl implements QuerydslApiKeyRepository {
     }
 
     @Override
-    public void banApiKeysForPaymentFailure(Long memberId, LocalDateTime time) {
+    public void banApiKeysForPaymentFailureByMemberId(Long memberId, LocalDateTime time) {
         queryFactory.update(apiKey)
                 .set(apiKey.paymentFailureBannedAt, time)
                 .where(memberIdEquals(memberId))
@@ -83,7 +83,7 @@ public class ApiKeyRepositoryImpl implements QuerydslApiKeyRepository {
     }
 
     @Override
-    public void unbanApiKeysForPaymentFailure(Long memberId) {
+    public void unbanApiKeysForPaymentFailureByMemberId(Long memberId) {
         queryFactory.update(apiKey)
                 .set(apiKey.paymentFailureBannedAt, (LocalDateTime) null)
                 .where(memberIdEquals(memberId))
@@ -91,7 +91,7 @@ public class ApiKeyRepositoryImpl implements QuerydslApiKeyRepository {
     }
 
     @Override
-    public void requestApiKeyDeletion(Long memberId, LocalDateTime time) {
+    public void requestApiKeyDeletionByMemberId(Long memberId, LocalDateTime time) {
         queryFactory.update(apiKey)
                 .set(apiKey.deletionRequestedAt, time)
                 .where(memberIdEquals(memberId))
@@ -99,7 +99,7 @@ public class ApiKeyRepositoryImpl implements QuerydslApiKeyRepository {
     }
 
     @Override
-    public void cancelApiKeyDeletionRequest(Long memberId) {
+    public void cancelApiKeyDeletionRequestByMemberId(Long memberId) {
         queryFactory.update(apiKey)
                 .set(apiKey.deletionRequestedAt, (LocalDateTime) null)
                 .where(memberIdEquals(memberId))
@@ -107,7 +107,7 @@ public class ApiKeyRepositoryImpl implements QuerydslApiKeyRepository {
     }
 
     @Override
-    public void banApiKeysByAdmin(Long memberId, LocalDateTime time) {
+    public void banApiKeysByAdminByMemberId(Long memberId, LocalDateTime time) {
         queryFactory.update(apiKey)
                 .set(apiKey.adminBannedAt, time)
                 .where(memberIdEquals(memberId))
@@ -115,7 +115,7 @@ public class ApiKeyRepositoryImpl implements QuerydslApiKeyRepository {
     }
 
     @Override
-    public void unbanApiKeysByAdmin(Long memberId) {
+    public void unbanApiKeysByAdminByMemberId(Long memberId) {
         queryFactory.update(apiKey)
                 .set(apiKey.adminBannedAt, (LocalDateTime) null)
                 .where(memberIdEquals(memberId))

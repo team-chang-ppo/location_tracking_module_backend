@@ -2,7 +2,6 @@ package org.changppo.account.service.domain.apikey;
 
 import lombok.RequiredArgsConstructor;
 import org.changppo.account.dto.apikey.ApiKeyListDto;
-import org.changppo.account.dto.apikey.ApiKeyReadAllRequest;
 import org.changppo.account.dto.apikey.ApiKeyValidationResponse;
 import org.changppo.account.entity.apikey.ApiKey;
 import org.changppo.account.entity.apikey.Grade;
@@ -43,14 +42,22 @@ public class ApiKeyDomainService {
                 apiKey.getPaymentFailureBannedAt(), apiKey.getCardDeletionBannedAt(), apiKey.getCreatedAt());
     }
 
+    private String generateTemporaryValue() {
+        return UUID.randomUUID().toString();
+    }
+
+    private String generateTokenValue(ApiKey apiKey) {
+        return apiKeyJwtHandler.createToken(new ApiKeyJwtClaims(apiKey.getId(), apiKey.getMember().getId(), apiKey.getGrade().getGradeType().name()));
+    }
+
     public ApiKeyDto getApiKeyDto(Long id) {
         ApiKey apiKey = apiKeyRepository.findById(id).orElseThrow(ApiKeyNotFoundException::new);
         return new ApiKeyDto(apiKey.getId(), apiKey.getValue(), apiKey.getGrade().getGradeType(),
                 apiKey.getPaymentFailureBannedAt(), apiKey.getCardDeletionBannedAt(), apiKey.getCreatedAt());
     }
 
-    public ApiKeyListDto getApiKeyList(Long memberId, ApiKeyReadAllRequest req) {
-        Slice<ApiKeyDto> slice = apiKeyRepository.findAllDtosByMemberIdOrderByAsc(memberId, req.getFirstApiKeyId(), Pageable.ofSize(req.getSize()));
+    public ApiKeyListDto getApiKeyList(Long memberId, Long firstApiKeyId, Integer size) {
+        Slice<ApiKeyDto> slice = apiKeyRepository.findAllDtosByMemberIdOrderByAsc(memberId, firstApiKeyId, Pageable.ofSize(size));
         return new ApiKeyListDto(slice.getNumberOfElements(), slice.hasNext(), slice.getContent());
     }
 
@@ -68,17 +75,14 @@ public class ApiKeyDomainService {
         return new ApiKeyValidationResponse(apiKeyRepository.isValid(id));
     }
 
-    private String generateTemporaryValue() {
-        return UUID.randomUUID().toString();
-    }
-
-    private String generateTokenValue(ApiKey apiKey) {
-        return apiKeyJwtHandler.createToken(new ApiKeyJwtClaims(apiKey.getId(), apiKey.getMember().getId(), apiKey.getGrade().getGradeType().name()));
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void banApiKeysForPaymentFailure(Long memberId) {
+        apiKeyRepository.banApiKeysForPaymentFailureByMemberId(memberId, LocalDateTime.now());
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
-    public void unbanForCardDeletion(Long memberId) {
-        apiKeyRepository.unbanForCardDeletionByMemberId(memberId);
+    public void unbanApiKeysForPaymentFailure(Long memberId) {
+        apiKeyRepository.unbanApiKeysForPaymentFailureByMemberId(memberId);
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
@@ -87,22 +91,27 @@ public class ApiKeyDomainService {
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
+    public void unbanForCardDeletion(Long memberId) {
+        apiKeyRepository.unbanForCardDeletionByMemberId(memberId);
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
     public void requestApiKeyDeletion(Long memberId) {
-        apiKeyRepository.requestApiKeyDeletion(memberId, LocalDateTime.now());
+        apiKeyRepository.requestApiKeyDeletionByMemberId(memberId, LocalDateTime.now());
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
     public void cancelApiKeyDeletionRequest(Long memberId) {
-        apiKeyRepository.cancelApiKeyDeletionRequest(memberId);
+        apiKeyRepository.cancelApiKeyDeletionRequestByMemberId(memberId);
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
     public void banApiKeysByAdmin(Long memberId) {
-        apiKeyRepository.banApiKeysByAdmin(memberId, LocalDateTime.now());
+        apiKeyRepository.banApiKeysByAdminByMemberId(memberId, LocalDateTime.now());
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
     public void unbanApiKeysByAdmin(Long memberId) {
-        apiKeyRepository.unbanApiKeysByAdmin(memberId);
+        apiKeyRepository.unbanApiKeysByAdminByMemberId(memberId);
     }
 }

@@ -304,7 +304,7 @@ class ApiKeyRepositoryTest {
         LocalDateTime banTime = LocalDateTime.now();
 
         // when
-        apiKeyRepository.banApiKeysForPaymentFailure(member.getId(), banTime);
+        apiKeyRepository.banApiKeysForPaymentFailureByMemberId(member.getId(), banTime);
         clear();
 
         // then
@@ -321,7 +321,7 @@ class ApiKeyRepositoryTest {
         clear();
 
         // when
-        apiKeyRepository.unbanApiKeysForPaymentFailure(member.getId());
+        apiKeyRepository.unbanApiKeysForPaymentFailureByMemberId(member.getId());
         clear();
 
         // then
@@ -337,7 +337,7 @@ class ApiKeyRepositoryTest {
         LocalDateTime requestTime = LocalDateTime.now();
 
         // when
-        apiKeyRepository.requestApiKeyDeletion(member.getId(), requestTime);
+        apiKeyRepository.requestApiKeyDeletionByMemberId(member.getId(), requestTime);
         clear();
 
         // then
@@ -354,7 +354,7 @@ class ApiKeyRepositoryTest {
         clear();
 
         // when
-        apiKeyRepository.cancelApiKeyDeletionRequest(member.getId());
+        apiKeyRepository.cancelApiKeyDeletionRequestByMemberId(member.getId());
         clear();
 
         // then
@@ -370,7 +370,7 @@ class ApiKeyRepositoryTest {
         LocalDateTime banTime = LocalDateTime.now();
 
         // when
-        apiKeyRepository.banApiKeysByAdmin(member.getId(), banTime);
+        apiKeyRepository.banApiKeysByAdminByMemberId(member.getId(), banTime);
         clear();
 
         // then
@@ -387,7 +387,7 @@ class ApiKeyRepositoryTest {
         clear();
 
         // when
-        apiKeyRepository.unbanApiKeysByAdmin(member.getId());
+        apiKeyRepository.unbanApiKeysByAdminByMemberId(member.getId());
         clear();
 
         // then
