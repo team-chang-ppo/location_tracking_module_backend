@@ -5,7 +5,7 @@ import org.changppo.account.dto.card.kakaopay.KakaopayCardRegisterApproveRequest
 import org.changppo.account.dto.card.kakaopay.KakaopayCardRegisterCancelRequest;
 import org.changppo.account.dto.card.kakaopay.KakaopayCardRegisterFailRequest;
 import org.changppo.account.dto.card.kakaopay.KakaopayCardRegisterReadyRequest;
-import org.changppo.account.service.card.paymentgateway.kakaopay.KakaopayCardService;
+import org.changppo.account.service.application.card.paymentgateway.kakaopay.KakaopayCardService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

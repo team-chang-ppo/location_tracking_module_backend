@@ -1,4 +1,4 @@
-package org.changppo.account.service.apikey;
+package org.changppo.account.service.application.apikey;
 
 import lombok.RequiredArgsConstructor;
 import org.changppo.account.dto.apikey.ApiKeyCreateRequest;

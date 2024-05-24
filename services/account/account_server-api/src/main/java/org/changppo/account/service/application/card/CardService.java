@@ -1,4 +1,4 @@
-package org.changppo.account.service.card;
+package org.changppo.account.service.application.card;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

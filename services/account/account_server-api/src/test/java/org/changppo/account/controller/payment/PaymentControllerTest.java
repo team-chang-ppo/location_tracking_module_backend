@@ -3,7 +3,7 @@ package org.changppo.account.controller.payment;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.changppo.account.builder.pageable.PageableBuilder;
 import org.changppo.account.dto.payment.PaymentReadAllRequest;
-import org.changppo.account.service.payment.PaymentService;
+import org.changppo.account.service.application.payment.PaymentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

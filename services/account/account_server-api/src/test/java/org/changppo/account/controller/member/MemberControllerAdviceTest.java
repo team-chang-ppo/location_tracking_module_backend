@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.changppo.account.response.exception.common.ExceptionAdvice;
 import org.changppo.account.response.exception.common.ResponseHandler;
 import org.changppo.account.response.exception.member.MemberNotFoundException;
-import org.changppo.account.service.member.MemberService;
+import org.changppo.account.service.application.member.MemberService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

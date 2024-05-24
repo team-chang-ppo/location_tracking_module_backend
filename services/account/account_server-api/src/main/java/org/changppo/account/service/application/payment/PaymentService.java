@@ -1,4 +1,4 @@
-package org.changppo.account.service.payment;
+package org.changppo.account.service.application.payment;
 
 import lombok.RequiredArgsConstructor;
 import org.changppo.account.dto.payment.PaymentListDto;

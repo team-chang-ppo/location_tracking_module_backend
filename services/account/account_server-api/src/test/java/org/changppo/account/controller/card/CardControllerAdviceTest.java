@@ -7,7 +7,7 @@ import org.changppo.account.response.exception.common.ExceptionAdvice;
 import org.changppo.account.response.exception.common.ResponseHandler;
 import org.changppo.account.response.exception.member.RoleNotFoundException;
 import org.changppo.account.response.exception.member.UpdateAuthenticationFailureException;
-import org.changppo.account.service.card.CardService;
+import org.changppo.account.service.application.card.CardService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

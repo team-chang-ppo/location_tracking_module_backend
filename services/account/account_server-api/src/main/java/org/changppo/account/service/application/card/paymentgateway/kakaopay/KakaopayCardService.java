@@ -1,4 +1,4 @@
-package org.changppo.account.service.card.paymentgateway.kakaopay;
+package org.changppo.account.service.application.card.paymentgateway.kakaopay;
 
 import lombok.RequiredArgsConstructor;
 import org.changppo.account.config.ApiServerUrlProperties;
@@ -10,7 +10,7 @@ import org.changppo.account.response.exception.card.CardCreateFailureException;
 import org.changppo.account.response.exception.paymentgateway.KakaopayPaymentGatewayApproveFailureException;
 import org.changppo.account.response.exception.paymentgateway.KakaopayPaymentGatewayFailException;
 import org.changppo.account.response.exception.paymentgateway.KakaopayPaymentGatewayReadyFailureException;
-import org.changppo.account.service.card.CardService;
+import org.changppo.account.service.application.card.CardService;
 import org.changppo.account.service.dto.card.CardDto;
 import org.changppo.account.type.PaymentGatewayType;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
