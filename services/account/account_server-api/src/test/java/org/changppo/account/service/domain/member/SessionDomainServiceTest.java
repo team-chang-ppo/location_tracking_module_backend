@@ -20,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -51,6 +52,8 @@ public class SessionDomainServiceTest {
     @Mock
     SecurityContext securityContext;
     @Mock
+    SecurityContextHolderStrategy securityContextHolderStrategy;
+    @Mock
     OAuth2AuthenticationToken oauth2AuthenticationToken;
     @Captor
     ArgumentCaptor<Cookie> cookieCaptor;
@@ -62,18 +65,19 @@ public class SessionDomainServiceTest {
     void setup() {
         role = buildRole(RoleType.ROLE_NORMAL);
         member = buildMember(role);
-        SecurityContextHolder.setContext(securityContext);
     }
 
     @Test
     void invalidateSessionAndClearCookiesTest() {
         // given
+        SecurityContextHolder.setContextHolderStrategy(securityContextHolderStrategy);
         given(request.getSession(false)).willReturn(session);
 
         // when
         sessionDomainService.invalidateSessionAndClearCookies(request, response);
 
         // then
+        verify(SecurityContextHolder.getContextHolderStrategy()).clearContext();
         verify(session).invalidate();
         verify(response).addCookie(cookieCaptor.capture());
         Cookie cookie = cookieCaptor.getValue();
@@ -102,6 +106,7 @@ public class SessionDomainServiceTest {
     @Test
     void updateAuthenticationTest() {
         // given
+        SecurityContextHolder.setContext(securityContext);
         given(securityContext.getAuthentication()).willReturn(oauth2AuthenticationToken);
         given(oauth2AuthenticationToken.getAuthorizedClientRegistrationId()).willReturn("clientRegistrationId");
 
@@ -115,6 +120,7 @@ public class SessionDomainServiceTest {
     @Test
     void updateAuthenticationFailureTest() {
         // given
+        SecurityContextHolder.setContext(securityContext);
         given(securityContext.getAuthentication()).willReturn(null);
 
         // when, then
