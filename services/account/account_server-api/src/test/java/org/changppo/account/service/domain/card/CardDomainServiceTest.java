@@ -4,8 +4,10 @@ import org.changppo.account.entity.card.Card;
 import org.changppo.account.entity.card.PaymentGateway;
 import org.changppo.account.entity.member.Member;
 import org.changppo.account.entity.member.Role;
+import org.changppo.account.paymentgateway.PaymentGatewayClient;
 import org.changppo.account.repository.card.CardRepository;
 import org.changppo.account.response.exception.card.CardNotFoundException;
+import org.changppo.account.response.exception.card.UnsupportedPaymentGatewayException;
 import org.changppo.account.service.dto.card.CardDto;
 import org.changppo.account.type.PaymentGatewayType;
 import org.changppo.account.type.RoleType;
@@ -18,8 +20,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -29,8 +33,7 @@ import static org.changppo.account.builder.card.PaymentGatewayBuilder.buildPayme
 import static org.changppo.account.builder.member.MemberBuilder.buildMember;
 import static org.changppo.account.builder.member.RoleBuilder.buildRole;
 import static org.changppo.account.builder.pageable.PageableBuilder.buildPage;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
@@ -42,6 +45,10 @@ public class CardDomainServiceTest {
     private CardDomainService cardDomainService;
     @Mock
     private CardRepository cardRepository;
+    @Mock
+    private List<PaymentGatewayClient> paymentGatewayClients;
+    @Mock
+    private PaymentGatewayClient paymentGatewayClient;
 
     Member member;
     Role role;
@@ -150,5 +157,31 @@ public class CardDomainServiceTest {
 
         // then
         assertThat(result.getContent()).isEqualTo(cardDtos);
+    }
+
+    @Test
+    void inactivateCardTest() {
+        // given
+        Card card = buildCard(member, paymentGateway);
+        given(paymentGatewayClients.stream()).willReturn(Stream.of(paymentGatewayClient));
+        given(paymentGatewayClient.supports(paymentGateway.getPaymentGatewayType())).willReturn(true);
+        doNothing().when(paymentGatewayClient).inactive(card.getKey());
+
+        // when
+        cardDomainService.inactivateCard(card.getKey(), paymentGateway.getPaymentGatewayType());
+
+        // then
+        verify(paymentGatewayClient).inactive(card.getKey());
+    }
+
+    @Test
+    void inactivateCardExceptionTest() {
+        // given
+        Card card = buildCard(member, paymentGateway);
+        given(paymentGatewayClients.stream()).willReturn(Stream.empty());
+
+        // when, then
+        assertThatThrownBy(() -> cardDomainService.inactivateCard(card.getKey(), paymentGateway.getPaymentGatewayType()))
+                .isInstanceOf(UnsupportedPaymentGatewayException.class);
     }
 }

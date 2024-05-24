@@ -73,7 +73,7 @@ public class CardService {
     public void delete(@Param("id")Long id) {
         Card card = cardDomainService.getCard(id);  // 영속성 컨텍스트에서 들고와 불필요한 Query 최소화
         cardDomainService.deleteCard(id);
-        paymentGatewayDomainService.inactivateCard(card.getKey(), card.getPaymentGateway().getPaymentGatewayType());
+        cardDomainService.inactivateCard(card.getKey(), card.getPaymentGateway().getPaymentGatewayType());
 
         if (cardDomainService.isLastCard(card.getMember().getId())) {
             roleDomainService.downgradeRole(card.getMember());

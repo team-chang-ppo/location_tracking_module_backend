@@ -10,10 +10,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.changppo.account.builder.apikey.GradeBuilder.buildGrade;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
@@ -25,11 +27,11 @@ public class GradeDomainServiceTest {
     @Mock
     private GradeRepository gradeRepository;
 
-    private Grade grade;
+    Grade grade;
 
     @BeforeEach
-    void setup() {
-        grade = new Grade(GradeType.GRADE_CLASSIC);
+    void beforeEach() {
+        grade = buildGrade(GradeType.GRADE_CLASSIC);
     }
 
     @Test

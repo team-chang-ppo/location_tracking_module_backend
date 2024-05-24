@@ -4,9 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.changppo.account.entity.card.Card;
 import org.changppo.account.entity.card.PaymentGateway;
 import org.changppo.account.entity.member.Member;
+import org.changppo.account.paymentgateway.PaymentGatewayClient;
 import org.changppo.account.repository.card.CardRepository;
 import org.changppo.account.response.exception.card.CardNotFoundException;
+import org.changppo.account.response.exception.card.UnsupportedPaymentGatewayException;
 import org.changppo.account.service.dto.card.CardDto;
+import org.changppo.account.type.PaymentGatewayType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,6 +24,7 @@ import java.util.List;
 public class CardDomainService {
 
     private final CardRepository cardRepository;
+    private final List<PaymentGatewayClient> paymentGatewayClients;
 
     @Transactional(propagation = Propagation.MANDATORY)
     public Card createCard(String key, String type, String acquirerCorporation, String issuerCorporation, String bin, PaymentGateway paymentGateway, Member member) {
@@ -56,5 +60,13 @@ public class CardDomainService {
 
     public Page<CardDto> getCardDtos(Pageable pageable) {
         return cardRepository.findAllDtos(pageable);
+    }
+
+    public void inactivateCard(String cardKey, PaymentGatewayType paymentGatewayType) {
+        paymentGatewayClients.stream()
+                .filter(client -> client.supports(paymentGatewayType))
+                .findFirst()
+                .orElseThrow(UnsupportedPaymentGatewayException::new)
+                .inactive(cardKey);
     }
 }
