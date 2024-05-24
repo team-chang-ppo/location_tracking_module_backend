@@ -10,6 +10,7 @@ import org.changppo.account.entity.member.Role;
 import org.changppo.account.response.exception.member.UpdateAuthenticationFailureException;
 import org.changppo.account.security.sign.CustomOAuth2UserDetails;
 import org.changppo.account.type.RoleType;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,11 +25,10 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.changppo.account.builder.member.MemberBuilder.buildMember;
 import static org.changppo.account.builder.member.RoleBuilder.buildRole;
 import static org.mockito.ArgumentMatchers.any;
@@ -50,9 +50,9 @@ public class SessionDomainServiceTest {
     @Mock
     HttpSession session;
     @Mock
-    SecurityContext securityContext;
-    @Mock
     SecurityContextHolderStrategy securityContextHolderStrategy;
+    @Mock
+    SecurityContext securityContext;
     @Mock
     OAuth2AuthenticationToken oauth2AuthenticationToken;
     @Captor
@@ -61,23 +61,34 @@ public class SessionDomainServiceTest {
     Member member;
     Role role;
 
+    private SecurityContextHolderStrategy originalStrategy;
+    private SecurityContext originalContext;
+
     @BeforeEach
     void beforeEach() {
         role = buildRole(RoleType.ROLE_NORMAL);
         member = buildMember(role);
+        originalStrategy = SecurityContextHolder.getContextHolderStrategy();
+        originalContext = SecurityContextHolder.getContext();
+        SecurityContextHolder.setContextHolderStrategy(securityContextHolderStrategy);
+    }
+
+    @AfterEach
+    void afterEach() {
+        SecurityContextHolder.setContextHolderStrategy(originalStrategy);
+        SecurityContextHolder.setContext(originalContext);
     }
 
     @Test
     void invalidateSessionAndClearCookiesTest() {
         // given
-        SecurityContextHolder.setContextHolderStrategy(securityContextHolderStrategy);
         given(request.getSession(false)).willReturn(session);
 
         // when
         sessionDomainService.invalidateSessionAndClearCookies(request, response);
 
         // then
-        verify(SecurityContextHolder.getContextHolderStrategy()).clearContext();
+        verify(securityContextHolderStrategy).clearContext();
         verify(session).invalidate();
         verify(response).addCookie(cookieCaptor.capture());
         Cookie cookie = cookieCaptor.getValue();
@@ -106,7 +117,7 @@ public class SessionDomainServiceTest {
     @Test
     void updateAuthenticationTest() {
         // given
-        SecurityContextHolder.setContext(securityContext);
+        given(securityContextHolderStrategy.getContext()).willReturn(securityContext);
         given(securityContext.getAuthentication()).willReturn(oauth2AuthenticationToken);
         given(oauth2AuthenticationToken.getAuthorizedClientRegistrationId()).willReturn("clientRegistrationId");
 
@@ -120,7 +131,7 @@ public class SessionDomainServiceTest {
     @Test
     void updateAuthenticationFailureTest() {
         // given
-        SecurityContextHolder.setContext(securityContext);
+        given(securityContextHolderStrategy.getContext()).willReturn(securityContext);
         given(securityContext.getAuthentication()).willReturn(null);
 
         // when, then
