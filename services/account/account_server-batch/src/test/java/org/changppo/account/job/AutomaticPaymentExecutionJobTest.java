@@ -23,7 +23,6 @@ import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -40,6 +39,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 
 import static org.changppo.account.batch.job.JobConfig.AUTOMATIC_PAYMENT_JOB;
+import static org.changppo.account.builder.billing.BillingInfoResponseBuilder.buildBillingInfoResponse;
 import static org.changppo.account.builder.card.paymentgateway.kakaopay.KakaopayResponseBuilder.buildKakaopayApproveResponse;
 import static org.changppo.account.payment.BillingInfoClient.BILLING_INFO_URL_TEMPLATE;
 import static org.changppo.account.paymentgateway.kakaopay.KakaopayConstants.KAKAOPAY_PAYMENT_URL;
@@ -52,7 +52,6 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 @ActiveProfiles(value = "test")
 @SpringBatchTest
 @SpringBootTest
-@EnableConfigurationProperties(BillingInfoProperties.class)
 public class AutomaticPaymentExecutionJobTest {
 
     @Autowired
@@ -133,6 +132,7 @@ public class AutomaticPaymentExecutionJobTest {
         ApiKey updatedFreeApiKey = apiKeyRepository.findByValue(testInitDB.getFreeApiKeyValue()).orElseThrow();
 
         // then
+        mockServer.verify();
         assertEquals(BatchStatus.COMPLETED, jobExecution.getStatus());
         assertEquals(2, stepExecution.getReadCount());
         assertEquals(2, stepExecution.getWriteCount());
@@ -163,6 +163,7 @@ public class AutomaticPaymentExecutionJobTest {
         Payment paymentsByFreeMember = paymentRepository.findTopByMemberIdOrderByEndedAtDesc(freeMember.getId()).orElseThrow();
 
         // then
+        mockServer.verify();
         assertEquals(BatchStatus.COMPLETED, jobExecution.getStatus());
         assertEquals(2, stepExecution.getReadCount());
         assertEquals(2, stepExecution.getWriteCount());
@@ -176,7 +177,7 @@ public class AutomaticPaymentExecutionJobTest {
     private void simulateBillingInfoClientSuccess(Member member, BigDecimal totalCost, Long totalCount) throws Exception {
         LocalDate periodStart = getPeriodStart(member);
         LocalDate periodEnd = calculateLastSunday(jobStartTime.toLocalDate());
-        BillingInfoResponse billingInfoResponse = createBillingInfoResponse(totalCount, totalCost);
+        BillingInfoResponse billingInfoResponse = buildBillingInfoResponse(totalCount, totalCost);
         String billingInfoResponseJson = convertToJson(billingInfoResponse);
         String urlTemplate = createBillingInfoUrl(member.getId(), periodStart, periodEnd);
 
@@ -189,11 +190,6 @@ public class AutomaticPaymentExecutionJobTest {
         return paymentRepository.findFirstByMemberIdOrderByEndedAtDesc(member.getId())
                 .map(payment -> payment.getEndedAt().plusDays(1))
                 .orElse(member.getCreatedAt().toLocalDate());
-    }
-
-    private BillingInfoResponse createBillingInfoResponse(Long totalCount, BigDecimal totalCost) {
-        BillingInfoResponse.BillingResult billingResult = new BillingInfoResponse.BillingResult(totalCount, totalCost);
-        return new BillingInfoResponse(true, billingResult);
     }
 
     private String createBillingInfoUrl(Long memberId, LocalDate startDate, LocalDate endDate) {

@@ -72,7 +72,7 @@ public class ProcessorConfig {
                 .map(payment -> payment.getEndedAt().plusDays(1))
                 .orElse(member.getCreatedAt().toLocalDate());
 
-        if (periodStart.isBefore(periodEnd)) {
+        if (!periodStart.isAfter(periodEnd)) {
             BigDecimal paymentAmount = billingInfoClient.getBillingAmountForPeriod(member.getId(), periodStart, periodEnd).getData()
                     .orElseThrow(() -> new RuntimeException("Payment amount is not found")).getResult().getTotalCost();
             return decidePaymentExecution(member, paymentAmount, periodStart, periodEnd);
