@@ -22,7 +22,7 @@ class ApiKeyTest {
     Member member;
 
     @BeforeEach
-    void setUp() {
+    void beforeEach() {
         grade = GradeBuilder.buildGrade(GradeType.GRADE_CLASSIC);
         member = MemberBuilder.buildMember(RoleBuilder.buildRole(RoleType.ROLE_NORMAL));
         apiKey = ApiKeyBuilder.buildApiKey(grade, member);

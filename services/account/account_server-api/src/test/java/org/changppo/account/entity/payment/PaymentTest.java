@@ -20,7 +20,7 @@ class PaymentTest {
     Member member;
 
     @BeforeEach
-    void setUp() {
+    void beforeEach() {
         member = MemberBuilder.buildMember(RoleBuilder.buildRole(RoleType.ROLE_NORMAL));
         payment = PaymentBuilder.buildPayment(member);
     }
@@ -76,4 +76,3 @@ class PaymentTest {
         assertEquals(newCardInfo, payment.getCardInfo());
     }
 }
-

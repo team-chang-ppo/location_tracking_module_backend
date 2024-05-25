@@ -17,7 +17,7 @@ class MemberTest {
     Role role;
 
     @BeforeEach
-    void setUp() {
+    void beforeEach() {
         role = RoleBuilder.buildRole(RoleType.ROLE_NORMAL);
         member = MemberBuilder.buildMember(role);
     }

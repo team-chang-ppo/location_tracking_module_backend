@@ -59,7 +59,7 @@ public class ApiKeyServiceTest {
     Grade classicGrade;
 
     @BeforeEach
-    void setUp() {
+    void beforeEach() {
         role = buildRole(RoleType.ROLE_NORMAL);
         member = buildMember(role);
         freeGrade = buildGrade(GradeType.GRADE_FREE);

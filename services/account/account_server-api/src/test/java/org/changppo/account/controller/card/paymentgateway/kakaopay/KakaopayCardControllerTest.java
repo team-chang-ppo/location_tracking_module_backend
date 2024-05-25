@@ -34,7 +34,7 @@ class KakaopayCardControllerTest {
     ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
-    void setUp() {
+    void beforeEach() {
         mockMvc = MockMvcBuilders.standaloneSetup(kakaopayCardController).build();
     }
 

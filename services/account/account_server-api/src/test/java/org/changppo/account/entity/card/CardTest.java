@@ -21,7 +21,7 @@ class CardTest {
     PaymentGateway paymentGateway;
 
     @BeforeEach
-    void setUp() {
+    void beforeEach() {
         member = MemberBuilder.buildMember(RoleBuilder.buildRole(RoleType.ROLE_NORMAL));
         paymentGateway = PaymentGatewayBuilder.buildPaymentGateway(PaymentGatewayType.PG_KAKAOPAY);
         card = CardBuilder.buildCard(member, paymentGateway);

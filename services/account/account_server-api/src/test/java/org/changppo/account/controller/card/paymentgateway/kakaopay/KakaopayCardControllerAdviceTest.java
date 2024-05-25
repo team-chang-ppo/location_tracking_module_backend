@@ -41,7 +41,7 @@ class KakaopayCardControllerAdviceTest {
     ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
-    void setUp() {
+    void beforeEach() {
         mockMvc = MockMvcBuilders.standaloneSetup(kakaopayCardController).setControllerAdvice(new ExceptionAdvice(responseHandler)).build();
     }
 
