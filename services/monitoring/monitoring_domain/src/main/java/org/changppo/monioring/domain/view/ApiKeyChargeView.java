@@ -11,20 +11,19 @@ import java.util.List;
 public record ApiKeyChargeView(
         Long apiKey,
         List<DayChargeView> dayCharges,
-        Long totalAmount
+        Long totalCost,
+        Long totalCount
 ) {
 
-    public ApiKeyChargeView(Long apiKey, List<DayChargeView> dayCharges, Long totalAmount) {
+    public ApiKeyChargeView(Long apiKey, List<DayChargeView> dayCharges, Long totalCost, Long totalCount) {
         this.apiKey = apiKey;
         this.dayCharges = Collections.unmodifiableList(dayCharges);
-        Long calculatedTotalAmount = 0L;
-        for (DayChargeView dayChargeView : dayCharges) {
-            calculatedTotalAmount += dayChargeView.totalAmount();
-        }
-        this.totalAmount = calculatedTotalAmount;
+        this.totalCost = dayCharges.stream().map(DayChargeView::totalCost).reduce(0L, Long::sum);
+        this.totalCount = dayCharges.stream().map(DayChargeView::totalCount).reduce(0L, Long::sum);
     }
 
-    public ApiKeyChargeView(Long apiKey,List<DayChargeView> dayCharges) {
-        this(apiKey, dayCharges, 0L);
+    public ApiKeyChargeView(Long apiKey, List<DayChargeView> dayCharges) {
+        this(apiKey, dayCharges, 0L, 0L);
     }
+
 }

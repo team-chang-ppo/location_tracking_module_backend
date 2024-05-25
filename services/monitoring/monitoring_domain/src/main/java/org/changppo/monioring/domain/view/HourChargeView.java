@@ -4,20 +4,12 @@ import java.util.List;
 
 public record HourChargeView(
         Integer hour,
-        List<ApiEndpointChargeDetailsView> apiEndpointDetails,
-        Long amount
+        Long cost,
+        Long count
 ) {
-    public HourChargeView(Integer hour, List<ApiEndpointChargeDetailsView> apiEndpointDetails, Long amount) {
+    public HourChargeView(Integer hour, Long cost, Long count) {
         this.hour = hour;
-        this.apiEndpointDetails = apiEndpointDetails;
-        this.amount = apiEndpointDetails.stream()
-                .mapToLong(ApiEndpointChargeDetailsView::cost)
-                .sum();
-    }
-
-    public HourChargeView(Integer hour, List<ApiEndpointChargeDetailsView> apiEndpointDetails) {
-        this(hour, apiEndpointDetails, apiEndpointDetails.stream()
-                .mapToLong(ApiEndpointChargeDetailsView::cost)
-                .sum());
+        this.cost = cost;
+        this.count = count;
     }
 }

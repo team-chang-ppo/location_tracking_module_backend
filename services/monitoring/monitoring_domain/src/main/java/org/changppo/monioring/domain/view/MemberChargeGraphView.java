@@ -6,20 +6,22 @@ import java.util.List;
 public record MemberChargeGraphView(
         Long memberId,
         List<ApiKeyChargeView> apiKeys,
-        Long totalAmount
+        Long totalCost,
+        Long totalCount
 ) {
 
-    public MemberChargeGraphView(Long memberId, List<ApiKeyChargeView> apiKeys, Long totalAmount) {
+    public MemberChargeGraphView(Long memberId, List<ApiKeyChargeView> apiKeys, Long totalCost, Long totalCount) {
         this.memberId = memberId;
         this.apiKeys = Collections.unmodifiableList(apiKeys);
-        Long calculatedTotalAmount = 0L;
-        for (ApiKeyChargeView apiKeyChargeView : apiKeys) {
-            calculatedTotalAmount += apiKeyChargeView.totalAmount();
-        }
-        this.totalAmount = calculatedTotalAmount;
+        this.totalCost = apiKeys.stream().map(ApiKeyChargeView::totalCost).reduce(0L, Long::sum);
+        this.totalCount = apiKeys.stream().map(ApiKeyChargeView::totalCount).reduce(0L, Long::sum);
     }
 
     public MemberChargeGraphView(Long memberId, List<ApiKeyChargeView> apiKeys) {
-        this(memberId, apiKeys, 0L);
+        this(memberId, apiKeys, 0L, 0L);
+    }
+
+    public static MemberChargeGraphView empty(Long memberId) {
+        return new MemberChargeGraphView(memberId, Collections.emptyList());
     }
 }

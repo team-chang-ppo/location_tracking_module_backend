@@ -1,9 +1,11 @@
 package org.changppo.monitoring.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.changppo.commons.SuccessResponseBody;
 import org.changppo.monioring.domain.error.InvalidInputValueException;
 import org.changppo.monioring.domain.error.QueryDurationExceededException;
 import org.changppo.monioring.domain.view.MemberChargeGraphView;
+import org.changppo.monioring.domain.view.TotalSumView;
 import org.changppo.monitoring.config.CostQueryProperties;
 import org.changppo.monitoring.service.CostQueryService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,10 +29,10 @@ public class CostQueryController {
 
     @PreAuthorize("isAuthenticated() and #memberId == authentication.principal")
     @GetMapping("/member/{memberId}/charge")
-    public MemberChargeGraphView getMemberChargeGraph(@PathVariable Long memberId,
-                                                      @RequestParam(required = false) Long apiKeyId,
-                                                      @RequestParam LocalDate startDate,
-                                                      @RequestParam LocalDate endDate
+    public SuccessResponseBody<MemberChargeGraphView> getMemberChargeGraph(@PathVariable Long memberId,
+                                                                          @RequestParam(required = false) Long apiKeyId,
+                                                                          @RequestParam LocalDate startDate,
+                                                                          @RequestParam LocalDate endDate
                                                       ) {
         if (startDate.isAfter(endDate)) {
             throw new InvalidInputValueException();
@@ -40,7 +42,26 @@ public class CostQueryController {
             throw new QueryDurationExceededException();
         }
 
-        return costQueryService.getChargeGraphView(memberId, apiKeyId, startDate, endDate);
+        return new SuccessResponseBody<>(costQueryService.getChargeGraphView(memberId, apiKeyId, startDate, endDate));
     }
+
+    @PreAuthorize("isAuthenticated() and #memberId == authentication.principal")
+    @GetMapping("/member/{memberId}/charge/total")
+    public SuccessResponseBody<TotalSumView> getMemberTotalCost(@PathVariable Long memberId,
+                                           @RequestParam(required = false) Long apiKeyId,
+                                           @RequestParam LocalDate startDate,
+                                           @RequestParam LocalDate endDate
+    ) {
+        if (startDate.isAfter(endDate)) {
+            throw new InvalidInputValueException();
+        }
+        long days = Duration.between(startDate.atStartOfDay(), endDate.atStartOfDay()).toDays();
+        if (days > costQueryProperties.getMaxDuration().toDays()) {
+            throw new QueryDurationExceededException();
+        }
+
+        return new SuccessResponseBody<>(costQueryService.getTotalSum(memberId, apiKeyId, startDate, endDate));
+    }
+
 
 }
