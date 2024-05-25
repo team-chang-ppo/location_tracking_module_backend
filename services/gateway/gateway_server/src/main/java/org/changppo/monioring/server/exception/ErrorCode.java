@@ -11,7 +11,8 @@ public enum ErrorCode {
     API_KEY_NOT_FOUND("G0001", "API Key not found", HttpStatus.UNAUTHORIZED),
     INVALID_API_KEY("G0002", "Invalid API Key", HttpStatus.UNAUTHORIZED),
     ILLEGAL_STATE("G0003", "Illegal state", HttpStatus.INTERNAL_SERVER_ERROR),
-    INTERNAL_SERVER_ERROR("G0004", "Internal server error", HttpStatus.INTERNAL_SERVER_ERROR)
+    INTERNAL_SERVER_ERROR("G0004", "Internal server error", HttpStatus.INTERNAL_SERVER_ERROR),
+    UNHANDLED_ERROR("G0005", "Unhandled error", HttpStatus.INTERNAL_SERVER_ERROR),
     ;
 
 

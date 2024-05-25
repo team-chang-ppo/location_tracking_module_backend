@@ -44,11 +44,20 @@ public class UnhandledErrorEndpoint extends AbstractErrorController {
         Map<String, Object> errorAttributes = this.getErrorAttributes(request, ERROR_ATTRIBUTE_OPTIONS);
         String message = errorAttributes.getOrDefault("message","").toString();
         String exception = errorAttributes.getOrDefault("exception","").toString();
-        log.error("Unhandled Error Occurred and forwarded to {} with message: {} and exception: {}", request.getRequestURI(), message, exception);
-        String responseMessage = "Unexpected Server Error, message: %s, exception: %s".formatted(message, exception);
+        HttpStatus status = this.getStatus(request);
+        if (status == null) {
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        String originalPath = errorAttributes.getOrDefault("path", "").toString();
+        log.error("Unhandled error occurred, message: {}, exception: {}, status: {}, path: {}", message, exception, status, originalPath);
+        String responseMessage = "Unexpected Server Error, message: %s, exception: %s, status: %s, path: %s".formatted(message, exception, status, originalPath);
+
+        if (HttpStatus.NO_CONTENT.equals(status)) {
+            return ResponseEntity.status(status).build();
+        }
 
         FailedResponseBody<?> responseBody = new FailedResponseBody<>(ERROR_CODE, responseMessage);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body(responseBody);
+        return ResponseEntity.status(status).contentType(MediaType.APPLICATION_JSON).body(responseBody);
     }
 
     @ExceptionHandler({HttpMediaTypeNotAcceptableException.class})

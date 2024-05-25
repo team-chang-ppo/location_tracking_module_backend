@@ -25,7 +25,6 @@ import java.util.Arrays;
 public class RemoteSessionAuthenticationFilter extends OncePerRequestFilter {
     private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
     private final RemoteSessionRetrieveStrategy remoteSessionRetrieveStrategy;
-    private final SessionQueryProperties sessionQueryProperties;
     private final ObjectMapper objectMapper;
 
 
@@ -53,19 +52,6 @@ public class RemoteSessionAuthenticationFilter extends OncePerRequestFilter {
     }
 
     protected RemoteSessionAuthentication getSessionInfo(HttpServletRequest request) throws RemoteSessionFetchFailedException {
-        Cookie[] cookies = request.getCookies();
-        if (cookies == null) {
-            return null;
-        }
-        String sessionId = Arrays.stream(cookies)
-                .filter(cookie -> cookie.getName().equals(sessionQueryProperties.getSessionCookieName()))
-                .findFirst()
-                .map(Cookie::getValue)
-                .orElse(null);
-
-        if (sessionId == null) {
-            return null;
-        }
-        return remoteSessionRetrieveStrategy.retrieve(sessionId);
+        return remoteSessionRetrieveStrategy.retrieve(request);
     }
 }
