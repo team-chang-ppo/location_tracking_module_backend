@@ -28,6 +28,9 @@ spring:
 quartz:
   properties: security/quartz-local.properties
 
+billing:
+  url: http://monitoring.porito.click
+
 logging:
   level:
     org.hibernate.orm.jdbc.bind: trace

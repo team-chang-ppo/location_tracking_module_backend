@@ -12,6 +12,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -37,10 +38,10 @@ public class Payment extends EntityDate {
     private PaymentStatus status;
 
     @Column(nullable = false)
-    private LocalDateTime startedAt;
+    private LocalDate startedAt;
 
     @Column(nullable = false)
-    private LocalDateTime endedAt;
+    private LocalDate endedAt;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_id", nullable = false)
@@ -53,7 +54,7 @@ public class Payment extends EntityDate {
     private LocalDateTime deletedAt;
 
     @Builder
-    public Payment(String key, BigDecimal amount, PaymentStatus status, LocalDateTime startedAt, LocalDateTime endedAt, Member member, PaymentCardInfo cardInfo) {
+    public Payment(String key, BigDecimal amount, PaymentStatus status, LocalDate startedAt, LocalDate endedAt, Member member, PaymentCardInfo cardInfo) {
         this.key = key;
         this.amount = amount;
         this.status = status;

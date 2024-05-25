@@ -29,6 +29,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -301,8 +302,8 @@ public class TestInitDB {
                 .key(successfulFreePaymentKey)
                 .amount(new BigDecimal("0"))
                 .status(PaymentStatus.COMPLETED_FREE)
-                .startedAt(LocalDateTime.now().minusDays(9))
-                .endedAt(LocalDateTime.now().minusDays(8))
+                .startedAt(LocalDate.now().minusDays(9))
+                .endedAt(LocalDate.now().minusDays(8))
                 .member(freeMember)
                 .build();
 
@@ -310,8 +311,8 @@ public class TestInitDB {
                 .key(successfulPaidPaymentKey)
                 .amount(new BigDecimal("200.00"))
                 .status(PaymentStatus.COMPLETED_PAID)
-                .startedAt(LocalDateTime.now().minusDays(9))
-                .endedAt(LocalDateTime.now().minusDays(8))
+                .startedAt(LocalDate.now().minusDays(9))
+                .endedAt(LocalDate.now().minusDays(8))
                 .member(kakaopayCardByNormalMember.getMember())
                 .cardInfo(new PaymentCardInfo(kakaopayCardByNormalMember.getType(), kakaopayCardByNormalMember.getIssuerCorporation(), kakaopayCardByNormalMember.getBin()))
                 .build();
@@ -320,8 +321,8 @@ public class TestInitDB {
                 .key(failedPaymentKey)
                 .amount(new BigDecimal("333.33"))
                 .status(PaymentStatus.FAILED)
-                .startedAt(LocalDateTime.now())
-                .endedAt(LocalDateTime.now().plusHours(1))
+                .startedAt(LocalDate.now())
+                .endedAt(LocalDate.now().plusDays(1))
                 .member(banForPaymentFailureMember)
                 .build();
 

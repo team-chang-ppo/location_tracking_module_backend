@@ -1,32 +1,36 @@
-package org.changppo.account.payment;
+package org.changppo.account.batch;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.changppo.account.batch.dto.PaymentExecutionJobRequest;
+import org.changppo.account.batch.dto.PaymentExecutionJobResponse;
 import org.changppo.account.config.BatchServerUrlProperties;
-import org.changppo.account.payment.dto.PaymentExecutionJobRequest;
-import org.changppo.account.payment.dto.PaymentExecutionJobResponse;
 import org.changppo.account.response.ClientResponse;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import static org.springframework.util.Assert.notNull;
+
 @RequiredArgsConstructor
-@Service
+@Component
 @Slf4j
 @EnableConfigurationProperties(BatchServerUrlProperties.class)
-public class PaymentExecutionJobClient {  //TODO. Spring Cloud Feign Client로 변경
+public class PaymentExecutionJobClient {
 
     private final RestTemplate restTemplate;
     private final BatchServerUrlProperties batchServerUrlProperties;
+
+    public static final String PAYMENT_EXECUTION_JOB_URL = "/batch/executePayment";
 
     public ClientResponse<PaymentExecutionJobResponse> PaymentExecutionJob(PaymentExecutionJobRequest req) {
         try {
             HttpEntity<PaymentExecutionJobRequest> request = createPaymentExecutionJobRequest(req);
             PaymentExecutionJobResponse paymentExecutionJobResponse = restTemplate.postForObject(
-                    batchServerUrlProperties.getUrl() + "/batch/executePayment",
+                    batchServerUrlProperties.getUrl() + PAYMENT_EXECUTION_JOB_URL,
                     request,
                     PaymentExecutionJobResponse.class
             );
@@ -39,16 +43,15 @@ public class PaymentExecutionJobClient {  //TODO. Spring Cloud Feign Client로 �
         }
     }
 
-    public static <T> void handleResponse(T response) {
-        if (response == null) {
-            throw new RuntimeException("Failed to process PaymentExecutionJob Response: Response is null");
-        }
+    public <T> void handleResponse(T response) {
+        notNull(response, "Failed to process PaymentExecutionJob Response: Response is null");
     }
 
     private void validatePaymentExecutionJobResponse(PaymentExecutionJobResponse response) {
-        if (response.getKey() == null || response.getCardType() == null || response.getCardIssuerCorporation() == null || response.getCardBin() == null) {
-            throw new IllegalStateException("PaymentExecutionJobResponse cannot be null.");
-        }
+        notNull(response.getKey(), "PaymentExecutionJobResponse key cannot be null.");
+        notNull(response.getCardType(), "PaymentExecutionJobResponse cardType cannot be null.");
+        notNull(response.getCardIssuerCorporation(), "PaymentExecutionJobResponse cardIssuerCorporation cannot be null.");
+        notNull(response.getCardBin(), "PaymentExecutionJobResponse cardBin cannot be null.");
     }
 
     private HttpEntity<PaymentExecutionJobRequest> createPaymentExecutionJobRequest(PaymentExecutionJobRequest req) {

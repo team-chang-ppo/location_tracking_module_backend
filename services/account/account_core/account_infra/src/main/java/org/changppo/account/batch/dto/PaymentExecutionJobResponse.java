@@ -1,4 +1,4 @@
-package org.changppo.account.payment.dto;
+package org.changppo.account.batch.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

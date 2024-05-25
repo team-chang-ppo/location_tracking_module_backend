@@ -1,8 +1,8 @@
 package org.changppo.account.batch.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.changppo.account.payment.dto.PaymentExecutionJobRequest;
-import org.changppo.account.payment.dto.PaymentExecutionJobResponse;
+import org.changppo.account.batch.dto.PaymentExecutionJobRequest;
+import org.changppo.account.batch.dto.PaymentExecutionJobResponse;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
@@ -52,7 +52,7 @@ public class BatchController {
         return new JobParametersBuilder()
                 .addLong("memberId", req.getMemberId())
                 .addString("amount", req.getAmount().stripTrailingZeros().toPlainString()) // 불필요한 0을 제거
-                .addLocalDateTime("date", req.getDate())
+                .addLocalDate("date", req.getDate())
                 .toJobParameters();
     }
 
@@ -84,4 +84,3 @@ public class BatchController {
         return value != null ? value.toString() : "Unknown";
     }
 }
-

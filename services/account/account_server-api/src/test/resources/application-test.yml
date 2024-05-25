@@ -18,6 +18,12 @@ spring:
     open-in-view: false
     show-sql: true
 
+api:
+  url: http://testhost
+
+batch:
+  url: http://testhost
+
 logging:
   level:
     org.hibernate.orm.jdbc.bind: trace

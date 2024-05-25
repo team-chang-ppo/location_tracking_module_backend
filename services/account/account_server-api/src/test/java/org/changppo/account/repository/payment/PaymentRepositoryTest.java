@@ -25,7 +25,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Slice;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -154,8 +154,8 @@ class PaymentRepositoryTest {
     @Test
     void findFirstByMemberIdOrderByEndedAtDesc() {
         // given
-        Payment payment1 = paymentRepository.save(buildPayment("key1", new BigDecimal("100.00"), PaymentStatus.COMPLETED_PAID, LocalDateTime.now(), LocalDateTime.now().plusMinutes(30), member, new PaymentCardInfo("type", "issuerCorporation", "bin")));
-        Payment payment2 = paymentRepository.save(buildPayment("key2", new BigDecimal("100.00"), PaymentStatus.COMPLETED_PAID, LocalDateTime.now().plusMinutes(60), LocalDateTime.now().plusMinutes(90), member, new PaymentCardInfo("type", "issuerCorporation", "bin")));
+        Payment payment1 = paymentRepository.save(buildPayment("key1", new BigDecimal("100.00"), PaymentStatus.COMPLETED_PAID, LocalDate.now(), LocalDate.now().plusDays(1), member, new PaymentCardInfo("type", "issuerCorporation", "bin")));
+        Payment payment2 = paymentRepository.save(buildPayment("key2", new BigDecimal("100.00"), PaymentStatus.COMPLETED_PAID, LocalDate.now().plusDays(2), LocalDate.now().plusDays(3), member, new PaymentCardInfo("type", "issuerCorporation", "bin")));
         clear();
 
         // when
@@ -168,8 +168,8 @@ class PaymentRepositoryTest {
     @Test
     void findAllDtosByMemberIdAndStatusNotCompletedFree() {
         // given
-        Payment payment1 = paymentRepository.save(buildPayment("key1", new BigDecimal("100.00"), PaymentStatus.COMPLETED_PAID, LocalDateTime.now(), LocalDateTime.now().plusMinutes(30), member, new PaymentCardInfo("type", "issuerCorporation", "bin")));
-        Payment payment2 = paymentRepository.save(buildPayment(null, new BigDecimal("100.00"), PaymentStatus.COMPLETED_FREE, LocalDateTime.now().plusMinutes(60), LocalDateTime.now().plusMinutes(90), member,null));
+        Payment payment1 = paymentRepository.save(buildPayment("key1", new BigDecimal("100.00"), PaymentStatus.COMPLETED_PAID, LocalDate.now(), LocalDate.now().plusDays(1), member, new PaymentCardInfo("type", "issuerCorporation", "bin")));
+        Payment payment2 = paymentRepository.save(buildPayment(null, new BigDecimal("100.00"), PaymentStatus.COMPLETED_FREE, LocalDate.now(), LocalDate.now().plusDays(1), member,null));
         clear();
 
         // when
@@ -183,8 +183,8 @@ class PaymentRepositoryTest {
     @Test
     void findAllDtosTest() {
         // given
-        paymentRepository.save(buildPayment("key1", new BigDecimal("100.00"), PaymentStatus.COMPLETED_PAID, LocalDateTime.now(), LocalDateTime.now().plusMinutes(30), member, new PaymentCardInfo("type", "issuerCorporation", "bin")));
-        paymentRepository.save(buildPayment("key2", new BigDecimal("100.00"), PaymentStatus.COMPLETED_PAID, LocalDateTime.now().plusMinutes(60), LocalDateTime.now().plusMinutes(90), member, new PaymentCardInfo("type", "issuerCorporation", "bin")));
+        paymentRepository.save(buildPayment("key1", new BigDecimal("100.00"), PaymentStatus.COMPLETED_PAID, LocalDate.now(), LocalDate.now().plusDays(1), member, new PaymentCardInfo("type", "issuerCorporation", "bin")));
+        paymentRepository.save(buildPayment("key2", new BigDecimal("100.00"), PaymentStatus.COMPLETED_PAID, LocalDate.now(), LocalDate.now().plusDays(1), member, new PaymentCardInfo("type", "issuerCorporation", "bin")));
         clear();
 
         // when
