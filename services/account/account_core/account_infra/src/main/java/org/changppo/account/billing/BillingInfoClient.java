@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
 import java.time.LocalDate;
 
 @Component
@@ -29,6 +30,7 @@ public class BillingInfoClient {
                     BillingInfoResponse.class
             );
             handleResponse(response);
+            validateBillingInfoResponse(response);
             return ClientResponse.success(response);
         } catch (Exception e) {
             log.error("Failed to get billing amount for period. Member ID: {}, Start Date: {}, End Date: {}", memberId, periodStart, periodEnd, e);
@@ -43,8 +45,11 @@ public class BillingInfoClient {
                 .toUriString();
     }
 
-    private void handleResponse(BillingInfoResponse response) {
+    private <T> void handleResponse(T response) {
         Assert.notNull(response, "Failed to get billing info response: Response is null");
+    }
+
+    private void validateBillingInfoResponse(BillingInfoResponse response) {
         Assert.notNull(response.getResult(), "Result cannot be null");
         Assert.notNull(response.getResult().getTotalCount(), "Total count cannot be null");
         Assert.notNull(response.getResult().getTotalCost(), "Total cost cannot be null");

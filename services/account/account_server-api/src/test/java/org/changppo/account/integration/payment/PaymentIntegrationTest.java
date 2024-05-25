@@ -1,21 +1,19 @@
 package org.changppo.account.integration.payment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.changppo.account.integration.TestInitDB;
+import org.changppo.account.batch.dto.PaymentExecutionJobResponse;
 import org.changppo.account.builder.pageable.PageableBuilder;
+import org.changppo.account.config.BatchServerUrlProperties;
 import org.changppo.account.dto.payment.PaymentReadAllRequest;
 import org.changppo.account.entity.apikey.ApiKey;
 import org.changppo.account.entity.card.Card;
 import org.changppo.account.entity.member.Member;
 import org.changppo.account.entity.payment.Payment;
-import org.changppo.account.batch.PaymentExecutionJobClient;
-import org.changppo.account.batch.dto.PaymentExecutionJobRequest;
-import org.changppo.account.batch.dto.PaymentExecutionJobResponse;
+import org.changppo.account.integration.TestInitDB;
 import org.changppo.account.repository.apikey.ApiKeyRepository;
 import org.changppo.account.repository.card.CardRepository;
 import org.changppo.account.repository.member.MemberRepository;
 import org.changppo.account.repository.payment.PaymentRepository;
-import org.changppo.account.response.ClientResponse;
 import org.changppo.account.response.exception.apikey.ApiKeyNotFoundException;
 import org.changppo.account.response.exception.card.CardNotFoundException;
 import org.changppo.account.response.exception.member.MemberNotFoundException;
@@ -28,8 +26,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -41,13 +40,15 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.io.IOException;
 
+import static org.changppo.account.batch.PaymentExecutionJobClient.PAYMENT_EXECUTION_JOB_URL;
 import static org.changppo.account.builder.member.CustomOAuth2UserBuilder.buildCustomOAuth2User;
 import static org.changppo.account.builder.payment.PaymentExecutionJobResponseBuilder.buildPaymentExecutionJobResponse;
 import static org.changppo.account.builder.payment.PaymentRequestBuilder.buildPaymentReadAllRequest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -64,8 +65,6 @@ public class PaymentIntegrationTest {
     WebApplicationContext context;
     @Autowired
     MockMvc mockMvc;
-    @MockBean
-    PaymentExecutionJobClient paymentExecutionJobClient;
     @Autowired
     TestInitDB testInitDB;
     @Autowired
@@ -78,6 +77,8 @@ public class PaymentIntegrationTest {
     MemberRepository memberRepository;
     @Autowired
     RestTemplate restTemplate;
+    @Autowired
+    BatchServerUrlProperties batchServerUrlProperties;
 
     MockRestServiceServer mockServer;
     ObjectMapper objectMapper = new ObjectMapper();
@@ -141,7 +142,7 @@ public class PaymentIntegrationTest {
     void repaymentTest() throws Exception{
         // given
         PaymentExecutionJobResponse paymentExecutionJobResponse = buildPaymentExecutionJobResponse();
-        when(paymentExecutionJobClient.PaymentExecutionJob(any(PaymentExecutionJobRequest.class))).thenReturn(ClientResponse.success(paymentExecutionJobResponse));
+        simulatePaymentExecutionJobClientSuccess(paymentExecutionJobResponse);
         // when
         mockMvc.perform(post("/api/payments/v1/repayment/{id}", failedPayment.getId())
                 .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2BanForPaymentFailureMember)))
@@ -159,7 +160,7 @@ public class PaymentIntegrationTest {
     void repaymentByAdminTest() throws Exception{
         // given
         PaymentExecutionJobResponse paymentExecutionJobResponse = buildPaymentExecutionJobResponse();
-        when(paymentExecutionJobClient.PaymentExecutionJob(any(PaymentExecutionJobRequest.class))).thenReturn(ClientResponse.success(paymentExecutionJobResponse));
+        simulatePaymentExecutionJobClientSuccess(paymentExecutionJobResponse);
         // when
         mockMvc.perform(post("/api/payments/v1/repayment/{id}", failedPayment.getId())
                         .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2AdminMember)))
@@ -177,7 +178,7 @@ public class PaymentIntegrationTest {
     void repaymentUnauthorizedByNoneSessionTest() throws Exception {
         // given
         PaymentExecutionJobResponse paymentExecutionJobResponse = buildPaymentExecutionJobResponse();
-        when(paymentExecutionJobClient.PaymentExecutionJob(any(PaymentExecutionJobRequest.class))).thenReturn(ClientResponse.success(paymentExecutionJobResponse));
+        simulatePaymentExecutionJobClientSuccess(paymentExecutionJobResponse);
         // when, then
         mockMvc.perform(post("/api/payments/v1/repayment/{id}", failedPayment.getId()))
                 .andExpect(status().isUnauthorized());
@@ -187,7 +188,7 @@ public class PaymentIntegrationTest {
     void repaymentAccessDeniedByNotPaymentFailureTest() throws Exception {
         // given
         PaymentExecutionJobResponse paymentExecutionJobResponse = buildPaymentExecutionJobResponse();
-        when(paymentExecutionJobClient.PaymentExecutionJob(any(PaymentExecutionJobRequest.class))).thenReturn(ClientResponse.success(paymentExecutionJobResponse));
+        simulatePaymentExecutionJobClientSuccess(paymentExecutionJobResponse);
         // when
         mockMvc.perform(post("/api/payments/v1/repayment/{id}", successfulPaidPayment.getId())
                         .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2NormalMember)))
@@ -198,11 +199,17 @@ public class PaymentIntegrationTest {
     void repaymentAccessDeniedByNotResourceOwnerTest() throws Exception{
         // given
         PaymentExecutionJobResponse paymentExecutionJobResponse = buildPaymentExecutionJobResponse();
-        when(paymentExecutionJobClient.PaymentExecutionJob(any(PaymentExecutionJobRequest.class))).thenReturn(ClientResponse.success(paymentExecutionJobResponse));
+        simulatePaymentExecutionJobClientSuccess(paymentExecutionJobResponse);
         // when
         mockMvc.perform(post("/api/payments/v1/repayment/{id}", failedPayment.getId())
                         .with(SecurityMockMvcRequestPostProcessors.oauth2Login().oauth2User(customOAuth2NormalMember)))
                 .andExpect(status().isForbidden());
+    }
+
+    private void simulatePaymentExecutionJobClientSuccess(PaymentExecutionJobResponse paymentExecutionJobResponse) throws IOException {
+        mockServer.expect(requestTo(batchServerUrlProperties.getUrl() + PAYMENT_EXECUTION_JOB_URL))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(objectMapper.writeValueAsString(paymentExecutionJobResponse), MediaType.APPLICATION_JSON));
     }
 
     @Test
