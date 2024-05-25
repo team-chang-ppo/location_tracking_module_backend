@@ -1,3 +1,13 @@
+-- 기존 테이블 삭제
+DROP TABLE IF EXISTS oauth2_authorized_client CASCADE;
+DROP TABLE IF EXISTS api_key CASCADE;
+DROP TABLE IF EXISTS card CASCADE;
+DROP TABLE IF EXISTS grade CASCADE;
+DROP TABLE IF EXISTS member CASCADE;
+DROP TABLE IF EXISTS payment CASCADE;
+DROP TABLE IF EXISTS payment_gateway CASCADE;
+DROP TABLE IF EXISTS role CASCADE;
+
 -- 테이블 생성
 create table api_key (
                          admin_banned_at timestamp(6),
