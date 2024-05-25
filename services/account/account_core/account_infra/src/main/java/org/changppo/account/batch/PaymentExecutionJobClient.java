@@ -1,10 +1,10 @@
-package org.changppo.account.payment;
+package org.changppo.account.batch;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.changppo.account.config.BatchServerUrlProperties;
-import org.changppo.account.payment.dto.PaymentExecutionJobRequest;
-import org.changppo.account.payment.dto.PaymentExecutionJobResponse;
+import org.changppo.account.batch.dto.PaymentExecutionJobRequest;
+import org.changppo.account.batch.dto.PaymentExecutionJobResponse;
 import org.changppo.account.response.ClientResponse;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.HttpEntity;

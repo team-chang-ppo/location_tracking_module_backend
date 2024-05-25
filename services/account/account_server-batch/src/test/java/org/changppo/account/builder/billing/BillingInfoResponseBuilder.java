@@ -1,6 +1,6 @@
 package org.changppo.account.builder.billing;
 
-import org.changppo.account.payment.dto.BillingInfoResponse;
+import org.changppo.account.billing.dto.BillingInfoResponse;
 
 import java.math.BigDecimal;
 

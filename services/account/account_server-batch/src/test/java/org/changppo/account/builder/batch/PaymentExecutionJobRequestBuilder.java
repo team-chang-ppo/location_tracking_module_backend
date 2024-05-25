@@ -1,7 +1,7 @@
 package org.changppo.account.builder.batch;
 
 
-import org.changppo.account.payment.dto.PaymentExecutionJobRequest;
+import org.changppo.account.batch.dto.PaymentExecutionJobRequest;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

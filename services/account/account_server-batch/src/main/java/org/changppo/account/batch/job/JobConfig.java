@@ -6,7 +6,7 @@ import org.changppo.account.batch.config.reader.QuerydslZeroPagingItemReader;
 import org.changppo.account.entity.card.Card;
 import org.changppo.account.entity.member.Member;
 import org.changppo.account.entity.payment.Payment;
-import org.changppo.account.payment.dto.PaymentExecutionJobResponse;
+import org.changppo.account.batch.dto.PaymentExecutionJobResponse;
 import org.changppo.account.paymentgateway.PaymentGatewayClient;
 import org.changppo.account.paymentgateway.dto.PaymentRequest;
 import org.changppo.account.paymentgateway.kakaopay.dto.payment.KakaopayPaymentRequest;

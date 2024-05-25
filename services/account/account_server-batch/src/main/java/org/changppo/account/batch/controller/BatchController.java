@@ -1,8 +1,8 @@
 package org.changppo.account.batch.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.changppo.account.payment.dto.PaymentExecutionJobRequest;
-import org.changppo.account.payment.dto.PaymentExecutionJobResponse;
+import org.changppo.account.batch.dto.PaymentExecutionJobRequest;
+import org.changppo.account.batch.dto.PaymentExecutionJobResponse;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobRepository;

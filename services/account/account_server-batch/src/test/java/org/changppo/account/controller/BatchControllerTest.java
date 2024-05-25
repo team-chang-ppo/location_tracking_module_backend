@@ -6,7 +6,7 @@ import org.changppo.account.TestInitDB;
 import org.changppo.account.entity.card.Card;
 import org.changppo.account.entity.member.Member;
 import org.changppo.account.entity.payment.Payment;
-import org.changppo.account.payment.dto.PaymentExecutionJobRequest;
+import org.changppo.account.batch.dto.PaymentExecutionJobRequest;
 import org.changppo.account.paymentgateway.kakaopay.dto.payment.KakaopayApproveResponse;
 import org.changppo.account.repository.card.CardRepository;
 import org.changppo.account.repository.member.MemberRepository;

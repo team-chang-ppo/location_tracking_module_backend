@@ -1,4 +1,4 @@
-package org.changppo.account.payment;
+package org.changppo.account.billing;
 
 import org.changppo.account.response.ClientResponse;
 import org.springframework.stereotype.Component;

@@ -1,4 +1,4 @@
-package org.changppo.account.payment;
+package org.changppo.account.billing;
 
 import lombok.Getter;
 import lombok.Setter;
