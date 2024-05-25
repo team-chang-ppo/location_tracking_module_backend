@@ -24,6 +24,7 @@ import java.util.Map;
 
 import static org.changppo.account.paymentgateway.kakaopay.KakaopayConstants.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.util.Assert.notNull;
 
 @RequiredArgsConstructor
 @Service
@@ -223,20 +224,14 @@ public class KakaopayPaymentGatewayClient extends PaymentGatewayClient {
         return new HttpEntity<>(parameters, headers);
     }
 
-    public static <T> void handleResponse(T response) {
-        if (response == null) {
-            throw new RuntimeException("Failed to process Kakaopay Response: Response is null");
-        }
+    public <T> void handleResponse(T response) {
+        notNull(response, "Failed to process Kakaopay Response: Response is null");
     }
 
     private void validateApproveResponse(KakaopayApproveResponse response) {
-        if (response.getAmount() == null) {
-            throw new IllegalStateException("Amount cannot be null.");
-        }
+        notNull(response.getAmount(), "Amount cannot be null.");
         if ("CARD".equalsIgnoreCase(response.getPayment_method_type())) {
-            if (response.getCard_info() == null) {
-                throw new IllegalStateException("Card info cannot be null");
-            }
+            notNull(response.getCard_info(), "Card info cannot be null");
         } else if (!"MONEY".equalsIgnoreCase(response.getPayment_method_type())) {
             throw new IllegalStateException("Unsupported payment method type: " + response.getPayment_method_type());
         }

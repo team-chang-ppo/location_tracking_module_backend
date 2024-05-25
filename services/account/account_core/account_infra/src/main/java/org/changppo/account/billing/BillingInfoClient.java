@@ -6,11 +6,11 @@ import org.changppo.account.billing.dto.BillingInfoResponse;
 import org.changppo.account.response.ClientResponse;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-
 import java.time.LocalDate;
+
+import static org.springframework.util.Assert.notNull;
 
 @Component
 @Slf4j
@@ -46,12 +46,12 @@ public class BillingInfoClient {
     }
 
     private <T> void handleResponse(T response) {
-        Assert.notNull(response, "Failed to get billing info response: Response is null");
+        notNull(response, "Failed to get billing info response: Response is null");
     }
 
     private void validateBillingInfoResponse(BillingInfoResponse response) {
-        Assert.notNull(response.getResult(), "Result cannot be null");
-        Assert.notNull(response.getResult().getTotalCount(), "Total count cannot be null");
-        Assert.notNull(response.getResult().getTotalCost(), "Total cost cannot be null");
+        notNull(response.getResult(), "Result cannot be null");
+        notNull(response.getResult().getTotalCount(), "Total count cannot be null");
+        notNull(response.getResult().getTotalCost(), "Total cost cannot be null");
     }
 }
