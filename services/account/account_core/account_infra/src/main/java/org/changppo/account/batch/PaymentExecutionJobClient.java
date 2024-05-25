@@ -17,7 +17,7 @@ import org.springframework.web.client.RestTemplate;
 @Component
 @Slf4j
 @EnableConfigurationProperties(BatchServerUrlProperties.class)
-public class PaymentExecutionJobClient {  //TODO. Spring Cloud Feign Client로 변경
+public class PaymentExecutionJobClient {
 
     private final RestTemplate restTemplate;
     private final BatchServerUrlProperties batchServerUrlProperties;
