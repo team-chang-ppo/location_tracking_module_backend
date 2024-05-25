@@ -9,6 +9,14 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BillingInfoResponse {
-    private Long totalCount;
-    private BigDecimal totalAmount;
+    private boolean success;
+    private BillingResult result;
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class BillingResult {
+        private Long totalCount;
+        private BigDecimal totalCost;
+    }
 }

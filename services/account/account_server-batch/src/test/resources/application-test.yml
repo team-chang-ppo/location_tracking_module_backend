@@ -40,6 +40,9 @@ spring:
     open-in-view: false
     show-sql: true
 
+billing:
+  url: http://testhost
+
 quartz:
   properties: quartz-test.properties
 

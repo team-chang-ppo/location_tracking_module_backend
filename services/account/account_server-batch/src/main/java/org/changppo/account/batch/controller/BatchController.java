@@ -52,7 +52,7 @@ public class BatchController {
         return new JobParametersBuilder()
                 .addLong("memberId", req.getMemberId())
                 .addString("amount", req.getAmount().stripTrailingZeros().toPlainString()) // 불필요한 0을 제거
-                .addLocalDateTime("date", req.getDate())
+                .addLocalDate("date", req.getDate())
                 .toJobParameters();
     }
 
@@ -84,4 +84,3 @@ public class BatchController {
         return value != null ? value.toString() : "Unknown";
     }
 }
-

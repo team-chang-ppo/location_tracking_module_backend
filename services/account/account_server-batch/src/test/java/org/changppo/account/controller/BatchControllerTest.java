@@ -33,6 +33,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.changppo.account.batch.job.JobConfig.PAYMENT_JOB;
@@ -146,11 +147,11 @@ public class BatchControllerTest {
     }
 
 
-    private JobParameters buildJobParameters(Long memberId, BigDecimal amount, LocalDateTime date) {
+    private JobParameters buildJobParameters(Long memberId, BigDecimal amount, LocalDate date) {
         return new JobParametersBuilder()
                 .addLong("memberId", memberId)
                 .addString("amount", amount.toString())
-                .addLocalDateTime("date", date)
+                .addLocalDate("date", date)
                 .toJobParameters();
     }
 
