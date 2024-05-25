@@ -52,14 +52,14 @@ create table member (
 );
 
 create table payment (
-                         amount numeric(38, 2) not null,
+                         amount numeric(38,2) not null,
+                         ended_at date not null,
+                         started_at date not null,
                          created_at timestamp(6) not null,
                          deleted_at timestamp(6),
-                         ended_at timestamp(6) not null,
                          member_id bigint not null,
                          modified_at timestamp(6) not null,
                          payment_id bigserial not null,
-                         started_at timestamp(6) not null,
                          bin varchar(255),
                          issuer_corporation varchar(255),
                          "key" varchar(255) unique,
