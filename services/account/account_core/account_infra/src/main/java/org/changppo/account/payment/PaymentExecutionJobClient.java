@@ -10,11 +10,11 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 @RequiredArgsConstructor
-@Service
+@Component
 @Slf4j
 @EnableConfigurationProperties(BatchServerUrlProperties.class)
 public class PaymentExecutionJobClient {  //TODO. Spring Cloud Feign Client로 변경

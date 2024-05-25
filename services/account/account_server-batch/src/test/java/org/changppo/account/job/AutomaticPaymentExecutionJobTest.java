@@ -138,7 +138,7 @@ public class AutomaticPaymentExecutionJobTest { //TODO. 비용집계 서버와 �
 
     private JobParameters buildJobParameters() {
         LocalDateTime lastSunday = calculateLastSunday(LocalDateTime.now());
-        LocalDateTime jobStartTime = lastSunday.plusDays(2);
+        LocalDateTime jobStartTime = lastSunday.plusDays(3);
 
         return new JobParametersBuilder()
                 .addLocalDateTime("JobStartTime", jobStartTime)

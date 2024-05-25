@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,8 +30,8 @@ class PaymentTest {
     void builderTest() {
         // given
         Member testMember = MemberBuilder.buildMember(RoleBuilder.buildRole(RoleType.ROLE_NORMAL));
-        LocalDateTime startTime = LocalDateTime.now();
-        LocalDateTime endTime = startTime.plusHours(1);
+        LocalDate startTime = LocalDate.now();
+        LocalDate endTime = startTime.plusDays(1);
         PaymentCardInfo cardInfo = new PaymentCardInfo("type", "issuerCorporation", "bin");
 
         // when
@@ -76,4 +77,3 @@ class PaymentTest {
         assertEquals(newCardInfo, payment.getCardInfo());
     }
 }
-
