@@ -60,4 +60,8 @@ public class Card extends EntityDate {
         this.member = member;
         this.deletedAt = null;
     }
+
+    public boolean isDeleted() {
+        return this.deletedAt != null;
+    }
 }

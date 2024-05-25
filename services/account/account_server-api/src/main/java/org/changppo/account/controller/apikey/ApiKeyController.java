@@ -8,7 +8,7 @@ import org.changppo.account.dto.apikey.ApiKeyListDto;
 import org.changppo.account.dto.apikey.ApiKeyReadAllRequest;
 import org.changppo.account.dto.apikey.ApiKeyValidationResponse;
 import org.changppo.account.security.PrincipalHandler;
-import org.changppo.account.service.apikey.ApiKeyService;
+import org.changppo.account.service.application.apikey.ApiKeyService;
 import org.changppo.account.service.dto.apikey.ApiKeyDto;
 import org.changppo.commons.ResponseBody;
 import org.changppo.commons.SuccessResponseBody;

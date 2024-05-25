@@ -10,7 +10,7 @@ import org.changppo.account.response.exception.common.ResponseHandler;
 import org.changppo.account.response.exception.paymentgateway.KakaopayPaymentGatewayApproveFailureException;
 import org.changppo.account.response.exception.paymentgateway.KakaopayPaymentGatewayFailException;
 import org.changppo.account.response.exception.paymentgateway.KakaopayPaymentGatewayReadyFailureException;
-import org.changppo.account.service.card.paymentgateway.kakaopay.KakaopayCardService;
+import org.changppo.account.service.application.card.paymentgateway.kakaopay.KakaopayCardService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,7 +41,7 @@ class KakaopayCardControllerAdviceTest {
     ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
-    void setUp() {
+    void beforeEach() {
         mockMvc = MockMvcBuilders.standaloneSetup(kakaopayCardController).setControllerAdvice(new ExceptionAdvice(responseHandler)).build();
     }
 

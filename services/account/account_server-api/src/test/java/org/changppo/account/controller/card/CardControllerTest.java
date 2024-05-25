@@ -1,7 +1,7 @@
 package org.changppo.account.controller.card;
 
 import org.changppo.account.builder.pageable.PageableBuilder;
-import org.changppo.account.service.card.CardService;
+import org.changppo.account.service.application.card.CardService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -64,7 +64,7 @@ class CardControllerTest {
     @Test
     void readListTest() throws Exception {
         // given
-        Pageable pageable = PageableBuilder.build();
+        Pageable pageable = PageableBuilder.buildPage();
 
         // when, then
         mockMvc.perform(

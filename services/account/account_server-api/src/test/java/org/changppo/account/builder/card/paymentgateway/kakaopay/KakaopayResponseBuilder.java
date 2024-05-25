@@ -1,6 +1,7 @@
 package org.changppo.account.builder.card.paymentgateway.kakaopay;
 
 
+import org.changppo.account.dto.card.kakaopay.KakaopayCardRegisterRedirectResponse;
 import org.changppo.account.paymentgateway.kakaopay.dto.payment.KakaopayApproveResponse;
 import org.changppo.account.paymentgateway.kakaopay.dto.payment.KakaopayReadyResponse;
 import org.changppo.account.paymentgateway.kakaopay.dto.subscription.KakaopaySubscriptionInactiveResponse;
@@ -29,6 +30,22 @@ public class KakaopayResponseBuilder {
                 androidAppScheme,
                 iosAppScheme,
                 createdAt
+        );
+    }
+
+    public static KakaopayCardRegisterRedirectResponse buildKakaopayCardRegisterRedirectResponse() {
+        String nextRedirectAppUrl = "kakaoapp://kakaopay/ready/" + UUID.randomUUID();
+        String nextRedirectMobileUrl = "https://m.kakaopay.com/ready/" + UUID.randomUUID();
+        String nextRedirectPcUrl = "https://kakaopay.com/ready/" + UUID.randomUUID();
+        String androidAppScheme = "kakaopay-android-app-scheme://" + UUID.randomUUID();
+        String iosAppScheme = "kakaopay-ios-app-scheme://" + UUID.randomUUID();
+
+        return new KakaopayCardRegisterRedirectResponse(
+                nextRedirectAppUrl,
+                nextRedirectMobileUrl,
+                nextRedirectPcUrl,
+                androidAppScheme,
+                iosAppScheme
         );
     }
 

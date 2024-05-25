@@ -7,7 +7,7 @@ import org.changppo.account.response.exception.apikey.GradeNotFoundException;
 import org.changppo.account.response.exception.member.MemberNotFoundException;
 import org.changppo.account.response.exception.common.ExceptionAdvice;
 import org.changppo.account.response.exception.common.ResponseHandler;
-import org.changppo.account.service.apikey.ApiKeyService;
+import org.changppo.account.service.application.apikey.ApiKeyService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

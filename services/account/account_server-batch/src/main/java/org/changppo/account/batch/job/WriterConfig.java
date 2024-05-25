@@ -58,7 +58,7 @@ public class WriterConfig {
 
     public void handleAutomaticPaymentFailure(Member member, LocalDateTime jobStartTime) {
         member.banForPaymentFailure(jobStartTime);
-        apiKeyRepository.banApiKeysForPaymentFailure(member.getId(), jobStartTime);
+        apiKeyRepository.banApiKeysForPaymentFailureByMemberId(member.getId(), jobStartTime);
         memberRepository.save(member);
     }
 
@@ -79,9 +79,9 @@ public class WriterConfig {
 
     public void handleDeletionPaymentFailure(Member member, LocalDateTime jobStartTime) {
         member.banForPaymentFailure(jobStartTime);
-        apiKeyRepository.banApiKeysForPaymentFailure(member.getId(), jobStartTime);
+        apiKeyRepository.banApiKeysForPaymentFailureByMemberId(member.getId(), jobStartTime);
         member.cancelDeletionRequest();
-        apiKeyRepository.cancelApiKeyDeletionRequest(member.getId());
+        apiKeyRepository.cancelApiKeyDeletionRequestByMemberId(member.getId());
         memberRepository.save(member);
     }
 

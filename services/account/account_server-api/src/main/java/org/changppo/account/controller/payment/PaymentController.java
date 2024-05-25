@@ -6,7 +6,7 @@ import org.changppo.account.dto.payment.PaymentListDto;
 import org.changppo.account.dto.payment.PaymentReadAllRequest;
 import org.changppo.account.security.PrincipalHandler;
 import org.changppo.account.service.dto.payment.PaymentDto;
-import org.changppo.account.service.payment.PaymentService;
+import org.changppo.account.service.application.payment.PaymentService;
 import org.changppo.commons.ResponseBody;
 import org.changppo.commons.SuccessResponseBody;
 import org.springframework.data.domain.Page;

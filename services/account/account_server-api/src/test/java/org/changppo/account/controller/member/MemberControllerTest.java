@@ -3,7 +3,7 @@ package org.changppo.account.controller.member;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.changppo.account.builder.pageable.PageableBuilder;
-import org.changppo.account.service.member.MemberService;
+import org.changppo.account.service.application.member.MemberService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,7 +54,7 @@ class MemberControllerTest {
     @Test
     void readListTest() throws Exception {
         // given
-        Pageable pageable = PageableBuilder.build();
+        Pageable pageable = PageableBuilder.buildPage();
 
         // when, then
         mockMvc.perform(

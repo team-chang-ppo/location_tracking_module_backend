@@ -70,7 +70,7 @@ public class Payment extends EntityDate {
         this.cardInfo = cardInfo;
     }
 
-    public void delete(LocalDateTime time) {
-        this.deletedAt = time;
+    public boolean isDeleted() {
+        return this.deletedAt != null;
     }
 }

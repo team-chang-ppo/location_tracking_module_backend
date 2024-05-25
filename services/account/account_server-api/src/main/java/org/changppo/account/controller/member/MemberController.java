@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.changppo.account.dto.member.PrincipalDto;
 import org.changppo.account.security.PrincipalHandler;
 import org.changppo.account.service.dto.member.MemberDto;
-import org.changppo.account.service.member.MemberService;
+import org.changppo.account.service.application.member.MemberService;
 import org.changppo.commons.ResponseBody;
 import org.changppo.commons.SuccessResponseBody;
 import org.springframework.data.domain.Page;

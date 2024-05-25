@@ -3,7 +3,7 @@ package org.changppo.account.controller.card;
 import lombok.RequiredArgsConstructor;
 import org.changppo.account.dto.card.CardListDto;
 import org.changppo.account.security.PrincipalHandler;
-import org.changppo.account.service.card.CardService;
+import org.changppo.account.service.application.card.CardService;
 import org.changppo.account.service.dto.card.CardDto;
 import org.changppo.commons.ResponseBody;
 import org.changppo.commons.SuccessResponseBody;

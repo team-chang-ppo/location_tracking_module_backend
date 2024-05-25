@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.changppo.account.aop.AssignMemberId;
 import org.changppo.account.dto.card.kakaopay.*;
-import org.changppo.account.service.card.paymentgateway.kakaopay.KakaopayCardService;
+import org.changppo.account.service.application.card.paymentgateway.kakaopay.KakaopayCardService;
 import org.changppo.account.service.dto.card.CardDto;
 import org.changppo.commons.ResponseBody;
 import org.changppo.commons.SuccessResponseBody;
