@@ -18,3 +18,4 @@ include(':services:tracking:tracking_server')
 
 include(':utils:jwt')
 include(':utils:domain')
+findProject(':utils:domain')?.name = 'domain'

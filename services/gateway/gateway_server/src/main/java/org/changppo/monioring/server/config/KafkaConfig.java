@@ -10,11 +10,11 @@ import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import reactor.kafka.sender.SenderOptions;
 
-@Profile("local")
 @Configuration(proxyBeanMethods = false)
 public class KafkaConfig {
 
     @Bean
+    @Profile("local")
     public NewTopic apiMeteringTopic() {
         return TopicBuilder.name(GatewayConstant.API_METERING_TOPIC)
                 .build();

@@ -21,7 +21,6 @@ public class CostQueryService {
 
     private final HourlyApiUsageCostViewRepository costViewRepository;
 
-    @PreAuthorize("hasRole('ROLE_ADMIN') and #memberId == authentication.principal")
     public MemberChargeGraphView getChargeGraphView(@NotNull Long memberId, @Nullable Long apiKeyId, @NotNull LocalDate startDate, @NotNull LocalDate endDate) {
         // FETCH
         final List<HourlyApiUsageCostView> fetchedCostViews;

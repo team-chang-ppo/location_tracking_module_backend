@@ -32,7 +32,7 @@ public class KafkaConsumer {
     private final ApiEndpointRepository apiEndpointRepository;
     private final HourlyApiUsageRepository hourlyApiUsageRepository;
 
-    @KafkaListener(topics = "hourly-api-usage", groupId = "monitoring-server", containerFactory = "defaultConsumerFactory")
+    @KafkaListener(topics = "hourly-api-usage", groupId = "test", containerFactory = "defaultConsumerFactory")
     public void consume(List<String> values, Acknowledgment acknowledgment) {
         List<HourlyApiUsageEntity> entities = values.stream()
                 .map(this::parseEvent)

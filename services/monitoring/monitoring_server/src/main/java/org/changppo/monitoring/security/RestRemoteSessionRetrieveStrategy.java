@@ -1,6 +1,8 @@
 package org.changppo.monitoring.security;
 
 import jakarta.annotation.Nullable;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +16,7 @@ import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -24,7 +27,21 @@ public class RestRemoteSessionRetrieveStrategy implements RemoteSessionRetrieveS
     private final RestTemplate restTemplate;
     @Nullable
     @Override
-    public RemoteSessionAuthentication retrieve(@NotNull String sessionId) {
+    public RemoteSessionAuthentication retrieve(@NotNull HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            return null;
+        }
+        String sessionId = Arrays.stream(cookies)
+                .filter(cookie -> cookie.getName().equals(sessionQueryProperties.getSessionCookieName()))
+                .findFirst()
+                .map(Cookie::getValue)
+                .orElse(null);
+
+        if (sessionId == null) {
+            return null;
+        }
+
         String sessionQueryEndpoint = sessionQueryProperties.getSessionQueryEndpoint();
         // 쿠키값 설정
 
@@ -54,7 +71,7 @@ public class RestRemoteSessionRetrieveStrategy implements RemoteSessionRetrieveS
         }
 
         // 성공
-        var data = successResponseBody.getResult().data();
+        var data = successResponseBody.getResult();
         Long memberId = data.memberId();
         List<String> roles = data.roles();
         if (memberId == null || roles == null) {
@@ -66,13 +83,8 @@ public class RestRemoteSessionRetrieveStrategy implements RemoteSessionRetrieveS
     }
 
     public record SessionResponsePayload(
-            SessionPayload data
+            Long memberId,
+            List<String> roles
     ) {
-
-        public record SessionPayload(
-                Long memberId,
-                List<String> roles
-        ){
-        }
     }
 }

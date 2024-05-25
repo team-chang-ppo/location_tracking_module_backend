@@ -11,7 +11,7 @@ public enum ErrorCode {
     HTTP_MEDIA_TYPE_NOT_ACCEPTABLE("M0004", "Http Media Type Not Acceptable", 406),
     REMOTE_SESSION_FETCH_FAILED("M0005", "Remote Session Fetch Failed", 500),
     VALID_AUTHENTICATION_REQUIRED("M0006", "Valid Authentication Required", 401),
-    ;
+    QUERY_DURATION_EXCEEDED("M0007","Query Duration Exceeded", 400);
     private final String code;
     private final String message;
     private final int responseStatus;
