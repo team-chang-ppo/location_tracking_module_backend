@@ -23,6 +23,11 @@ spring:
     jdbc:
       initialize-schema: never
 
+  cloud:
+    task:
+      initialize-enabled: false
+      name: account_server-batch
+
   servlet:
     multipart:
       max-file-size: 5MB

@@ -25,6 +25,12 @@ spring:
     open-in-view: false
     show-sql: true
 
+  quartz:
+    scheduler-name: QuartzScheduler
+    jdbc:
+      initialize-schema: always
+    job-store-type: jdbc
+
 quartz:
   properties: security/quartz-local.properties
 

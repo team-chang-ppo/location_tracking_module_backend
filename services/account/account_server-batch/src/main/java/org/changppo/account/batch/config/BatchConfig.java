@@ -42,4 +42,9 @@ public class BatchConfig extends DefaultBatchConfiguration {
     protected PlatformTransactionManager getTransactionManager() {
         return metaTransactionManager;
     }
+
+    @Override
+    protected String getTablePrefix() {
+        return "BOOT3_BATCH_";
+    }
 }

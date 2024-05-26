@@ -37,6 +37,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     // Batch
     implementation 'org.springframework.boot:spring-boot-starter-batch'
+    // Spring Cloud Task
+    implementation 'org.springframework.cloud:spring-cloud-task-core:3.1.1'
+    implementation 'org.springframework.cloud:spring-cloud-task-batch:3.1.1'
     // Quartz
     implementation 'org.springframework.boot:spring-boot-starter-quartz'
     // RestTemplate
