@@ -35,6 +35,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     // Actuator
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    // Prometheus
+    implementation 'io.micrometer:micrometer-registry-prometheus'
     // Batch
     implementation 'org.springframework.boot:spring-boot-starter-batch'
     // Spring Cloud Task
