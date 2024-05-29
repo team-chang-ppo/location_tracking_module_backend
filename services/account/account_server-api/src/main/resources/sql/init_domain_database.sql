@@ -1,3 +1,13 @@
+-- 기존 테이블 삭제
+DROP TABLE IF EXISTS oauth2_authorized_client CASCADE;
+DROP TABLE IF EXISTS api_key CASCADE;
+DROP TABLE IF EXISTS card CASCADE;
+DROP TABLE IF EXISTS grade CASCADE;
+DROP TABLE IF EXISTS member CASCADE;
+DROP TABLE IF EXISTS payment CASCADE;
+DROP TABLE IF EXISTS payment_gateway CASCADE;
+DROP TABLE IF EXISTS role CASCADE;
+
 -- 테이블 생성
 create table api_key (
                          admin_banned_at timestamp(6),
@@ -52,14 +62,14 @@ create table member (
 );
 
 create table payment (
-                         amount numeric(38, 2) not null,
+                         amount numeric(38,2) not null,
+                         ended_at date not null,
+                         started_at date not null,
                          created_at timestamp(6) not null,
                          deleted_at timestamp(6),
-                         ended_at timestamp(6) not null,
                          member_id bigint not null,
                          modified_at timestamp(6) not null,
                          payment_id bigserial not null,
-                         started_at timestamp(6) not null,
                          bin varchar(255),
                          issuer_corporation varchar(255),
                          "key" varchar(255) unique,

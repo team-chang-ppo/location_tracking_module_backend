@@ -1,4 +1,4 @@
-package org.changppo.account.scheduled;
+package org.changppo.account.scheduler;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;

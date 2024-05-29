@@ -1,4 +1,4 @@
-package org.changppo.account.scheduled.config;
+package org.changppo.account.scheduler.config;
 
 import lombok.Getter;
 import lombok.Setter;

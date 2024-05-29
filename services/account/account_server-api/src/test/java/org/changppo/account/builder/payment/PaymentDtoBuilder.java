@@ -5,12 +5,13 @@ import org.changppo.account.service.dto.payment.PaymentDto;
 import org.changppo.account.type.PaymentStatus;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class PaymentDtoBuilder {
 
     public static PaymentDto buildPaymentDto() {
-        return new PaymentDto(1L, new BigDecimal("100.00"), PaymentStatus.COMPLETED_PAID, LocalDateTime.now(), LocalDateTime.now().plusHours(1) ,
+        return new PaymentDto(1L, new BigDecimal("100.00"), PaymentStatus.COMPLETED_PAID, LocalDate.now(), LocalDate.now().plusDays(1) ,
                 new PaymentCardInfo("type", "issuerCorporation", "bin"), LocalDateTime.now());
 
     }

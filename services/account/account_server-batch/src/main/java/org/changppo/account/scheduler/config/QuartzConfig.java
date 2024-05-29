@@ -1,4 +1,4 @@
-package org.changppo.account.scheduled.config;
+package org.changppo.account.scheduler.config;
 
 import org.quartz.spi.TriggerFiredBundle;
 import org.springframework.beans.BeansException;

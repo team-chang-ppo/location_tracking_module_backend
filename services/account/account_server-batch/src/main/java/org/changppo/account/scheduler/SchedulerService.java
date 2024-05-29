@@ -1,4 +1,4 @@
-package org.changppo.account.scheduled;
+package org.changppo.account.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import org.quartz.*;
