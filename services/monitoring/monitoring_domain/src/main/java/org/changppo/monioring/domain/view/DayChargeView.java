@@ -14,19 +14,17 @@ import java.util.List;
 public record DayChargeView(
         LocalDate date,
         List<HourChargeView> hours,
-        Long totalAmount
+        Long totalCount,
+        Long totalCost
 ) {
-    public DayChargeView(LocalDate date, List<HourChargeView> hours, Long totalAmount) {
+    public DayChargeView(LocalDate date, List<HourChargeView> hours, Long totalCount, Long totalCost) {
         this.date = date;
         this.hours = Collections.unmodifiableList(hours);
-        Long calculatedTotalAmount = 0L;
-        for (HourChargeView hourChargeView : hours) {
-            calculatedTotalAmount += hourChargeView.amount();
-        }
-        this.totalAmount = calculatedTotalAmount;
+        this.totalCount = hours.stream().map(HourChargeView::count).reduce(0L, Long::sum);
+        this.totalCost = hours.stream().map(HourChargeView::cost).reduce(0L, Long::sum);
     }
 
     public DayChargeView(LocalDate date, List<HourChargeView> hours) {
-        this(date, hours, 0L);
+        this(date, hours, 0L, 0L);
     }
 }

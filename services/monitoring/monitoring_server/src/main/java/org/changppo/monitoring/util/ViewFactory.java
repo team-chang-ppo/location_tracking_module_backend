@@ -67,26 +67,8 @@ public class ViewFactory {
     }
 
     protected static HourChargeView createHourChargeView(Integer hour, List<HourlyApiUsageCostView> hourlyApiUsageCostViews) {
-        List<ApiEndpointChargeDetailsView> apiEndpointChargeDetailsViews = hourlyApiUsageCostViews.stream()
-                .collect(Collectors.groupingBy(HourlyApiUsageCostView::getApiEndpointId))
-                .entrySet().stream()
-                .map(entry -> {
-                    Long apiEndpointId = entry.getKey();
-                    List<HourlyApiUsageCostView> apiEndpointHourlyApiUsageCostViews = entry.getValue();
-                    return createApiEndpointChargeDetailsView(apiEndpointId, apiEndpointHourlyApiUsageCostViews);
-                })
-                .collect(Collectors.toList());
-        return new HourChargeView(hour, apiEndpointChargeDetailsViews);
-    }
-
-    protected static ApiEndpointChargeDetailsView createApiEndpointChargeDetailsView(Long apiEndpointId, List<HourlyApiUsageCostView> hourlyApiUsageCostViews) {
-        Long totalCount = hourlyApiUsageCostViews.stream()
-                .mapToLong(HourlyApiUsageCostView::getRequestCount)
-                .sum();
-        Long costPerCount = hourlyApiUsageCostViews.get(0).getCostPerRequest();
-        Long cost = hourlyApiUsageCostViews.stream()
-                .mapToLong(HourlyApiUsageCostView::getHourlyCost)
-                .sum();
-        return new ApiEndpointChargeDetailsView(apiEndpointId, totalCount, costPerCount, cost);
+        Long cost = hourlyApiUsageCostViews.stream().map(HourlyApiUsageCostView::getHourlyCost).reduce(0L, Long::sum);
+        Long count = hourlyApiUsageCostViews.stream().map(HourlyApiUsageCostView::getRequestCount).reduce(0L, Long::sum);
+        return new HourChargeView(hour, cost, count);
     }
 }

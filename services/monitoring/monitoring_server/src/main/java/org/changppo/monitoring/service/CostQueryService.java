@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.changppo.monioring.domain.view.MemberChargeGraphView;
+import org.changppo.monioring.domain.view.TotalSumView;
 import org.changppo.monitoring.dao.HourlyApiUsageCostView;
 import org.changppo.monitoring.dao.HourlyApiUsageCostViewRepository;
 import org.changppo.monitoring.util.ViewFactory;
@@ -23,19 +24,45 @@ public class CostQueryService {
 
     public MemberChargeGraphView getChargeGraphView(@NotNull Long memberId, @Nullable Long apiKeyId, @NotNull LocalDate startDate, @NotNull LocalDate endDate) {
         // FETCH
-        final List<HourlyApiUsageCostView> fetchedCostViews;
-        if (apiKeyId == null) {
-            fetchedCostViews = costViewRepository.findByMemberIdAndDateBetween(memberId, startDate, endDate);
-        } else {
-            fetchedCostViews = costViewRepository.findByMemberIdAndApiKeyIdAndDateBetween(memberId, apiKeyId, startDate, endDate);
+        final List<HourlyApiUsageCostView> fetchedCostViews = getCostViews(memberId, apiKeyId, startDate, endDate);
+        if (fetchedCostViews.isEmpty()) {
+            log.warn("fetchedCostViews.isEmpty()");
+            return MemberChargeGraphView.empty(memberId);
         }
 
         // CREATE VIEW
         List<MemberChargeGraphView> memberChargeGraphViews = ViewFactory.create(fetchedCostViews);
-        if (memberChargeGraphViews.size() != 1) {
-            log.error("memberChargeGraphViews.size() != 1");
-            throw new IllegalStateException("memberChargeGraphViews.size() != 1");
+        int fetchedSize = memberChargeGraphViews.size();
+        if (fetchedSize > 1) {
+            log.error("memberChargeGraphViews.size() > 1, fetchedSize: {}", fetchedSize);
+            throw new IllegalStateException("memberChargeGraphViews.size() > 1");
         }
         return memberChargeGraphViews.get(0);
     }
+
+    public TotalSumView getTotalSum(@NotNull Long memberId, @Nullable Long apiKeyId, @NotNull LocalDate startDate, @NotNull LocalDate endDate) {
+        // FETCH
+        final List<HourlyApiUsageCostView> fetchedCostViews = getCostViews(memberId, apiKeyId, startDate, endDate);
+        if (fetchedCostViews.isEmpty()) {
+            log.warn("fetchedCostViews.isEmpty()");
+            return new TotalSumView(0L, 0L);
+        }
+
+        Long totalCost = fetchedCostViews.stream().map(HourlyApiUsageCostView::getHourlyCost).reduce(0L, Long::sum);
+        Long totalCount = fetchedCostViews.stream().map(HourlyApiUsageCostView::getRequestCount).reduce(0L, Long::sum);
+        return new TotalSumView(totalCost, totalCount);
+    }
+
+
+
+    protected List<HourlyApiUsageCostView> getCostViews(@NotNull Long memberId, @Nullable Long apiKeyId, @NotNull LocalDate startDate, @NotNull LocalDate endDate) {
+        // FETCH
+        if (apiKeyId == null) {
+            return costViewRepository.findByMemberIdAndDateBetween(memberId, startDate, endDate);
+        } else {
+            return costViewRepository.findByMemberIdAndApiKeyIdAndDateBetween(memberId, apiKeyId, startDate, endDate);
+        }
+    }
+
+
 }
