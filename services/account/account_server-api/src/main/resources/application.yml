@@ -22,11 +22,13 @@ spring:
     fallback-to-system-locale: false
 
 management:
+  server:
+    port: 1010
   endpoints:
     enabled-by-default: false
     web:
       exposure:
-        include: info, health
+        include: info, health, prometheus
     jmx:
       exposure:
         exclude: '*'
@@ -34,4 +36,6 @@ management:
     info:
       enabled: true
     health:
+      enabled: true
+    prometheus:
       enabled: true
