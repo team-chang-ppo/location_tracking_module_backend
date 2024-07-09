@@ -65,7 +65,7 @@ public class JobConfig {
 
     @Bean(AUTOMATIC_PAYMENT_JOB)
     public Job automaticPaymentExecutionJob(@Qualifier(AUTOMATIC_PAYMENT_STEP) Step executeAutomaticPaymentStep) {
-        return new JobBuilder("AutomaticPaymentExecutionJob", jobRepository)
+        return new JobBuilder(AUTOMATIC_PAYMENT_JOB, jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .start(executeAutomaticPaymentStep)
                 .build();
@@ -75,7 +75,7 @@ public class JobConfig {
     public Step executeAutomaticPaymentStep(@Qualifier(AUTOMATIC_PAYMENT_READER) QuerydslNoOffsetPagingItemReader<Member> memberItemReaderForAutomaticPayment,
                                             @Qualifier(AUTOMATIC_PAYMENT_PROCESSOR) ItemProcessor<Member, Payment> paymentProcessorForAutomaticPayment,
                                             @Qualifier(AUTOMATIC_PAYMENT_WRITER) ItemWriter<Payment> paymentItemWriterForAutomaticPayment) {
-        return new StepBuilder("executeAutomaticPaymentStep", jobRepository)
+        return new StepBuilder(AUTOMATIC_PAYMENT_STEP, jobRepository)
                 .<Member, Payment>chunk(10, domainTransactionManager)
                 .reader(memberItemReaderForAutomaticPayment)
                 .processor(paymentProcessorForAutomaticPayment)
@@ -85,7 +85,7 @@ public class JobConfig {
 
     @Bean(DELETION_JOB)
     public Job deletionExecutionJob(@Qualifier(DELETION_STEP) Step executeDeletionStep) {
-        return new JobBuilder("DeletionExecutionJob", jobRepository)
+        return new JobBuilder(DELETION_JOB, jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .start(executeDeletionStep)
                 .build();
@@ -95,7 +95,7 @@ public class JobConfig {
     public Step executeDeletionStep(@Qualifier(DELETION_READER) QuerydslZeroPagingItemReader<Member> memberItemReaderForDeletion,
                                     @Qualifier(DELETION_PROCESSOR) ItemProcessor<Member, Payment> paymentProcessorForDeletion,
                                     @Qualifier(DELETION_WRITER) ItemWriter<Payment> paymentItemWriterForDeletion) {
-        return new StepBuilder("executeDeletionStep", jobRepository)
+        return new StepBuilder(DELETION_STEP, jobRepository)
                 .<Member, Payment>chunk(10, domainTransactionManager)
                 .reader(memberItemReaderForDeletion)
                 .processor(paymentProcessorForDeletion)
@@ -105,7 +105,7 @@ public class JobConfig {
 
     @Bean(PAYMENT_JOB)
     public Job paymentExecutionJob(@Qualifier(PAYMENT_STEP) Step executePaymentStep) {
-        return new JobBuilder("paymentExecutionJob", jobRepository)
+        return new JobBuilder(PAYMENT_JOB, jobRepository)
                 .start(executePaymentStep)
                 .build();
     }
@@ -114,14 +114,14 @@ public class JobConfig {
     @JobScope
     public Step executePaymentStep(@Value("#{jobParameters[memberId]}") Long memberId,
                             @Value("#{jobParameters[amount]}") String amount) {
-        return new StepBuilder("executePaymentStep", jobRepository)
+        return new StepBuilder(PAYMENT_STEP, jobRepository)
                 .tasklet((contribution, chunkContext) -> {
                     try {
                         List<Card> cards = cardRepository.findAllCardByMemberIdOrderByAsc(memberId);
                         PaymentExecutionJobResponse paymentExecutionJobResponse = cards.stream()
                                 .map(card -> processPayment(card, memberId, new BigDecimal(amount)))
                                 .filter(Objects::nonNull)
-                                .findFirst()
+                                .findAny()
                                 .orElseThrow(() -> new RuntimeException("All payment attempts failed for memberId: " + memberId));  //TODO. 메서드로 분리
                         savePaymentExecutionDetails(contribution, paymentExecutionJobResponse);
                     }
@@ -138,7 +138,7 @@ public class JobConfig {
         PaymentRequest request = createPaymentRequest(card, memberId, amount);
         return paymentGatewayClients.stream()
                 .filter(client -> client.supports(card.getPaymentGateway().getPaymentGatewayType()))
-                .findFirst()
+                .findAny()
                 .flatMap(client -> client.payment(request).getData())
                 .map(response -> new PaymentExecutionJobResponse(
                         response.getKey(),
